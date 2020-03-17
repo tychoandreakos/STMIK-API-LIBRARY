@@ -13,10 +13,25 @@ class GmdController extends Controller
    *
    * @return response $json;
    */
-  public function index()
+  public function index(Request $request)
   {
     try {
-      $data = Gmd::all();
+
+      /**
+       * Berfungsi untuk pagination.
+       * Misalkan $request->skip === 1,
+       * maka akan dikali 2 menadi 1 * 2 = 2;
+       * 2 data akan diskip.
+       * 
+       * untuk $request->take, artinya adalah untuk mengambil hanya 5 data saja.
+       */
+      $skip = $request->skip ? $request->skip * 2 : 0;
+      $take = $request->take ? $request->take : 5;
+
+
+      $data = Gmd::all()
+        ->skip($skip)
+        ->take($take);
       $message = 200;
       $response = [
         'time' => time(),
