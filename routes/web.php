@@ -15,4 +15,8 @@ $router->get('/', function () use ($router) {
   return $router->app->version();
 });
 
-$router->post('/gmd', 'GmdController@store');
+$router->group(['name' => 'gmd'], function () use ($router) {
+  $router->get('/gmd', 'GmdController@index');
+  $router->post('/gmd', 'GmdController@store');
+  $router->put('/gmd/:id', 'GmdController@update');
+});
