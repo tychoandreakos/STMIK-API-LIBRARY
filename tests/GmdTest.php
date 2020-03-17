@@ -30,7 +30,16 @@ class GmdTest extends TestCase
 
   public function testUpdateGmd()
   {
-    $response = $this->call('PUT', '/gmd/ea8db4a1-38e3-4e61-86b5-16ab5683345a');
+    $response = $this->call('PUT', '/gmd/be357d98-dee9-43b1-8db5-efd78639b1f2');
+    $this->assertEquals(200, $response->status());
+  }
+
+  public function testDeleteGmd()
+  {
+    $response = $this->call(
+      "DELETE",
+      '/gmd/be357d98-dee9-43b1-8db5-efd78639b1f2'
+    );
     $this->assertEquals(200, $response->status());
   }
 }

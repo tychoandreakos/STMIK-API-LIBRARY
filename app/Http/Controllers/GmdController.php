@@ -109,4 +109,34 @@ class GmdController extends Controller
       return response($response, $message);
     }
   }
+
+  public function destroy(string $id)
+  {
+    try {
+      $gmd = Gmd::find($id);
+      $gmd->delete();
+
+      $message = 200;
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'data' => [
+          'id' => $id
+        ],
+        'message' => 'Berhasil Dihapus'
+      ];
+
+      return response($response, $message);
+    } catch (\Throwable $th) {
+      $message = 500;
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal Diubah',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
+    }
+  }
 }
