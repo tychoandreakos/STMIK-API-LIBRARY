@@ -55,8 +55,11 @@ class GmdTest extends TestCase
 
   public function testGetDetailGmd()
   {
-    $id = "55ee297c-22d4-423f-ac04-faa8974463bb";
-    $response = $this->call('GET', "gmd/detail/{$id}");
+    $gmd = Gmd::first();
+    $id = $gmd->id;
+    $response = $this->call('GET', "gmd/detail", [
+      'id' => $id
+    ]);
     $this->assertEquals(200, $response->status());
   }
 
@@ -67,7 +70,7 @@ class GmdTest extends TestCase
    */
   public function testFailedGetDetailGmd()
   {
-    $id = "20";
+    $id = '12345';
     $response = $this->call('GET', "gmd/detail/{$id}");
     $this->assertEquals(500, $response->status());
   }
@@ -79,11 +82,22 @@ class GmdTest extends TestCase
    */
   public function testSearchGmd()
   {
-    $search = "Abner";
+    $gmd = Gmd::first();
+    $name = $gmd->gmd_name;
+    $search = $name;
     $response = $this->call("POST", "gmd/search", [
       "search" => $search
     ]);
     $this->assertEquals(200, $response->status());
+  }
+
+  public function testFailedSearchGmd()
+  {
+    $search = "tidak ada";
+    $response = $this->call("POST", "gmd/search", [
+      "search" => $search
+    ]);
+    $this->assertEquals(404, $response->status());
   }
 
   /**

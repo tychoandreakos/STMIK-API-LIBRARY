@@ -98,8 +98,9 @@ class GmdController extends Controller
   public function search(Request $request)
   {
     try {
-      $data = Gmd::where('gmd_code', $request->search)
-        ->orWhere('gmd_name', 'LIKE', "%$request->search%")
+      $search = $request->input('search');
+      $data = Gmd::where('gmd_code', $search)
+        ->orWhere('gmd_name', 'LIKE', "%$search%")
         ->get();
       if ($data && count($data) > 0) {
         $message = 200;
@@ -107,18 +108,23 @@ class GmdController extends Controller
           'time' => time(),
           'status' => $message,
           'data' => [
-            'querySearch' => $request->search,
+            'querySearch' => $search,
             'result' => $data
           ],
           'message' => 'Sukses'
         ];
 
         return response($response, $message);
-      } elseif (!$data && count($data) < 0) { // error jika data tidak ada
+      } elseif (count($data) == 0) {
+        // error jika data tidak ada
         $msg = "Data tidak Dapat ditemukan";
         $code = 404;
-        throw new ResponseException($msg, $code);
-      } else { // error terjadi ketika tidak ada error atapun ada kesalahan yang tidak dinginkan
+        $option = [
+          "querySearch" => $search
+        ];
+        throw new ResponseException($msg, $code, $option);
+      } else {
+        // error terjadi ketika tidak ada error atapun ada kesalahan yang tidak dinginkan
         $msg = "Telah Terjadi Error Pada Server";
         $code = 500;
         throw new ResponseException($msg, $code);
@@ -128,7 +134,7 @@ class GmdController extends Controller
       $response = [
         'time' => time(),
         'status' => $message,
-        'querySearch' => $request->search,
+        'data' => $th->GetOptions(),
         'exception' => $th->getMessage()
       ];
 
