@@ -15,6 +15,8 @@ $router->get('/', function () use ($router) {
   return $router->app->version();
 });
 
+
+
 /**
  * Router untuk gmd.
  */
