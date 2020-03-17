@@ -11,23 +11,21 @@ class GmdController extends Controller
    * Fungsi ini berfungsi untuk mendapakatkan data dari database. Response yang diterima
    * adalah seluruh data GMD.
    *
-   * @return response $json;
+   * @return JSON $json;
    */
   public function index(Request $request)
   {
     try {
-
       /**
        * Berfungsi untuk pagination.
        * Misalkan $request->skip === 1,
        * maka akan dikali 2 menadi 1 * 2 = 2;
        * 2 data akan diskip.
-       * 
+       *
        * untuk $request->take, artinya adalah untuk mengambil hanya 5 data saja.
        */
       $skip = $request->skip ? $request->skip * 2 : 0;
       $take = $request->take ? $request->take : 5;
-
 
       $data = Gmd::all()
         ->skip($skip)
@@ -36,7 +34,7 @@ class GmdController extends Controller
       $response = [
         'time' => time(),
         'status' => $message,
-        'message' => "Data Berhasil Diambil",
+        'message' => "Sukses",
         "data" => $data
       ];
 
@@ -59,7 +57,7 @@ class GmdController extends Controller
    * class Request & Gmd sebagai Param
    * @param $gmd
    * @param $request
-   * @return response json
+   * @return JSON json
    */
   public function store(Gmd $gmd, Request $request)
   {
@@ -91,10 +89,10 @@ class GmdController extends Controller
 
   /**
    *
-   * Fungsi ini bertugas untuk mencari data sesuai dengan arguments yang sudah diinginkan,
+   * Fungsi ini bertugas untuk mencari data sesuai dengan parameters yang sudah diinginkan,
    *
    * @param Request $request;
-   * @return response $json
+   * @return JSON $json
    */
   public function search(Request $request)
   {
@@ -132,13 +130,45 @@ class GmdController extends Controller
   }
 
   /**
+   *  Fungsi atau method ini berguna untuk menampilkan detail item GMD.
+   * 
+   * @param String $id
+   * @return JSON;
+   */
+  public function detail(string $id)
+  {
+    try {
+      $data = GMD::find($id);
+      $message = 200;
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'data' => $data,
+        'message' => 'Sukses'
+      ];
+
+      return response($response, $message);
+    } catch (\Throwable $th) {
+      $message = 500;
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
+    }
+  }
+
+  /**
    *
    * Fungsi ini bertugas untuk mengupdate data yang ada didalam database GMD.
-   * Data yang diubah sesuai dengan $id dalam argument yang diberikan
+   * Data yang diubah sesuai dengan $id dalam parameter yang diberikan
    *
    * @param String $id,
    * @param Request $request
-   * @return response $reponse;
+   * @return JSON $reponse;
    */
   public function update(string $id, Request $request)
   {
@@ -174,7 +204,8 @@ class GmdController extends Controller
   /**
    * Fungsi ini bertugas untuk menghapus data yang ada didalam database menggunakan methode Hard Delete.
    *
-   * @return String $id
+   * @param String $id
+   * @return JSON $json
    */
   public function destroy(string $id)
   {
