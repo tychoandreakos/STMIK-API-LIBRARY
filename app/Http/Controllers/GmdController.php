@@ -49,8 +49,8 @@ class GmdController extends Controller
   public function store(Gmd $gmd, Request $request)
   {
     try {
-      $gmd->gmd_code = $request->gmd_code;
-      $gmd->gmd_name = $request->gmd_name;
+      $gmd->gmd_code = strtolower($request->gmd_code);
+      $gmd->gmd_name = strtolower($request->gmd_name);
       $gmd->save();
 
       $message = 201;
@@ -75,9 +75,9 @@ class GmdController extends Controller
   }
 
   /**
-   * 
+   *
    * Fungsi ini bertugas untuk mencari data sesuai dengan arguments yang sudah diinginkan,
-   * 
+   *
    * @param Request $request;
    * @return response $json
    */
@@ -85,7 +85,7 @@ class GmdController extends Controller
   {
     try {
       $data = Gmd::where('gmd_code', $request->search)
-        ->orWhere('gmd_name', 'LIKE' ,"%$request->search%")
+        ->orWhere('gmd_name', 'LIKE', "%$request->search%")
         ->get();
       if ($data && count($data) > 0) {
         $message = 200;
@@ -130,8 +130,8 @@ class GmdController extends Controller
     try {
       $gmd = Gmd::find($id);
 
-      $gmd->gmd_code = $request->gmd_code;
-      $gmd->gmd_name = $request->gmd_name;
+      $gmd->gmd_code = strtolower($request->gmd_code);
+      $gmd->gmd_name = strtolower($request->gmd_name);
       $gmd->save();
 
       $message = 200;
