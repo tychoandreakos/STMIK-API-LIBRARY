@@ -256,6 +256,57 @@ class GmdController extends Controller
     }
   }
 
+  /**
+   *
+   * Fungsi ini berfungsi untuk mengahapus sesuai pilihan admin.
+   *
+   * @param Request $request
+   * @return JSON
+   */
+  public function destroySome(Request $request)
+  {
+    try {
+      $data = $request->input('delete');
+      if ($data && count($data) > 0) {
+        $data = $request->input('delete');
+        foreach ($data as $id) {
+          $gmd = Gmd::find($id);
+          $gmd->delete();
+        }
+
+        $message = 200;
+        $response = [
+          'time' => time(),
+          'status' => $message,
+          'data' => [
+            'id' => $data
+          ],
+          'message' => 'Berhasil Dihapus'
+        ];
+
+        return response($response, $message);
+      } elseif (count($data) < 0) {
+        $msg = "Data tidak ditemukan";
+        $code = 404;
+        throw new ResponseException($msg, $code);
+      } else {
+        $msg = "Kesalahan Pada Server";
+        $code = 500;
+        throw new ResponseException($msg, $code);
+      }
+    } catch (ResponseException $th) {
+      $message = $th->getCode();
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
+    }
+  }
+
   public function destroyAll()
   {
     try {
