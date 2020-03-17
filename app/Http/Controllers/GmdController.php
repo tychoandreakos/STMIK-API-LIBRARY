@@ -256,6 +256,34 @@ class GmdController extends Controller
     }
   }
 
+  public function updateSome(Request $request)
+  {
+    try {
+      $data = $request->input("update");
+      if ($data && count($data) > 1) {
+        foreach ($data as $key => $value) {
+          $result = $data[$key];
+          $gmd = Gmd::find($key);
+          $gmd->gmd_code = strtolower($result['gmd_code']);
+          $gmd->gmd_name = strtolower($result['gmd_name']);
+          $gmd->save();
+        }
+
+        $message = 200;
+        $response = [
+          'time' => time(),
+          'status' => $message,
+          'data' => $request->input('update'),
+          'message' => 'Berhasil Diubah'
+        ];
+
+        return response($response, $message);
+      }
+    } catch (\Throwable $th) {
+      //throw $th;
+    }
+  }
+
   /**
    *
    * Fungsi ini berfungsi untuk mengahapus sesuai pilihan admin.

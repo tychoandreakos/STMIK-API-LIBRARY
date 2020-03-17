@@ -26,5 +26,8 @@ $router->group(['name' => 'gmd'], function () use ($router) {
   $router->post('/gmd/search', 'GmdController@search'); // Untuk query pencarian
   $router->get('/gmd/detail', 'GmdController@detail'); //Untuk mendapatkan detail item
   $router->delete('/gmd/delete-all', 'GmdController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
-  $router->post('/gmd/delete', 'GmdController@destroySome');
+  $router->post('/gmd/delete', 'GmdController@destroySome'); // Untuk menghapus data yang dipilih
+  $router->post('/gmd/update', 'GmdController@updateSome');
 });
+
+// 088218136479
