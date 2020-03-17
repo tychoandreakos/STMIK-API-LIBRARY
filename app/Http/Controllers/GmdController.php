@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Gmd;
 use App\Exceptions\ResponseException;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Http\Request;
 
 class GmdController extends Controller
@@ -260,7 +261,7 @@ class GmdController extends Controller
   {
     try {
       $data = $request->input("update");
-      if ($data && count($data) > 1) {
+      if ($data && count($data) > 0) {
         foreach ($data as $key => $value) {
           $result = $data[$key];
           $gmd = Gmd::find($key);
@@ -278,9 +279,25 @@ class GmdController extends Controller
         ];
 
         return response($response, $message);
+      } elseif (count($data) < 0) {
+        $msg = "Data tidak ditemukan";
+        $code = 404;
+        throw new ResponseException($msg, $code);
+      } else {
+        $msg = "Kesalahan Pada Server";
+        $code = 500;
+        throw new ResponseException($msg, $code);
       }
-    } catch (\Throwable $th) {
-      //throw $th;
+    } catch (ResponseException $th) {
+      $message = $th->getCode();
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
     }
   }
 
