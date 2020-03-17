@@ -15,6 +15,9 @@ $router->get('/', function () use ($router) {
   return $router->app->version();
 });
 
+/**
+ * Router untuk gmd.
+ */
 $router->group(['name' => 'gmd'], function () use ($router) {
   $router->get('/gmd', 'GmdController@index');
   $router->post('/gmd', 'GmdController@store');

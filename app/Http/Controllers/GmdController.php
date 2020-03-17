@@ -88,6 +88,10 @@ class GmdController extends Controller
     try {
       $gmd = Gmd::find($id);
 
+      $gmd->gmd_code = $request->gmd_code;
+      $gmd->gmd_name = $request->gmd_name;
+      $gmd->save();
+
       $message = 200;
       $response = [
         'time' => time(),
@@ -110,6 +114,11 @@ class GmdController extends Controller
     }
   }
 
+  /**
+   * Fungsi ini bertugas untuk menghapus data yang ada didalam database menggunakan methode Hard Delete.
+   * 
+   * @return String $id 
+   */
   public function destroy(string $id)
   {
     try {
