@@ -15,8 +15,6 @@ $router->get('/', function () use ($router) {
   return $router->app->version();
 });
 
-
-
 /**
  * Router untuk gmd.
  */
@@ -26,5 +24,6 @@ $router->group(['name' => 'gmd'], function () use ($router) {
   $router->put('/gmd/{id}', 'GmdController@update'); // untuk update data
   $router->delete('/gmd/{id}', 'GmdController@destroy'); // untuk delete data
   $router->post('/gmd/search', 'GmdController@search'); // Untuk query pencarian
-  $router->get('gmd/detail/{id}', 'GmdController@detail'); //Untuk mendapatkan detail item
+  $router->get('/gmd/detail', 'GmdController@detail'); //Untuk mendapatkan detail item
+  $router->delete('/gmd/delete-all', 'GmdController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
 });

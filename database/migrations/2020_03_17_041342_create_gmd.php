@@ -16,8 +16,8 @@ class CreateGmd extends Migration
     Schema::create('gmd', function (Blueprint $table) {
       // sumber: https://dev.to/wilburpowery/easily-use-uuids-in-laravel-45be
       $table->uuid('id')->primary(); // membuat ID menggunakan UUID agar lebih aman.
-      $table->string('gmd_code', 25)->unique();
-      $table->string('gmd_name', 50);
+      $table->string('gmd_code', 25)->unique()->nullable(false);
+      $table->string('gmd_name', 50)->nullable(false);
       $table->timestamps();
     });
   }

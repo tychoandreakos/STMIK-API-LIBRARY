@@ -4,6 +4,8 @@
  * Melakukan test untuk GMD.
  */
 
+use App\Gmd;
+
 class GmdTest extends TestCase
 {
   /**
@@ -46,14 +48,27 @@ class GmdTest extends TestCase
   }
 
   /**
-   * Testing ketika melakukan hapus data GMD.
+   * Testing ketika melakukan request terhadap detail GMD.
    *
    * @return void
    */
-  public function testErrorDeleteGmd()
+
+  public function testGetDetailGmd()
+  {
+    $id = "55ee297c-22d4-423f-ac04-faa8974463bb";
+    $response = $this->call('GET', "gmd/detail/{$id}");
+    $this->assertEquals(200, $response->status());
+  }
+
+  /**
+   * Testing gagal ketika melakukan request terhdapat detaul GMD
+   *
+   * @return void
+   */
+  public function testFailedGetDetailGmd()
   {
     $id = "20";
-    $response = $this->call("DELETE", "gmd/{$id}");
+    $response = $this->call('GET', "gmd/detail/{$id}");
     $this->assertEquals(500, $response->status());
   }
 
@@ -69,5 +84,17 @@ class GmdTest extends TestCase
       "search" => $search
     ]);
     $this->assertEquals(200, $response->status());
+  }
+
+  /**
+   * Testing ketika melakukan hapus data GMD.
+   *
+   * @return void
+   */
+  public function testErrorDeleteGmd()
+  {
+    $id = "20";
+    $response = $this->call("DELETE", "gmd/{$id}");
+    $this->assertEquals(500, $response->status());
   }
 }

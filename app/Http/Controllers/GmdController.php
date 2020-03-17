@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Gmd;
+use App\Exceptions\ResponseException;
 use Illuminate\Http\Request;
 
 class GmdController extends Controller
@@ -24,7 +25,7 @@ class GmdController extends Controller
        *
        * untuk $request->take, artinya adalah untuk mengambil hanya 5 data saja.
        */
-      $skip = $request->skip ? $request->skip * 2 : 0;
+      $skip = $request->input('skip') ? $request->input('skip') * 2 : 0;
       $take = $request->take ? $request->take : 5;
 
       $data = Gmd::all()
@@ -113,11 +114,17 @@ class GmdController extends Controller
         ];
 
         return response($response, $message);
-      } else {
-        throw new \Exception("Data Tidak Dapat Ditemukan", 1);
+      } elseif (!$data && count($data) < 0) { // error jika data tidak ada
+        $msg = "Data tidak Dapat ditemukan";
+        $code = 404;
+        throw new ResponseException($msg, $code);
+      } else { // error terjadi ketika tidak ada error atapun ada kesalahan yang tidak dinginkan
+        $msg = "Telah Terjadi Error Pada Server";
+        $code = 500;
+        throw new ResponseException($msg, $code);
       }
-    } catch (\Throwable $th) {
-      $message = 404;
+    } catch (ResponseException $th) {
+      $message = $th->getCode();
       $response = [
         'time' => time(),
         'status' => $message,
@@ -131,25 +138,31 @@ class GmdController extends Controller
 
   /**
    *  Fungsi atau method ini berguna untuk menampilkan detail item GMD.
-   * 
-   * @param String $id
+   *
+   * @param Request $request
    * @return JSON;
    */
-  public function detail(string $id)
+  public function detail(Request $request)
   {
     try {
-      $data = GMD::find($id);
-      $message = 200;
-      $response = [
-        'time' => time(),
-        'status' => $message,
-        'data' => $data,
-        'message' => 'Sukses'
-      ];
+      $data = GMD::find($request->id);
+      if ($data) {
+        $message = 200;
+        $response = [
+          'time' => time(),
+          'status' => $message,
+          'data' => $data,
+          'message' => 'Sukses'
+        ];
 
-      return response($response, $message);
-    } catch (\Throwable $th) {
-      $message = 500;
+        return response($response, $message);
+      } else {
+        $msg = "Data tidak ditemukan";
+        $code = 404;
+        throw new ResponseException($msg, $code);
+      }
+    } catch (ResponseException $th) {
+      $message = $th->getCode();
       $response = [
         'time' => time(),
         'status' => $message,
@@ -175,8 +188,8 @@ class GmdController extends Controller
     try {
       $gmd = Gmd::find($id);
 
-      $gmd->gmd_code = strtolower($request->gmd_code);
-      $gmd->gmd_name = strtolower($request->gmd_name);
+      $gmd->gmd_code = strtolower($request->input('gmd_code'));
+      $gmd->gmd_name = strtolower($request->input('gmd_name'));
       $gmd->save();
 
       $message = 200;
@@ -229,7 +242,32 @@ class GmdController extends Controller
       $response = [
         'time' => time(),
         'status' => $message,
-        'message' => 'Gagal Diubah',
+        'message' => 'Gagal Dihapus',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
+    }
+  }
+
+  public function destroyAll()
+  {
+    try {
+      Gmd::truncate();
+      $message = 200;
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Berhasil Menghapus Semua Data'
+      ];
+
+      return response($response, $message);
+    } catch (\Throwable $th) {
+      $message = 500;
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal Menghapus Semua Data',
         'exception' => $th->getMessage()
       ];
 
