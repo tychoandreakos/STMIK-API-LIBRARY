@@ -8,7 +8,7 @@ class GmdTest extends TestCase
 {
   /**
    * Testing untuk menyimpan data kedalam database GMD.
-   * 
+   *
    *  @return void
    */
   public function testStoreGmd()
@@ -19,12 +19,12 @@ class GmdTest extends TestCase
       'gmd_name' => $faker->name
     ]);
 
-    $this->assertEquals(200, $response->status());
+    $this->assertEquals(201, $response->status());
   }
 
   /**
    * Testing untuk menampilkan hasil GMD.
-   * 
+   *
    *  @return void
    */
   public function testGetDataGmd()
@@ -35,25 +35,39 @@ class GmdTest extends TestCase
 
   /**
    * Testing ketika melakukan update GMD.
-   * 
+   *
    *  @return void
    */
-  public function testUpdateGmd()
+  public function testErrorUpdateGmd()
   {
     $id = "20";
     $response = $this->call('PUT', "gmd/{$id}");
-    $this->assertEquals(200, $response->status());
+    $this->assertEquals(500, $response->status());
   }
 
   /**
    * Testing ketika melakukan hapus data GMD.
-   * 
+   *
    * @return void
    */
-  public function testDeleteGmd()
+  public function testErrorDeleteGmd()
   {
     $id = "20";
     $response = $this->call("DELETE", "gmd/{$id}");
+    $this->assertEquals(500, $response->status());
+  }
+
+  /**
+   * Tesing ketika mencari data GMD
+   *
+   * @return void
+   */
+  public function testSearchGmd()
+  {
+    $search = "Abner";
+    $response = $this->call("POST", "gmd/search", [
+      "search" => $search
+    ]);
     $this->assertEquals(200, $response->status());
   }
 }

@@ -19,8 +19,9 @@ $router->get('/', function () use ($router) {
  * Router untuk gmd.
  */
 $router->group(['name' => 'gmd'], function () use ($router) {
-  $router->get('/gmd', 'GmdController@index');
-  $router->post('/gmd', 'GmdController@store');
-  $router->put('/gmd/{id}', 'GmdController@update');
-  $router->delete('/gmd/{id}', 'GmdController@destroy');
+  $router->get('/gmd', 'GmdController@index'); // untuk mengambil keseluruhan data
+  $router->post('/gmd', 'GmdController@store'); // untuk menyimpan data
+  $router->put('/gmd/{id}', 'GmdController@update'); // untuk update data
+  $router->delete('/gmd/{id}', 'GmdController@destroy'); // untuk delete data
+  $router->post('/gmd/search', 'GmdController@search'); // Untuk query pencarian
 });

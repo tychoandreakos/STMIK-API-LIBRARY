@@ -75,6 +75,48 @@ class GmdController extends Controller
   }
 
   /**
+   * 
+   * Fungsi ini bertugas untuk mencari data sesuai dengan arguments yang sudah diinginkan,
+   * 
+   * @param Request $request;
+   * @return response $json
+   */
+  public function search(Request $request)
+  {
+    try {
+      $data = Gmd::where('gmd_code', $request->search)
+        ->orWhere('gmd_name', 'LIKE' ,"%$request->search%")
+        ->get();
+      if ($data && count($data) > 0) {
+        $message = 200;
+        $response = [
+          'time' => time(),
+          'status' => $message,
+          'data' => [
+            'querySearch' => $request->search,
+            'result' => $data
+          ],
+          'message' => 'Sukses'
+        ];
+
+        return response($response, $message);
+      } else {
+        throw new \Exception("Data Tidak Dapat Ditemukan", 1);
+      }
+    } catch (\Throwable $th) {
+      $message = 404;
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'querySearch' => $request->search,
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
+    }
+  }
+
+  /**
    *
    * Fungsi ini bertugas untuk mengupdate data yang ada didalam database GMD.
    * Data yang diubah sesuai dengan $id dalam argument yang diberikan
@@ -116,8 +158,8 @@ class GmdController extends Controller
 
   /**
    * Fungsi ini bertugas untuk menghapus data yang ada didalam database menggunakan methode Hard Delete.
-   * 
-   * @return String $id 
+   *
+   * @return String $id
    */
   public function destroy(string $id)
   {
