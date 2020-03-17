@@ -10,7 +10,7 @@ class GmdController extends Controller
   /**
    * Fungsi ini berfungsi untuk mendapakatkan data dari database. Response yang diterima
    * adalah seluruh data GMD.
-   * 
+   *
    * @return response $json;
    */
   public function index()
@@ -67,6 +67,42 @@ class GmdController extends Controller
         'time' => time(),
         'status' => $message,
         'message' => 'Data Gagal Disimpan',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
+    }
+  }
+
+  /**
+   *
+   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database GMD.
+   * Data yang diubah sesuai dengan $id dalam argument yang diberikan
+   *
+   * @param String $id,
+   * @param Request $request
+   * @return response $reponse;
+   */
+  public function update(string $id, Request $request)
+  {
+    try {
+      $gmd = Gmd::find($id);
+
+      $message = 200;
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'data' => $gmd,
+        'message' => 'Berhasil Diubah'
+      ];
+
+      return response($response, $message);
+    } catch (\Throwable $th) {
+      $message = 500;
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal Diubah',
         'exception' => $th->getMessage()
       ];
 
