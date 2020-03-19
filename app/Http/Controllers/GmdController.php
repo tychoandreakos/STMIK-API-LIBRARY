@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Gmd;
 use App\Exceptions\ResponseException;
-use Illuminate\Auth\Access\Response;
 use Illuminate\Http\Request;
+use App\Helpers\Pagination;
 
 class GmdController extends Controller
 {
@@ -19,15 +19,14 @@ class GmdController extends Controller
   {
     try {
       /**
-       * Berfungsi untuk pagination.
-       * Misalkan $request->skip === 1,
-       * maka akan dikali 2 menadi 1 * 2 = 2;
-       * 2 data akan diskip.
        *
        * untuk $request->take, artinya adalah untuk mengambil hanya 5 data saja.
        */
-      $skip = $request->input('skip') ? $request->input('skip') * 2 : 0;
-      $take = $request->take ? $request->take : 5;
+      // Refactoring
+      // $skip = $request->input('skip') ? $request->input('skip') * 2 : 0;
+      // $take = $request->take ? $request->take : 5;
+      $skip = Pagination::skip($request->input('skip')); //
+      $take = Pagination::take($request->input('take'));
 
       $data = Gmd::all()
         ->skip($skip)
@@ -257,6 +256,13 @@ class GmdController extends Controller
     }
   }
 
+  /**
+   *
+   * Fungsi ini untuk mengubah data sesuai keinginan admin.
+   *
+   * @param Request
+   * @return JSON
+   */
   public function updateSome(Request $request)
   {
     try {
