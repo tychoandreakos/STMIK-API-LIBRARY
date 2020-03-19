@@ -48,6 +48,21 @@ class GmdController extends Controller
   public function store(Gmd $gmd, Request $request)
   {
     try {
+      $this->validate($request, [
+        'gmd_code' => 'sometimes|required|unique',
+        'gmd_name' => 'required'
+      ]);
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid, Silahkan Masukan!',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+    try {
       $gmd->gmd_code = strtolower($request->gmd_code);
       $gmd->gmd_name = strtolower($request->gmd_name);
       $gmd->save();
@@ -167,7 +182,22 @@ class GmdController extends Controller
   {
     try {
       $gmd = Gmd::find($id);
+      $this->validate($request, [
+        'gmd_code' => 'sometimes|required|unique:gmd,gmd_code,' . $gmd->id,
+        'gmd_name' => 'required'
+      ]);
+    } catch (\Throwable $th) {
+      $response = 400;
 
+      $sendData = [
+        $response,
+        'Gagal Validasi atau Data Yang Anda Cari Tidak Ada',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+
+    try {
       $gmd->gmd_code = strtolower($request->input('gmd_code'));
       $gmd->gmd_name = strtolower($request->input('gmd_name'));
       $gmd->save();
