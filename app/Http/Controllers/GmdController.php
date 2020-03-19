@@ -165,7 +165,6 @@ class GmdController extends Controller
    */
   public function update(string $id, Request $request)
   {
-    echo $id;
     try {
       $gmd = Gmd::find($id);
 
