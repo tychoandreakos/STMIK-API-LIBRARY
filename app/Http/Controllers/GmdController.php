@@ -6,6 +6,7 @@ use App\Gmd;
 use App\Exceptions\ResponseException;
 use Illuminate\Http\Request;
 use App\Helpers\Pagination;
+use App\Helpers\ResponseHeader;
 
 class GmdController extends Controller
 {
@@ -18,38 +19,22 @@ class GmdController extends Controller
   public function index(Request $request)
   {
     try {
-      /**
-       *
-       * untuk $request->take, artinya adalah untuk mengambil hanya 5 data saja.
-       */
-      // Refactoring
-      // $skip = $request->input('skip') ? $request->input('skip') * 2 : 0;
-      // $take = $request->take ? $request->take : 5;
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
       $data = Gmd::all()
         ->skip($skip)
         ->take($take);
-      $message = 200;
-      $response = [
-        'time' => time(),
-        'status' => $message,
-        'message' => "Sukses",
-        "data" => $data
-      ];
 
-      return response($response, $message);
+      $response = 200;
+
+      $sendData = [$response, 'Sukses', $data];
+      return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $message = 500;
-      $response = [
-        'time' => time(),
-        'status' => $message,
-        'message' => "Data Gagal Diambil",
-        "exception" => $th->getMessage()
-      ];
+      $response = 500;
 
-      return response($response, $message);
+      $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
     }
   }
 
@@ -67,24 +52,18 @@ class GmdController extends Controller
       $gmd->gmd_name = strtolower($request->gmd_name);
       $gmd->save();
 
-      $message = 201;
-      $response = [
-        'time' => time(),
-        'status' => $message,
-        'message' => 'Data Berhasil Disimpan'
-      ];
+      $response = 201;
 
-      return response($response, $message);
+      $sendData = [$response, 'Berhasil Disimpan'];
+      return response(
+        ResponseHeader::responseSuccessWithoutData($sendData),
+        $response
+      );
     } catch (\Throwable $th) {
-      $message = 500;
-      $response = [
-        'time' => time(),
-        'status' => $message,
-        'message' => 'Data Gagal Disimpan',
-        'exception' => $th->getMessage()
-      ];
+      $response = 500;
 
-      return response($response, $message);
+      $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
     }
   }
 
@@ -102,19 +81,16 @@ class GmdController extends Controller
       $data = Gmd::where('gmd_code', $search)
         ->orWhere('gmd_name', 'LIKE', "%$search%")
         ->get();
+
       if ($data && count($data) > 0) {
-        $message = 200;
-        $response = [
-          'time' => time(),
-          'status' => $message,
-          'data' => [
-            'querySearch' => $search,
-            'result' => $data
-          ],
-          'message' => 'Sukses'
+        $response = 200;
+        $dataResult = [
+          'querySearch' => $search,
+          'result' => $data
         ];
 
-        return response($response, $message);
+        $sendData = [$response, 'Sukses', $dataResult];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) == 0) {
         // error jika data tidak ada
         $msg = "Data tidak Dapat ditemukan";
@@ -130,15 +106,19 @@ class GmdController extends Controller
         throw new ResponseException($msg, $code);
       }
     } catch (ResponseException $th) {
-      $message = $th->getCode();
-      $response = [
-        'time' => time(),
-        'status' => $message,
-        'data' => $th->GetOptions(),
-        'exception' => $th->getMessage()
+      $response = $th->getCode();
+
+      $sendData = [
+        $th->getCode(),
+        'Gagal Disimpan',
+        $th->GetOptions(),
+        $th->getMessage()
       ];
 
-      return response($response, $message);
+      return response(
+        ResponseHeader::responseFailedWithData($sendData),
+        $response
+      );
     }
   }
 
@@ -152,31 +132,25 @@ class GmdController extends Controller
   {
     try {
       $data = GMD::find($request->id);
-      if ($data) {
-        $message = 200;
-        $response = [
-          'time' => time(),
-          'status' => $message,
-          'data' => $data,
-          'message' => 'Sukses'
-        ];
+      if ($data && !empty($data)) {
+        $response = 200;
 
-        return response($response, $message);
-      } else {
+        $sendData = [$response, 'Sukses', $data];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
+      } elseif (!$data) {
         $msg = "Data tidak ditemukan";
         $code = 404;
         throw new ResponseException($msg, $code);
+      } else {
+        $msg = "Kesalahan Pada Server";
+        $code = 500;
+        throw new ResponseException($msg, $code);
       }
     } catch (ResponseException $th) {
-      $message = $th->getCode();
-      $response = [
-        'time' => time(),
-        'status' => $message,
-        'message' => 'Gagal',
-        'exception' => $th->getMessage()
-      ];
+      $response = $th->getCode();
 
-      return response($response, $message);
+      $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
     }
   }
 
@@ -191,6 +165,7 @@ class GmdController extends Controller
    */
   public function update(string $id, Request $request)
   {
+    echo $id;
     try {
       $gmd = Gmd::find($id);
 
@@ -198,25 +173,15 @@ class GmdController extends Controller
       $gmd->gmd_name = strtolower($request->input('gmd_name'));
       $gmd->save();
 
-      $message = 200;
-      $response = [
-        'time' => time(),
-        'status' => $message,
-        'data' => $gmd,
-        'message' => 'Berhasil Diubah'
-      ];
+      $response = 200;
 
-      return response($response, $message);
+      $sendData = [$response, 'Berhasil Diubah', $gmd];
+      return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $message = 500;
-      $response = [
-        'time' => time(),
-        'status' => $message,
-        'message' => 'Gagal Diubah',
-        'exception' => $th->getMessage()
-      ];
+      $response = 500;
 
-      return response($response, $message);
+      $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
     }
   }
 
@@ -232,27 +197,18 @@ class GmdController extends Controller
       $gmd = Gmd::find($id);
       $gmd->delete();
 
-      $message = 200;
-      $response = [
-        'time' => time(),
-        'status' => $message,
-        'data' => [
-          'id' => $id
-        ],
-        'message' => 'Berhasil Dihapus'
+      $response = 200;
+      $data = [
+        'id' => $id
       ];
 
-      return response($response, $message);
+      $sendData = [$response, 'Berhasil Dihapus', $data];
+      return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $message = 500;
-      $response = [
-        'time' => time(),
-        'status' => $message,
-        'message' => 'Gagal Dihapus',
-        'exception' => $th->getMessage()
-      ];
+      $response = 500;
 
-      return response($response, $message);
+      $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
     }
   }
 
@@ -276,15 +232,10 @@ class GmdController extends Controller
           $gmd->save();
         }
 
-        $message = 200;
-        $response = [
-          'time' => time(),
-          'status' => $message,
-          'data' => $request->input('update'),
-          'message' => 'Berhasil Diubah'
-        ];
+        $response = 200;
 
-        return response($response, $message);
+        $sendData = [$response, 'Berhasil Diupdate', $request->input('update')];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) < 0) {
         $msg = "Data tidak ditemukan";
         $code = 404;
@@ -325,17 +276,13 @@ class GmdController extends Controller
           $gmd->delete();
         }
 
-        $message = 200;
-        $response = [
-          'time' => time(),
-          'status' => $message,
-          'data' => [
-            'id' => $data
-          ],
-          'message' => 'Berhasil Dihapus'
+        $response = 200;
+        $dataResult = [
+          'id' => $data
         ];
 
-        return response($response, $message);
+        $sendData = [$response, 'Berhasil Dihapus', $dataResult];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) < 0) {
         $msg = "Data tidak ditemukan";
         $code = 404;
@@ -362,24 +309,18 @@ class GmdController extends Controller
   {
     try {
       Gmd::truncate();
-      $message = 200;
-      $response = [
-        'time' => time(),
-        'status' => $message,
-        'message' => 'Berhasil Menghapus Semua Data'
-      ];
+      $response = 200;
 
-      return response($response, $message);
+      $sendData = [$response, 'Berhasil Menghapus Semua Data'];
+      return response(
+        ResponseHeader::responseSuccessWithoutData($sendData),
+        $response
+      );
     } catch (\Throwable $th) {
-      $message = 500;
-      $response = [
-        'time' => time(),
-        'status' => $message,
-        'message' => 'Gagal Menghapus Semua Data',
-        'exception' => $th->getMessage()
-      ];
+      $response = 500;
 
-      return response($response, $message);
+      $sendData = [$response, 'Gagal Menghapus Semua Data', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
     }
   }
 }
