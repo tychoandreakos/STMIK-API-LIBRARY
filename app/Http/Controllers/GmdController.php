@@ -155,12 +155,13 @@ class GmdController extends Controller
    *  Fungsi atau method ini berguna untuk menampilkan detail item GMD.
    *
    * @param Request $request
+   * @param String $id
    * @return JSON;
    */
-  public function detail(Request $request)
+  public function detail(string $id, Request $request)
   {
     try {
-      $data = GMD::find($request->id);
+      $data = GMD::find($id);
       if ($data && !empty($data)) {
         $response = 200;
 
@@ -265,6 +266,21 @@ class GmdController extends Controller
   public function updateSome(Request $request)
   {
     try {
+      $this->validate($request, [
+        'update' => 'required'
+      ]);
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+
+    try {
       $data = $request->input("update");
       if ($data && count($data) > 0) {
         foreach ($data as $key => $value) {
@@ -310,6 +326,21 @@ class GmdController extends Controller
    */
   public function destroySome(Request $request)
   {
+    try {
+      $this->validate($request, [
+        'delete' => 'required'
+      ]);
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+
     try {
       $data = $request->input('delete');
       if ($data && count($data) > 0) {
