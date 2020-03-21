@@ -72,7 +72,7 @@ class ResponseHeader
    * @param Array $responseMessage
    * @return Array $messageHeader
    */
-  public static function responseFailed($responseMessage)
+  public static function responseFailed(array $responseMessage): array
   {
     $responseMessage = self::addingToFirstArray($responseMessage, time());
 
@@ -86,7 +86,26 @@ class ResponseHeader
     return $messageHeader;
   }
 
-  private static function addingToFirstArray($arr, ...$var)
+  /**
+   * Fungsi ini merupakan fungsi untuk mempersingkat return status pada json.
+   * urutan yang benar pada responseHeader adalah ['status', 'message' , 'data']
+   *
+   * @param int $code
+   * @return int $code
+   */
+  public static function responseStatusFailed(int $code): int
+  {
+    return $code ? $code : 500;
+  }
+
+  /**
+   * Fungsi ini merupakan fungsi untuk menambahkan item baru terhadapt response.
+   *
+   * @param array arr
+   * @param ?array $var
+   * @return array arr
+   */
+  private static function addingToFirstArray(array $arr, ...$var): array
   {
     foreach ($var as $value) {
       array_unshift($arr, $value);
@@ -94,7 +113,13 @@ class ResponseHeader
     return $arr;
   }
 
-  private static function partialResponse($response)
+  /**
+   * Fungsi ini merupakan fungsi untuk menyatukan array.
+   *
+   * @param array $response
+   * @return array $response
+   */
+  private static function partialResponse(array $response): array
   {
     return array_combine($response['responseKey'], $response['responseResult']);
   }

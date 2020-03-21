@@ -14,7 +14,7 @@ class GmdController extends Controller
    * Fungsi ini berfungsi untuk mendapakatkan data dari database. Response yang diterima
    * adalah seluruh data GMD.
    *
-   * @return JSON $json;
+   * @return JSON response $json;
    */
   public function index(Request $request)
   {
@@ -31,7 +31,7 @@ class GmdController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = 500;
+      $response = ResponseHeader::responseStatusFailed($th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -43,7 +43,7 @@ class GmdController extends Controller
    * class Request & Gmd sebagai Param
    * @param $gmd
    * @param $request
-   * @return JSON json
+   * @return JSON response json
    */
   public function store(Gmd $gmd, Request $request)
   {
@@ -75,7 +75,7 @@ class GmdController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = 500;
+      $response = ResponseHeader::responseStatusFailed($th->getCode());
 
       $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -87,7 +87,7 @@ class GmdController extends Controller
    * Fungsi ini bertugas untuk mencari data sesuai dengan parameters yang sudah diinginkan,
    *
    * @param Request $request;
-   * @return JSON $json
+   * @return JSON response $json
    */
   public function search(Request $request)
   {
@@ -156,7 +156,7 @@ class GmdController extends Controller
    *
    * @param Request $request
    * @param String $id
-   * @return JSON;
+   * @return JSON response;
    */
   public function detail(string $id, Request $request)
   {
@@ -191,7 +191,7 @@ class GmdController extends Controller
    *
    * @param String $id,
    * @param Request $request
-   * @return JSON $reponse;
+   * @return JSON response $reponse;
    */
   public function update(string $id, Request $request)
   {
@@ -222,7 +222,7 @@ class GmdController extends Controller
       $sendData = [$response, 'Berhasil Diubah', $gmd];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = 500;
+      $response = ResponseHeader::responseStatusFailed($th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -233,7 +233,7 @@ class GmdController extends Controller
    * Fungsi ini bertugas untuk menghapus data yang ada didalam database menggunakan methode Hard Delete.
    *
    * @param String $id
-   * @return JSON $json
+   * @return JSON response $json
    */
   public function destroy(string $id)
   {
@@ -249,7 +249,7 @@ class GmdController extends Controller
       $sendData = [$response, 'Berhasil Dihapus', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = 500;
+      $response = ResponseHeader::responseStatusFailed($th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -261,7 +261,7 @@ class GmdController extends Controller
    * Fungsi ini untuk mengubah data sesuai keinginan admin.
    *
    * @param Request
-   * @return JSON
+   * @return JSON response
    */
   public function updateSome(Request $request)
   {
@@ -322,7 +322,7 @@ class GmdController extends Controller
    * Fungsi ini berfungsi untuk mengahapus sesuai pilihan admin.
    *
    * @param Request $request
-   * @return JSON
+   * @return JSON response
    */
   public function destroySome(Request $request)
   {
@@ -379,6 +379,153 @@ class GmdController extends Controller
     }
   }
 
+  /**
+   *
+   * Fungsi ini berfungsi untuk memunculkan data yang sudah terhapus dengan method softDelete.
+   *
+   * @return JSON response response
+   */
+  public function retrieveDeleteHistoryData()
+  {
+    try {
+      $data = Gmd::onlyTrashed()->get();
+
+      $response = 200;
+
+      $sendData = [$response, 'Sukses', $data];
+      return response(ResponseHeader::responseSuccess($sendData), $response);
+    } catch (\Throwable $th) {
+      $response = ResponseHeader::responseStatusFailed($th->getCode());
+
+      $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
+   *
+   * Fungsi ini berfungsi untuk mengembalikan data yang sudah terhapus dengan method softDelete.
+   *
+   * @return JSON response response
+   */
+  public function returnDeleteHistoryData(string $id)
+  {
+    try {
+      $check = Gmd::find($id);
+      $checkDataInSoftDelete = Gmd::onlyTrashed()
+        ->where('id', $id)
+        ->get();
+      if (is_null($check) && count($checkDataInSoftDelete) < 1) {
+        $msg = "Id: {$id} Tidak Dapat Ditemukan";
+        $code = 400;
+        throw new ResponseException($msg, $code);
+      }
+
+      Gmd::withTrashed()
+        ->where('id', $id)
+        ->restore();
+
+      $data = Gmd::find($id);
+
+      $response = 200;
+
+      $sendData = [$response, 'Berhasil Dikembalikan', $data];
+      return response(ResponseHeader::responseSuccess($sendData), $response);
+    } catch (\Throwable $th) {
+      $response = ResponseHeader::responseStatusFailed($th->getCode());
+
+      $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
+   *
+   * Fungsi ini berfungsi untuk mengembalikan semua data yang sudah terhapus dengan method softDelete.
+   *
+   * @return JSON response response
+   */
+  public function returnAllDeleteHistoryData()
+  {
+    try {
+      Gmd::onlyTrashed()->restore();
+
+      $response = 200;
+
+      $sendData = [$response, 'Berhasil Mengembalikan Semua'];
+      return response(
+        ResponseHeader::responseSuccessWithoutData($sendData),
+        $response
+      );
+    } catch (\Throwable $th) {
+      $response = ResponseHeader::responseStatusFailed($th->getCode());
+
+      $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
+   *
+   * Fungsi ini berfungsi untuk menghapus data yang sudah terhapus dengan method softDelete.
+   *
+   * @param string $id
+   * @return JSON response response
+   */
+  public function deleteHistoryData(string $id)
+  {
+    try {
+      Gmd::withTrashed()
+        ->where('id', $id)
+        ->forceDelete();
+
+      $response = 200;
+
+      $sendData = [$response, 'Sukses Dihapus'];
+      return response(
+        ResponseHeader::responseSuccessWithoutData($sendData),
+        $response
+      );
+    } catch (\Throwable $th) {
+      $response = ResponseHeader::responseStatusFailed($th->getCode());
+
+      $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
+   *
+   * Fungsi ini berfungsi untuk menghapus semua data yang sudah terhapus dengan method softDelete.
+   *
+   * @return JSON response response
+   */
+  public function deleteAllHistoryData()
+  {
+    try {
+      Gmd::onlyTrashed()->forceDelete();
+
+      $response = 200;
+
+      $sendData = [$response, 'Sukses Dihapus'];
+      return response(
+        ResponseHeader::responseSuccessWithoutData($sendData),
+        $response
+      );
+    } catch (\Throwable $th) {
+      $response = ResponseHeader::responseStatusFailed($th->getCode());
+
+      $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
+   *
+   * Fungsi ini berfungsi untuk menghapus seluruh data
+   *
+   * @return JSON response
+   */
   public function destroyAll()
   {
     try {
@@ -391,7 +538,7 @@ class GmdController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = 500;
+      $response = ResponseHeader::responseStatusFailed($th->getCode());
 
       $sendData = [$response, 'Gagal Menghapus Semua Data', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
