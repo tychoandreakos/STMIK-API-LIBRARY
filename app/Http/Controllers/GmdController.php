@@ -49,7 +49,7 @@ class GmdController extends Controller
   {
     try {
       $this->validate($request, [
-        'gmd_code' => 'sometimes|required|unique',
+        'gmd_code' => 'sometimes|required|unique:gmd',
         'gmd_name' => 'required'
       ]);
     } catch (\Throwable $th) {
@@ -57,7 +57,7 @@ class GmdController extends Controller
 
       $sendData = [
         $response,
-        'Harap Masukan Data Yang Valid, Silahkan Masukan!',
+        'Harap Masukan Data Yang Valid',
         $th->getMessage()
       ];
       return response(ResponseHeader::responseFailed($sendData), $response);
