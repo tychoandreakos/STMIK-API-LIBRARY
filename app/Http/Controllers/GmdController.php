@@ -49,7 +49,7 @@ class GmdController extends Controller
   {
     try {
       $this->validate($request, [
-        'gmd_code' => 'sometimes|required|unique:gmd',
+        'gmd_code' => 'required|unique:gmd',
         'gmd_name' => 'required'
       ]);
     } catch (\Throwable $th) {
@@ -92,11 +92,25 @@ class GmdController extends Controller
   public function search(Request $request)
   {
     try {
+      $this->validate($request, [
+        'search' => 'required|unique:gmd'
+      ]);
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+
+    try {
       $search = $request->input('search');
       $data = Gmd::where('gmd_code', $search)
         ->orWhere('gmd_name', 'LIKE', "%$search%")
         ->get();
-
       if ($data && count($data) > 0) {
         $response = 200;
         $dataResult = [
