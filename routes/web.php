@@ -34,3 +34,23 @@ $router->group(['name' => 'gmd'], function () use ($router) {
   $router->put('gmd/restore', 'GmdController@returnAllDeleteHistoryData'); // Mengembalikan seluruh data yang sudah terhapus
   $router->put('gmd/{id}/restore', 'GmdController@returnDeleteHistoryData'); // Mengembalikan data yang sudah terhapus sesuai ID
 });
+
+$router->group(['name' => 'publisher'], function () use ($router) {
+  $router->get('publisher', 'PublisherController@index'); // Untuk mengambil seluruh dat
+  $router->get('publisher/delete', 'PublisherController@retrieveDeleteHistoryData');
+  $router->post('publisher', 'PublisherController@store'); // untuk menyimpan data
+  $router->put('publisher/{id}/edit', 'PublisherController@update'); // untuk update data
+  $router->delete('publisher/delete-all', 'PublisherController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
+  $router->delete('publisher/{id}/delete', 'PublisherController@destroy'); // untuk delete data
+  $router->delete('publisher/destroy', 'PublisherController@deleteAllHistoryData'); // Menghapus seluruh data.
+  $router->delete('publisher/{id}/destroy', 'PublisherController@deleteHistoryData'); // Menghapus seluruh data sesuai dengan ID.
+  $router->post('publisher/search', 'PublisherController@search'); // Untuk query pencarian
+  $router->get('publisher/{id}/detail', 'PublisherController@detail'); //Untuk mendapatkan detail item
+  $router->post('publisher/delete', 'PublisherController@destroySome'); // Untuk menghapus data yang dipilih
+  $router->post('publisher/update', 'PublisherController@updateSome'); // Untuk melakukan update beberapa data
+  $router->put('publisher/restore', 'PublisherController@returnAllDeleteHistoryData'); // Mengembalikan seluruh data yang sudah terhapus
+  $router->put(
+    'publisher/{id}/restore',
+    'PublisherController@returnDeleteHistoryData'
+  ); // Mengembalikan data yang sudah terhapus sesuai ID
+});

@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Gmd;
+use App\Publisher;
 use App\Exceptions\ResponseException;
 use Illuminate\Http\Request;
 use App\Helpers\Pagination;
 use App\Helpers\ResponseHeader;
 
-class GmdController extends Controller
+class PublisherController extends Controller
 {
   /**
    * Fungsi ini berfungsi untuk mendapakatkan data dari database. Response yang diterima
-   * adalah seluruh data GMD.
+   * adalah seluruh data Publisher.
    *
    * @return JSON response $json;
    */
@@ -22,7 +22,7 @@ class GmdController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $data = Gmd::all()
+      $data = Publisher::all()
         ->skip($skip)
         ->take($take);
 
@@ -39,18 +39,17 @@ class GmdController extends Controller
   }
 
   /**
-   * Ini fungsi untuk menyimpan data GMD kedalam database menggunakan
-   * class Request & Gmd sebagai Param
-   * @param $gmd
+   * Ini fungsi untuk menyimpan data Publisher kedalam database menggunakan
+   * class Request & Publisher sebagai Param
+   * @param $Publisher
    * @param $request
    * @return JSON response json
    */
-  public function store(Gmd $gmd, Request $request)
+  public function store(Publisher $publisher, Request $request)
   {
     try {
       $this->validate($request, [
-        'gmd_code' => 'required|unique:gmd',
-        'gmd_name' => 'required'
+        'name' => 'required|unique:publisher'
       ]);
     } catch (\Throwable $th) {
       $response = 400;
@@ -63,9 +62,8 @@ class GmdController extends Controller
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
     try {
-      $gmd->gmd_code = strtolower($request->gmd_code);
-      $gmd->gmd_name = strtolower($request->gmd_name);
-      $gmd->save();
+      $publisher->name = strtolower($request->name);
+      $publisher->save();
 
       $response = 201;
 
@@ -108,9 +106,7 @@ class GmdController extends Controller
 
     try {
       $search = $request->input('search');
-      $data = Gmd::where('gmd_code', $search)
-        ->orWhere('gmd_name', 'LIKE', "%$search%")
-        ->get();
+      $data = Publisher::where('name', $search)->get();
       if ($data && count($data) > 0) {
         $response = 200;
         $dataResult = [
@@ -152,7 +148,7 @@ class GmdController extends Controller
   }
 
   /**
-   *  Fungsi atau method ini berguna untuk menampilkan detail item GMD.
+   *  Fungsi atau method ini berguna untuk menampilkan detail item Publisher.
    *
    * @param Request $request
    * @param String $id
@@ -161,7 +157,7 @@ class GmdController extends Controller
   public function detail(string $id, Request $request)
   {
     try {
-      $data = GMD::find($id);
+      $data = Publisher::find($id);
       if ($data && !empty($data)) {
         $response = 200;
 
@@ -186,7 +182,7 @@ class GmdController extends Controller
 
   /**
    *
-   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database GMD.
+   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database Publisher.
    * Data yang diubah sesuai dengan $id dalam parameter yang diberikan
    *
    * @param String $id,
@@ -196,10 +192,9 @@ class GmdController extends Controller
   public function update(string $id, Request $request)
   {
     try {
-      $gmd = Gmd::find($id);
+      $publisher = Publisher::find($id);
       $this->validate($request, [
-        'gmd_code' => 'sometimes|required|unique:gmd,gmd_code,' . $gmd->id,
-        'gmd_name' => 'required'
+        'name' => 'sometimes|required|unique:publisher,name,' . $publisher->name
       ]);
     } catch (\Throwable $th) {
       $response = 400;
@@ -213,13 +208,12 @@ class GmdController extends Controller
     }
 
     try {
-      $gmd->gmd_code = strtolower($request->input('gmd_code'));
-      $gmd->gmd_name = strtolower($request->input('gmd_name'));
-      $gmd->save();
+      $publisher->name = strtolower($request->input('name'));
+      $publisher->save();
 
       $response = 200;
 
-      $sendData = [$response, 'Berhasil Diubah', $gmd];
+      $sendData = [$response, 'Berhasil Diubah', $publisher];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
       $response = ResponseHeader::responseStatusFailed($th->getCode());
@@ -238,8 +232,8 @@ class GmdController extends Controller
   public function destroy(string $id)
   {
     try {
-      $gmd = Gmd::find($id);
-      $gmd->delete();
+      $publisher = Publisher::find($id);
+      $publisher->delete();
 
       $response = 200;
       $data = [
@@ -285,10 +279,9 @@ class GmdController extends Controller
       if ($data && count($data) > 0) {
         foreach ($data as $key => $value) {
           $result = $data[$key];
-          $gmd = Gmd::find($key);
-          $gmd->gmd_code = strtolower($result['gmd_code']);
-          $gmd->gmd_name = strtolower($result['gmd_name']);
-          $gmd->save();
+          $publisher = Publisher::find($key);
+          $publisher->name = strtolower($result['name']);
+          $publisher->save();
         }
 
         $response = 200;
@@ -345,8 +338,8 @@ class GmdController extends Controller
       $data = $request->input('delete');
       if ($data && count($data) > 0) {
         foreach ($data as $id) {
-          $gmd = Gmd::find($id);
-          $gmd->delete();
+          $publisher = Publisher::find($id);
+          $publisher->delete();
         }
 
         $response = 200;
@@ -387,7 +380,7 @@ class GmdController extends Controller
   public function retrieveDeleteHistoryData()
   {
     try {
-      $data = Gmd::onlyTrashed()->get();
+      $data = Publisher::onlyTrashed()->get();
 
       $response = 200;
 
@@ -410,8 +403,8 @@ class GmdController extends Controller
   public function returnDeleteHistoryData(string $id)
   {
     try {
-      $check = Gmd::find($id);
-      $checkDataInSoftDelete = Gmd::onlyTrashed()
+      $check = Publisher::find($id);
+      $checkDataInSoftDelete = Publisher::onlyTrashed()
         ->where('id', $id)
         ->get();
       if (is_null($check) && count($checkDataInSoftDelete) < 1) {
@@ -420,11 +413,11 @@ class GmdController extends Controller
         throw new ResponseException($msg, $code);
       }
 
-      Gmd::withTrashed()
+      Publisher::withTrashed()
         ->where('id', $id)
         ->restore();
 
-      $data = Gmd::find($id);
+      $data = Publisher::find($id);
 
       $response = 200;
 
@@ -447,7 +440,7 @@ class GmdController extends Controller
   public function returnAllDeleteHistoryData()
   {
     try {
-      Gmd::onlyTrashed()->restore();
+      Publisher::onlyTrashed()->restore();
 
       $response = 200;
 
@@ -474,7 +467,7 @@ class GmdController extends Controller
   public function deleteHistoryData(string $id)
   {
     try {
-      Gmd::withTrashed()
+      Publisher::withTrashed()
         ->where('id', $id)
         ->forceDelete();
 
@@ -502,7 +495,7 @@ class GmdController extends Controller
   public function deleteAllHistoryData()
   {
     try {
-      Gmd::onlyTrashed()->forceDelete();
+      Publisher::onlyTrashed()->forceDelete();
 
       $response = 200;
 
@@ -528,7 +521,7 @@ class GmdController extends Controller
   public function destroyAll()
   {
     try {
-      Gmd::truncate();
+      Publisher::truncate();
       $response = 200;
 
       $sendData = [$response, 'Berhasil Menghapus Semua Data'];
