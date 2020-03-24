@@ -23,11 +23,12 @@ class GmdController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $dataDB = Gmd::all()
-        ->skip($skip)
-        ->take($take);
+      $dataDB = Gmd::all();
 
-      $data = ["dataCount" => Gmd::all()->count(), 'result' => $dataDB];
+      $data = [
+        "dataCount" => $dataDB->count(),
+        'result' => $dataDB->skip($skip)->take($take)
+      ];
 
       $response = 200;
 

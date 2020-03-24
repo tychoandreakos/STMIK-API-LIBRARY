@@ -23,11 +23,12 @@ class PublisherController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $dataDB = Publisher::all()
-        ->skip($skip)
-        ->take($take);
+      $dataDB = Publisher::all();
 
-      $data = ["dataCount" => Publisher::all()->count(), 'result' => $dataDB];
+      $data = [
+        "dataCount" => $dataDB->count(),
+        'result' => $dataDB->skip($skip)->take($take)
+      ];
 
       $response = 200;
 

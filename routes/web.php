@@ -67,4 +67,36 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
       'PublisherController@returnDeleteHistoryData'
     ); // Mengembalikan data yang sudah terhapus sesuai ID
   });
+
+  $router->group(['name' => 'author'], function () use ($router) {
+    $router->get('author', 'AuthorController@index'); // Untuk mengambil seluruh dat
+    $router->get(
+      'author/delete',
+      'AuthorController@retrieveDeleteHistoryData'
+    );
+    $router->post('author', 'AuthorController@store'); // untuk menyimpan data
+    $router->put('author/{id}/edit', 'AuthorController@update'); // untuk update data
+    $router->delete('author/delete-all', 'AuthorController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
+    $router->delete('author/{id}/delete', 'AuthorController@destroy'); // untuk delete data
+    $router->delete(
+      'author/destroy',
+      'AuthorController@deleteAllHistoryData'
+    ); // Menghapus seluruh data.
+    $router->delete(
+      'author/{id}/destroy',
+      'AuthorController@deleteHistoryData'
+    ); // Menghapus seluruh data sesuai dengan ID.
+    $router->post('author/search', 'AuthorController@search'); // Untuk query pencarian
+    $router->get('author/{id}/detail', 'AuthorController@detail'); //Untuk mendapatkan detail item
+    $router->post('author/delete', 'AuthorController@destroySome'); // Untuk menghapus data yang dipilih
+    $router->post('author/update', 'AuthorController@updateSome'); // Untuk melakukan update beberapa data
+    $router->put(
+      'author/restore',
+      'AuthorController@returnAllDeleteHistoryData'
+    ); // Mengembalikan seluruh data yang sudah terhapus
+    $router->put(
+      'author/{id}/restore',
+      'AuthorController@returnDeleteHistoryData'
+    ); // Mengembalikan data yang sudah terhapus sesuai ID
+  });
 });
