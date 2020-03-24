@@ -22,9 +22,11 @@ class PublisherController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $data = Publisher::all()
+      $dataDB = Publisher::all()
         ->skip($skip)
         ->take($take);
+
+      $data = ["dataCount" => Publisher::all()->count(), 'result' => $dataDB];
 
       $response = 200;
 
@@ -192,9 +194,8 @@ class PublisherController extends Controller
   public function update(string $id, Request $request)
   {
     try {
-      $publisher = Publisher::find($id);
       $this->validate($request, [
-        'name' => 'sometimes|required|unique:publisher,name,' . $publisher->name
+        'name' => 'required'
       ]);
     } catch (\Throwable $th) {
       $response = 400;
@@ -208,6 +209,7 @@ class PublisherController extends Controller
     }
 
     try {
+      $publisher = Publisher::find($id);
       $publisher->name = strtolower($request->input('name'));
       $publisher->save();
 

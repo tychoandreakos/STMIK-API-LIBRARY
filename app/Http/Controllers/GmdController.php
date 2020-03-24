@@ -22,9 +22,11 @@ class GmdController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $data = Gmd::all()
+      $dataDB = Gmd::all()
         ->skip($skip)
         ->take($take);
+
+      $data = ["dataCount" => Gmd::all()->count(), 'result' => $dataDB];
 
       $response = 200;
 
@@ -196,9 +198,8 @@ class GmdController extends Controller
   public function update(string $id, Request $request)
   {
     try {
-      $gmd = Gmd::find($id);
       $this->validate($request, [
-        'gmd_code' => 'sometimes|required|unique:gmd,gmd_code,' . $gmd->id,
+        'gmd_code' => 'required',
         'gmd_name' => 'required'
       ]);
     } catch (\Throwable $th) {
@@ -213,6 +214,7 @@ class GmdController extends Controller
     }
 
     try {
+      $gmd = Gmd::find($id);
       $gmd->gmd_code = strtolower($request->input('gmd_code'));
       $gmd->gmd_name = strtolower($request->input('gmd_name'));
       $gmd->save();
