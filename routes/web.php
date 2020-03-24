@@ -70,18 +70,12 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
 
   $router->group(['name' => 'author'], function () use ($router) {
     $router->get('author', 'AuthorController@index'); // Untuk mengambil seluruh dat
-    $router->get(
-      'author/delete',
-      'AuthorController@retrieveDeleteHistoryData'
-    );
+    $router->get('author/delete', 'AuthorController@retrieveDeleteHistoryData');
     $router->post('author', 'AuthorController@store'); // untuk menyimpan data
     $router->put('author/{id}/edit', 'AuthorController@update'); // untuk update data
     $router->delete('author/delete-all', 'AuthorController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
     $router->delete('author/{id}/delete', 'AuthorController@destroy'); // untuk delete data
-    $router->delete(
-      'author/destroy',
-      'AuthorController@deleteAllHistoryData'
-    ); // Menghapus seluruh data.
+    $router->delete('author/destroy', 'AuthorController@deleteAllHistoryData'); // Menghapus seluruh data.
     $router->delete(
       'author/{id}/destroy',
       'AuthorController@deleteHistoryData'
@@ -97,6 +91,32 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->put(
       'author/{id}/restore',
       'AuthorController@returnDeleteHistoryData'
+    ); // Mengembalikan data yang sudah terhapus sesuai ID
+  });
+
+  $router->group(['name' => 'subject'], function () use ($router) {
+    $router->get('subject', 'SubjectController@index'); // Untuk mengambil seluruh dat
+    $router->get('subject/delete', 'SubjectController@retrieveDeleteHistoryData');
+    $router->post('subject', 'SubjectController@store'); // untuk menyimpan data
+    $router->put('subject/{id}/edit', 'SubjectController@update'); // untuk update data
+    $router->delete('subject/delete-all', 'SubjectController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
+    $router->delete('subject/{id}/delete', 'SubjectController@destroy'); // untuk delete data
+    $router->delete('subject/destroy', 'SubjectController@deleteAllHistoryData'); // Menghapus seluruh data.
+    $router->delete(
+      'subject/{id}/destroy',
+      'SubjectController@deleteHistoryData'
+    ); // Menghapus seluruh data sesuai dengan ID.
+    $router->post('subject/search', 'SubjectController@search'); // Untuk query pencarian
+    $router->get('subject/{id}/detail', 'SubjectController@detail'); //Untuk mendapatkan detail item
+    $router->post('subject/delete', 'SubjectController@destroySome'); // Untuk menghapus data yang dipilih
+    $router->post('subject/update', 'SubjectController@updateSome'); // Untuk melakukan update beberapa data
+    $router->put(
+      'subject/restore',
+      'SubjectController@returnAllDeleteHistoryData'
+    ); // Mengembalikan seluruh data yang sudah terhapus
+    $router->put(
+      'subject/{id}/restore',
+      'SubjectController@returnDeleteHistoryData'
     ); // Mengembalikan data yang sudah terhapus sesuai ID
   });
 });
