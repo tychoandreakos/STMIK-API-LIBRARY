@@ -24,7 +24,7 @@ class PublisherTest extends TestCase
   {
     $faker = Faker\Factory::create();
     $response = $this->call('POST', 'publisher', [
-      'name' => $faker->name
+      'name' => $faker->firstName()
     ]);
 
     $this->assertEquals(201, $response->status());
@@ -53,7 +53,7 @@ class PublisherTest extends TestCase
     $publisher = Publisher::first();
     $id = $publisher->id;
     $response = $this->call('PUT', "publisher/{$id}/edit", [
-      'name' => $faker->name
+      'name' => $faker->firstName()
     ]);
     $this->assertEquals(200, $response->status());
   }
@@ -170,10 +170,10 @@ class PublisherTest extends TestCase
     $response = $this->call("POST", "publisher/update", [
       "update" => [
         $publisher[0]->id => [
-          "name" => $faker->name
+          "name" => $faker->firstName()
         ],
         $publisher[1]->id => [
-          "name" => $faker->name
+          "name" => $faker->firstName()
         ]
       ]
     ]);

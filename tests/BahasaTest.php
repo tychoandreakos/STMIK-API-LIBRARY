@@ -24,7 +24,7 @@ class BahasaTest extends TestCase
   {
     $faker = Faker\Factory::create();
     $response = $this->call('POST', 'bahasa', [
-      'name' => $faker->name
+      'name' => $faker->country
     ]);
 
     $this->assertEquals(201, $response->status());
@@ -53,7 +53,7 @@ class BahasaTest extends TestCase
     $bahasa = Bahasa::first();
     $id = $bahasa->id;
     $response = $this->call('PUT', "bahasa/{$id}/edit", [
-      'name' => $faker->name
+      'name' => $faker->country
     ]);
     $this->assertEquals(200, $response->status());
   }
@@ -170,10 +170,10 @@ class BahasaTest extends TestCase
     $response = $this->call("POST", "bahasa/update", [
       "update" => [
         $bahasa[0]->id => [
-          "name" => $faker->name
+          "name" => $faker->country
         ],
         $bahasa[1]->id => [
-          "name" => $faker->name
+          "name" => $faker->country
         ]
       ]
     ]);

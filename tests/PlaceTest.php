@@ -24,7 +24,7 @@ class PlaceTest extends TestCase
   {
     $faker = Faker\Factory::create();
     $response = $this->call('POST', 'place', [
-      'name' => $faker->name
+      'name' => $faker->state
     ]);
 
     $this->assertEquals(201, $response->status());
@@ -53,7 +53,7 @@ class PlaceTest extends TestCase
     $place = Place::first();
     $id = $place->id;
     $response = $this->call('PUT', "place/{$id}/edit", [
-      'name' => $faker->name
+      'name' => $faker->state
     ]);
     $this->assertEquals(200, $response->status());
   }
@@ -170,10 +170,10 @@ class PlaceTest extends TestCase
     $response = $this->call("POST", "place/update", [
       "update" => [
         $place[0]->id => [
-          "name" => $faker->name
+          "name" => $faker->state
         ],
         $place[1]->id => [
-          "name" => $faker->name
+          "name" => $faker->state
         ]
       ]
     ]);

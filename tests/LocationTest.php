@@ -25,7 +25,7 @@ class LocationTest extends TestCase
     $faker = Faker\Factory::create();
     $response = $this->call('POST', 'location', [
       'code' => $faker->randomNumber(3, false),
-      'name' => $faker->name
+      'name' => $faker->city
     ]);
 
     $this->assertEquals(201, $response->status());
@@ -55,7 +55,7 @@ class LocationTest extends TestCase
     $id = $location->id;
     $response = $this->call('PUT', "location/{$id}/edit", [
       'code' => $faker->randomNumber(3, false),
-      'name' => $faker->name
+      'name' => $faker->city
     ]);
     $this->assertEquals(200, $response->status());
   }
@@ -173,11 +173,11 @@ class LocationTest extends TestCase
       "update" => [
         $location[0]->id => [
           "code" => $faker->randomNumber(3, false),
-          "name" => $faker->name
+          "name" => $faker->city
         ],
         $location[1]->id => [
           "code" => $faker->randomNumber(3, false),
-          "name" => $faker->name
+          "name" => $faker->city
         ]
       ]
     ]);
