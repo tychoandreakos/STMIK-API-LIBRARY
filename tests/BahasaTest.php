@@ -1,29 +1,29 @@
 <?php
 
-use App\Author;
+use App\Bahasa;
 
-class AuthorTest extends TestCase
+class BahasaTest extends TestCase
 {
   /**
-   * Testing untuk menampilkan hasil AUTHOR.
+   * Testing untuk menampilkan hasil BAHASA.
    *
    *  @return void
    */
-  public function testGetDataAuthor()
+  public function testGetDataBahasa()
   {
-    $response = $this->call('GET', 'author');
+    $response = $this->call('GET', 'bahasa');
     $this->assertEquals(200, $response->status());
   }
 
   /**
-   * Testing untuk menyimpan data kedalam database AUTHOR.
+   * Testing untuk menyimpan data kedalam database BAHASA.
    *
    *  @return void
    */
-  public function testStoreAuthor()
+  public function testStoreBahasa()
   {
     $faker = Faker\Factory::create();
-    $response = $this->call('POST', 'author', [
+    $response = $this->call('POST', 'bahasa', [
       'name' => $faker->name
     ]);
 
@@ -31,58 +31,58 @@ class AuthorTest extends TestCase
   }
 
   /**
-   * Testing untuk gagal menyimpan data kedalam database AUTHOR.
+   * Testing untuk gagal menyimpan data kedalam database BAHASA.
    * Data untk metode post dikonsongkan. Hal ini dilakukan untuk
    * Melakukan cek pada method validasi
    *  @return void
    */
-  public function testFailedStoreAuthor()
+  public function testFailedStoreBahasa()
   {
-    $response = $this->call('POST', 'author');
+    $response = $this->call('POST', 'bahasa');
     $this->assertEquals(400, $response->status());
   }
 
   /**
-   * Testing ketika melakukan update AUTHOR.
+   * Testing ketika melakukan update BAHASA.
    *
    *  @return void
    */
-  public function testUpdateAuthor()
+  public function testUpdateBahasa()
   {
     $faker = Faker\Factory::create();
-    $author = Author::first();
-    $id = $author->id;
-    $response = $this->call('PUT', "author/{$id}/edit", [
+    $bahasa = Bahasa::first();
+    $id = $bahasa->id;
+    $response = $this->call('PUT', "bahasa/{$id}/edit", [
       'name' => $faker->name
     ]);
     $this->assertEquals(200, $response->status());
   }
 
   /**
-   * Testing ketika gagal melakukan update AUTHOR.
+   * Testing ketika gagal melakukan update BAHASA.
    * Data untk metode update dikonsongkan. Hal ini dilakukan untuk
    * Melakukan cek pada method validasi
    *
    *  @return void
    */
-  public function testFailedUpdateAuthor()
+  public function testFailedUpdateBahasa()
   {
-    $author = Author::first();
-    $id = $author->id;
-    $response = $this->call('PUT', "author/{$id}/edit");
+    $bahasa = Bahasa::first();
+    $id = $bahasa->id;
+    $response = $this->call('PUT', "bahasa/{$id}/edit");
     $this->assertEquals(400, $response->status());
   }
 
   /**
-   * Testing ketika melakukan request terhadap detail AUTHOR.
+   * Testing ketika melakukan request terhadap detail BAHASA.
    *
    * @return void
    */
-  public function testGetDetailAuthor()
+  public function testGetDetailBahasa()
   {
-    $author = Author::first();
-    $id = $author->id;
-    $response = $this->call('GET', "author/{$id}/detail");
+    $bahasa = Bahasa::first();
+    $id = $bahasa->id;
+    $response = $this->call('GET', "bahasa/{$id}/detail");
     $this->assertEquals(200, $response->status());
   }
 
@@ -94,10 +94,10 @@ class AuthorTest extends TestCase
    *
    * @return void
    */
-  public function testFailedGetDetailAuthor()
+  public function testFailedGetDetailBahasa()
   {
     $id = '12345';
-    $response = $this->call('GET', "author/{$id}/detail");
+    $response = $this->call('GET', "bahasa/{$id}/detail");
     $this->assertEquals(404, $response->status());
   }
 
@@ -106,11 +106,11 @@ class AuthorTest extends TestCase
    *
    * @return void
    */
-  public function testSearchAuthor()
+  public function testSearchBahasa()
   {
-    $author = Author::first();
-    $name = $author->name;
-    $response = $this->call("POST", "author/search", [
+    $bahasa = Bahasa::first();
+    $name = $bahasa->name;
+    $response = $this->call("POST", "bahasa/search", [
       "search" => $name
     ]);
     $this->assertEquals(200, $response->status());
@@ -123,37 +123,37 @@ class AuthorTest extends TestCase
    *
    * @return void
    */
-  public function testFailedSearchAuthor()
+  public function testFailedSearchBahasa()
   {
     $search = "tidak ada";
-    $response = $this->call("POST", "author/search", [
+    $response = $this->call("POST", "bahasa/search", [
       "search" => $search
     ]);
     $this->assertEquals(404, $response->status());
   }
 
   /**
-   * Testing ketika melakukan hapus data AUTHOR.
+   * Testing ketika melakukan hapus data BAHASA.
    *
    * @return void
    */
-  public function testDestroyAuthor()
+  public function testDestroyBahasa()
   {
-    $author = Author::first();
-    $id = $author->id;
-    $response = $this->call("DELETE", "author/{$id}/delete");
+    $bahasa = Bahasa::first();
+    $id = $bahasa->id;
+    $response = $this->call("DELETE", "bahasa/{$id}/delete");
     $this->assertEquals(200, $response->status());
   }
 
   /**
-   * Testing ketika gagal melakukan hapus data AUTHOR.
+   * Testing ketika gagal melakukan hapus data BAHASA.
    *
    * @return void
    */
-  public function testFailedDestroyAuthor()
+  public function testFailedDestroyBahasa()
   {
     $id = 123;
-    $response = $this->call("DELETE", "author/{$id}/delete");
+    $response = $this->call("DELETE", "bahasa/{$id}/delete");
     $this->assertEquals(500, $response->status());
   }
 
@@ -162,17 +162,17 @@ class AuthorTest extends TestCase
    *
    * @return void
    */
-  public function testUpdateSomeAuthor()
+  public function testUpdateSomeBahasa()
   {
     $faker = Faker\Factory::create();
-    $author = Author::all();
+    $bahasa = Bahasa::all();
 
-    $response = $this->call("POST", "author/update", [
+    $response = $this->call("POST", "bahasa/update", [
       "update" => [
-        $author[0]->id => [
+        $bahasa[0]->id => [
           "name" => $faker->name
         ],
-        $author[1]->id => [
+        $bahasa[1]->id => [
           "name" => $faker->name
         ]
       ]
@@ -185,9 +185,9 @@ class AuthorTest extends TestCase
    *
    * @return void
    */
-  public function testFailedUpdateSomeAuthor()
+  public function testFailedUpdateSomeBahasa()
   {
-    $response = $this->call("POST", "author/update");
+    $response = $this->call("POST", "bahasa/update");
     $this->assertEquals(400, $response->status());
   }
 
@@ -196,11 +196,11 @@ class AuthorTest extends TestCase
    *
    * @return void
    */
-  public function testDestroySameAuthor()
+  public function testDestroySameBahasa()
   {
-    $author = Author::all();
-    $response = $this->call("POST", "author/delete", [
-      "delete" => [$author[0]->id, $author[1]->id]
+    $bahasa = Bahasa::all();
+    $response = $this->call("POST", "bahasa/delete", [
+      "delete" => [$bahasa[0]->id, $bahasa[1]->id]
     ]);
     $this->assertEquals(200, $response->status());
   }
@@ -210,9 +210,9 @@ class AuthorTest extends TestCase
    *
    * @return void
    */
-  public function testFailedDestroySameAuthor()
+  public function testFailedDestroySameBahasa()
   {
-    $response = $this->call("POST", "author/delete");
+    $response = $this->call("POST", "bahasa/delete");
     $this->assertEquals(400, $response->status());
   }
 
@@ -221,9 +221,9 @@ class AuthorTest extends TestCase
    *
    * @return void
    */
-  public function testRetrieveDeleteHistoryDataAuthor()
+  public function testRetrieveDeleteHistoryDataBahasa()
   {
-    $response = $this->call("GET", "author/delete");
+    $response = $this->call("GET", "bahasa/delete");
     $this->assertEquals(200, $response->status());
   }
 
@@ -232,10 +232,10 @@ class AuthorTest extends TestCase
    *
    * @return void
    */
-  public function testReturnDeleteHistoryAuthor()
+  public function testReturnDeleteHistoryBahasa()
   {
-    $author = Author::onlyTrashed()->get();
-    $response = $this->call("PUT", "author/{$author[0]->id}/restore");
+    $bahasa = Bahasa::onlyTrashed()->get();
+    $response = $this->call("PUT", "bahasa/{$bahasa[0]->id}/restore");
     $this->assertEquals(200, $response->status());
   }
 
@@ -244,10 +244,10 @@ class AuthorTest extends TestCase
    *
    * @return void
    */
-  public function testDeleteHistoryDataAuthor()
+  public function testDeleteHistoryDataBahasa()
   {
-    $author = Author::onlyTrashed()->get();
-    $response = $this->call("DELETE", "author/{$author[0]->id}/destroy");
+    $bahasa = Bahasa::onlyTrashed()->get();
+    $response = $this->call("DELETE", "bahasa/{$bahasa[0]->id}/destroy");
     $this->assertEquals(200, $response->status());
   }
 
@@ -256,9 +256,9 @@ class AuthorTest extends TestCase
    *
    * @return void
    */
-  public function testReturnAllDeleteHistoryDataAuthor()
+  public function testReturnAllDeleteHistoryDataBahasa()
   {
-    $response = $this->call("PUT", "author/restore");
+    $response = $this->call("PUT", "bahasa/restore");
     $this->assertEquals(200, $response->status());
   }
 }

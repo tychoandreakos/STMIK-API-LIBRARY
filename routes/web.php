@@ -222,6 +222,32 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     ); // Mengembalikan data yang sudah terhapus sesuai ID
   });
 
+  $router->group(['name' => 'bahasa'], function () use ($router) {
+    $router->get('bahasa', 'BahasaController@index'); // Untuk mengambil seluruh dat
+    $router->get('bahasa/delete', 'BahasaController@retrieveDeleteHistoryData');
+    $router->post('bahasa', 'BahasaController@store'); // untuk menyimpan data
+    $router->put('bahasa/{id}/edit', 'BahasaController@update'); // untuk update data
+    $router->delete('bahasa/delete-all', 'BahasaController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
+    $router->delete('bahasa/{id}/delete', 'BahasaController@destroy'); // untuk delete data
+    $router->delete('bahasa/destroy', 'BahasaController@deleteAllHistoryData'); // Menghapus seluruh data.
+    $router->delete(
+      'bahasa/{id}/destroy',
+      'BahasaController@deleteHistoryData'
+    ); // Menghapus seluruh data sesuai dengan ID.
+    $router->post('bahasa/search', 'BahasaController@search'); // Untuk query pencarian
+    $router->get('bahasa/{id}/detail', 'BahasaController@detail'); //Untuk mendapatkan detail bahasa
+    $router->post('bahasa/delete', 'BahasaController@destroySome'); // Untuk menghapus data yang dipilih
+    $router->post('bahasa/update', 'BahasaController@updateSome'); // Untuk melakukan update beberapa data
+    $router->put(
+      'bahasa/restore',
+      'BahasaController@returnAllDeleteHistoryData'
+    ); // Mengembalikan seluruh data yang sudah terhapus
+    $router->put(
+      'bahasa/{id}/restore',
+      'BahasaController@returnDeleteHistoryData'
+    ); // Mengembalikan data yang sudah terhapus sesuai ID
+  });
+
   $router->group(['name' => 'place'], function () use ($router) {
     $router->get('place', 'PlaceController@index'); // Untuk mengambil seluruh dat
     $router->get('place/delete', 'PlaceController@retrieveDeleteHistoryData');
