@@ -119,4 +119,31 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
       'SubjectController@returnDeleteHistoryData'
     ); // Mengembalikan data yang sudah terhapus sesuai ID
   });
+
+
+  $router->group(['name' => 'location'], function () use ($router) {
+    $router->get('location', 'LocationController@index'); // Untuk mengambil seluruh dat
+    $router->get('location/delete', 'LocationController@retrieveDeleteHistoryData');
+    $router->post('location', 'LocationController@store'); // untuk menyimpan data
+    $router->put('location/{id}/edit', 'LocationController@update'); // untuk update data
+    $router->delete('location/delete-all', 'LocationController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
+    $router->delete('location/{id}/delete', 'LocationController@destroy'); // untuk delete data
+    $router->delete('location/destroy', 'LocationController@deleteAllHistoryData'); // Menghapus seluruh data.
+    $router->delete(
+      'location/{id}/destroy',
+      'LocationController@deleteHistoryData'
+    ); // Menghapus seluruh data sesuai dengan ID.
+    $router->post('location/search', 'LocationController@search'); // Untuk query pencarian
+    $router->get('location/{id}/detail', 'LocationController@detail'); //Untuk mendapatkan detail item
+    $router->post('location/delete', 'LocationController@destroySome'); // Untuk menghapus data yang dipilih
+    $router->post('location/update', 'LocationController@updateSome'); // Untuk melakukan update beberapa data
+    $router->put(
+      'location/restore',
+      'LocationController@returnAllDeleteHistoryData'
+    ); // Mengembalikan seluruh data yang sudah terhapus
+    $router->put(
+      'location/{id}/restore',
+      'LocationController@returnDeleteHistoryData'
+    ); // Mengembalikan data yang sudah terhapus sesuai ID
+  });
 });
