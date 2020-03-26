@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePlaceTable extends Migration
+class CreateItemStatusTable extends Migration
 {
   /**
    * Run the migrations.
@@ -13,8 +13,9 @@ class CreatePlaceTable extends Migration
    */
   public function up()
   {
-    Schema::create('place', function (Blueprint $table) {
+    Schema::create('item_status', function (Blueprint $table) {
       $table->uuid('id')->primary();
+      $table->string('code', 15)->nullable(false);
       $table->string('name', 50)->nullable(false);
       $table->timestamps();
       $table->softDeletes();
@@ -28,6 +29,6 @@ class CreatePlaceTable extends Migration
    */
   public function down()
   {
-    Schema::dropIfExists('place');
+    Schema::dropIfExists('item_status');
   }
 }

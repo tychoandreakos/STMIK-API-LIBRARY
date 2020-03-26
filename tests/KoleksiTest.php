@@ -1,88 +1,88 @@
 <?php
 
-use App\Place;
+use App\Koleksi;
 
-class PlaceTest extends TestCase
+class KoleksiTest extends TestCase
 {
   /**
-   * Testing untuk menampilkan hasil PLACE.
+   * Testing untuk menampilkan hasil KOLEKSI.
    *
    *  @return void
    */
-  public function testGetDataPlace()
+  public function testGetDataKoleksi()
   {
-    $response = $this->call('GET', 'place');
+    $response = $this->call('GET', 'koleksi');
     $this->assertEquals(200, $response->status());
   }
 
   /**
-   * Testing untuk menyimpan data kedalam database PLACE.
+   * Testing untuk menyimpan data kedalam database KOLEKSI.
    *
    *  @return void
    */
-  public function testStorePlace()
+  public function testStoreKoleksi()
   {
     $faker = Faker\Factory::create();
-    $response = $this->call('POST', 'place', [
-      'name' => $faker->name
+    $response = $this->call('POST', 'koleksi', [
+      'tipe' => $faker->word
     ]);
 
     $this->assertEquals(201, $response->status());
   }
 
   /**
-   * Testing untuk gagal menyimpan data kedalam database PLACE.
+   * Testing untuk gagal menyimpan data kedalam database KOLEKSI.
    * Data untk metode post dikonsongkan. Hal ini dilakukan untuk
    * Melakukan cek pada method validasi
    *  @return void
    */
-  public function testFailedStorePlace()
+  public function testFailedStoreKoleksi()
   {
-    $response = $this->call('POST', 'place');
+    $response = $this->call('POST', 'koleksi');
     $this->assertEquals(400, $response->status());
   }
 
   /**
-   * Testing ketika melakukan update PLACE.
+   * Testing ketika melakukan update KOLEKSI.
    *
    *  @return void
    */
-  public function testUpdatePlace()
+  public function testUpdateKoleksi()
   {
     $faker = Faker\Factory::create();
-    $place = Place::first();
-    $id = $place->id;
-    $response = $this->call('PUT', "place/{$id}/edit", [
-      'name' => $faker->name
+    $koleksi = Koleksi::first();
+    $id = $koleksi->id;
+    $response = $this->call('PUT', "koleksi/{$id}/edit", [
+      'tipe' => $faker->word
     ]);
     $this->assertEquals(200, $response->status());
   }
 
   /**
-   * Testing ketika gagal melakukan update PLACE.
+   * Testing ketika gagal melakukan update KOLEKSI.
    * Data untk metode update dikonsongkan. Hal ini dilakukan untuk
    * Melakukan cek pada method validasi
    *
    *  @return void
    */
-  public function testFailedUpdatePlace()
+  public function testFailedUpdateKoleksi()
   {
-    $place = Place::first();
-    $id = $place->id;
-    $response = $this->call('PUT', "place/{$id}/edit");
+    $koleksi = Koleksi::first();
+    $id = $koleksi->id;
+    $response = $this->call('PUT', "koleksi/{$id}/edit");
     $this->assertEquals(400, $response->status());
   }
 
   /**
-   * Testing ketika melakukan request terhadap detail PLACE.
+   * Testing ketika melakukan request terhadap detail KOLEKSI.
    *
    * @return void
    */
-  public function testGetDetailPlace()
+  public function testGetDetailKoleksi()
   {
-    $place = Place::first();
-    $id = $place->id;
-    $response = $this->call('GET', "place/{$id}/detail");
+    $koleksi = Koleksi::first();
+    $id = $koleksi->id;
+    $response = $this->call('GET', "koleksi/{$id}/detail");
     $this->assertEquals(200, $response->status());
   }
 
@@ -94,10 +94,10 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testFailedGetDetailPlace()
+  public function testFailedGetDetailKoleksi()
   {
     $id = '12345';
-    $response = $this->call('GET', "place/{$id}/detail");
+    $response = $this->call('GET', "koleksi/{$id}/detail");
     $this->assertEquals(404, $response->status());
   }
 
@@ -106,12 +106,12 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testSearchPlace()
+  public function testSearchKoleksi()
   {
-    $place = Place::first();
-    $name = $place->name;
-    $response = $this->call("POST", "place/search", [
-      "search" => $name
+    $koleksi = Koleksi::first();
+    $tipe = $koleksi->tipe;
+    $response = $this->call("POST", "koleksi/search", [
+      "search" => $tipe
     ]);
     $this->assertEquals(200, $response->status());
   }
@@ -123,37 +123,37 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testFailedSearchPlace()
+  public function testFailedSearchKoleksi()
   {
     $search = "tidak ada";
-    $response = $this->call("POST", "place/search", [
+    $response = $this->call("POST", "koleksi/search", [
       "search" => $search
     ]);
     $this->assertEquals(404, $response->status());
   }
 
   /**
-   * Testing ketika melakukan hapus data PLACE.
+   * Testing ketika melakukan hapus data KOLEKSI.
    *
    * @return void
    */
-  public function testDestroyPlace()
+  public function testDestroyKoleksi()
   {
-    $place = Place::first();
-    $id = $place->id;
-    $response = $this->call("DELETE", "place/{$id}/delete");
+    $koleksi = Koleksi::first();
+    $id = $koleksi->id;
+    $response = $this->call("DELETE", "koleksi/{$id}/delete");
     $this->assertEquals(200, $response->status());
   }
 
   /**
-   * Testing ketika gagal melakukan hapus data PLACE.
+   * Testing ketika gagal melakukan hapus data KOLEKSI.
    *
    * @return void
    */
-  public function testFailedDestroyPlace()
+  public function testFailedDestroyKoleksi()
   {
     $id = 123;
-    $response = $this->call("DELETE", "place/{$id}/delete");
+    $response = $this->call("DELETE", "koleksi/{$id}/delete");
     $this->assertEquals(500, $response->status());
   }
 
@@ -162,18 +162,18 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testUpdateSomePlace()
+  public function testUpdateSomeKoleksi()
   {
     $faker = Faker\Factory::create();
-    $place = Place::all();
+    $koleksi = Koleksi::all();
 
-    $response = $this->call("POST", "place/update", [
+    $response = $this->call("POST", "koleksi/update", [
       "update" => [
-        $place[0]->id => [
-          "name" => $faker->name
+        $koleksi[0]->id => [
+          "tipe" => $faker->word
         ],
-        $place[1]->id => [
-          "name" => $faker->name
+        $koleksi[1]->id => [
+          "tipe" => $faker->word
         ]
       ]
     ]);
@@ -185,9 +185,9 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testFailedUpdateSomePlace()
+  public function testFailedUpdateSomeKoleksi()
   {
-    $response = $this->call("POST", "place/update");
+    $response = $this->call("POST", "koleksi/update");
     $this->assertEquals(400, $response->status());
   }
 
@@ -196,11 +196,11 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testDestroySamePlace()
+  public function testDestroySameKoleksi()
   {
-    $place = Place::all();
-    $response = $this->call("POST", "place/delete", [
-      "delete" => [$place[0]->id, $place[1]->id]
+    $koleksi = Koleksi::all();
+    $response = $this->call("POST", "koleksi/delete", [
+      "delete" => [$koleksi[0]->id, $koleksi[1]->id]
     ]);
     $this->assertEquals(200, $response->status());
   }
@@ -210,9 +210,9 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testFailedDestroySamePlace()
+  public function testFailedDestroySameKoleksi()
   {
-    $response = $this->call("POST", "place/delete");
+    $response = $this->call("POST", "koleksi/delete");
     $this->assertEquals(400, $response->status());
   }
 
@@ -221,9 +221,9 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testRetrieveDeleteHistoryDataPlace()
+  public function testRetrieveDeleteHistoryDataKoleksi()
   {
-    $response = $this->call("GET", "place/delete");
+    $response = $this->call("GET", "koleksi/delete");
     $this->assertEquals(200, $response->status());
   }
 
@@ -232,10 +232,10 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testReturnDeleteHistoryPlace()
+  public function testReturnDeleteHistoryKoleksi()
   {
-    $place = Place::onlyTrashed()->get();
-    $response = $this->call("PUT", "place/{$place[0]->id}/restore");
+    $koleksi = Koleksi::onlyTrashed()->get();
+    $response = $this->call("PUT", "koleksi/{$koleksi[0]->id}/restore");
     $this->assertEquals(200, $response->status());
   }
 
@@ -244,10 +244,10 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testDeleteHistoryDataPlace()
+  public function testDeleteHistoryDataKoleksi()
   {
-    $place = Place::onlyTrashed()->get();
-    $response = $this->call("DELETE", "place/{$place[0]->id}/destroy");
+    $koleksi = Koleksi::onlyTrashed()->get();
+    $response = $this->call("DELETE", "koleksi/{$koleksi[0]->id}/destroy");
     $this->assertEquals(200, $response->status());
   }
 
@@ -256,9 +256,9 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testReturnAllDeleteHistoryDataPlace()
+  public function testReturnAllDeleteHistoryDataKoleksi()
   {
-    $response = $this->call("PUT", "place/restore");
+    $response = $this->call("PUT", "koleksi/restore");
     $this->assertEquals(200, $response->status());
   }
 }

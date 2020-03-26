@@ -158,32 +158,84 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     ); // Mengembalikan data yang sudah terhapus sesuai ID
   });
 
+  $router->group(['name' => 'koleksi'], function () use ($router) {
+    $router->get('koleksi', 'KoleksiController@index'); // Untuk mengambil seluruh dat
+    $router->get(
+      'koleksi/delete',
+      'KoleksiController@retrieveDeleteHistoryData'
+    );
+    $router->post('koleksi', 'KoleksiController@store'); // untuk menyimpan data
+    $router->put('koleksi/{id}/edit', 'KoleksiController@update'); // untuk update data
+    $router->delete('koleksi/delete-all', 'KoleksiController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
+    $router->delete('koleksi/{id}/delete', 'KoleksiController@destroy'); // untuk delete data
+    $router->delete(
+      'koleksi/destroy',
+      'KoleksiController@deleteAllHistoryData'
+    ); // Menghapus seluruh data.
+    $router->delete(
+      'koleksi/{id}/destroy',
+      'KoleksiController@deleteHistoryData'
+    ); // Menghapus seluruh data sesuai dengan ID.
+    $router->post('koleksi/search', 'KoleksiController@search'); // Untuk query pencarian
+    $router->get('koleksi/{id}/detail', 'KoleksiController@detail'); //Untuk mendapatkan detail koleksi
+    $router->post('koleksi/delete', 'KoleksiController@destroySome'); // Untuk menghapus data yang dipilih
+    $router->post('koleksi/update', 'KoleksiController@updateSome'); // Untuk melakukan update beberapa data
+    $router->put(
+      'koleksi/restore',
+      'KoleksiController@returnAllDeleteHistoryData'
+    ); // Mengembalikan seluruh data yang sudah terhapus
+    $router->put(
+      'koleksi/{id}/restore',
+      'KoleksiController@returnDeleteHistoryData'
+    ); // Mengembalikan data yang sudah terhapus sesuai ID
+  });
+
+  $router->group(['name' => 'item'], function () use ($router) {
+    $router->get('item', 'ItemStatusController@index'); // Untuk mengambil seluruh dat
+    $router->get(
+      'item/delete',
+      'ItemStatusController@retrieveDeleteHistoryData'
+    );
+    $router->post('item', 'ItemStatusController@store'); // untuk menyimpan data
+    $router->put('item/{id}/edit', 'ItemStatusController@update'); // untuk update data
+    $router->delete('item/delete-all', 'ItemStatusController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
+    $router->delete('item/{id}/delete', 'ItemStatusController@destroy'); // untuk delete data
+    $router->delete(
+      'item/destroy',
+      'ItemStatusController@deleteAllHistoryData'
+    ); // Menghapus seluruh data.
+    $router->delete(
+      'item/{id}/destroy',
+      'ItemStatusController@deleteHistoryData'
+    ); // Menghapus seluruh data sesuai dengan ID.
+    $router->post('item/search', 'ItemStatusController@search'); // Untuk query pencarian
+    $router->get('item/{id}/detail', 'ItemStatusController@detail'); //Untuk mendapatkan detail item
+    $router->post('item/delete', 'ItemStatusController@destroySome'); // Untuk menghapus data yang dipilih
+    $router->post('item/update', 'ItemStatusController@updateSome'); // Untuk melakukan update beberapa data
+    $router->put(
+      'item/restore',
+      'ItemStatusController@returnAllDeleteHistoryData'
+    ); // Mengembalikan seluruh data yang sudah terhapus
+    $router->put(
+      'item/{id}/restore',
+      'ItemStatusController@returnDeleteHistoryData'
+    ); // Mengembalikan data yang sudah terhapus sesuai ID
+  });
+
   $router->group(['name' => 'place'], function () use ($router) {
     $router->get('place', 'PlaceController@index'); // Untuk mengambil seluruh dat
-    $router->get(
-      'place/delete',
-      'PlaceController@retrieveDeleteHistoryData'
-    );
+    $router->get('place/delete', 'PlaceController@retrieveDeleteHistoryData');
     $router->post('place', 'PlaceController@store'); // untuk menyimpan data
     $router->put('place/{id}/edit', 'PlaceController@update'); // untuk update data
     $router->delete('place/delete-all', 'PlaceController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
     $router->delete('place/{id}/delete', 'PlaceController@destroy'); // untuk delete data
-    $router->delete(
-      'place/destroy',
-      'PlaceController@deleteAllHistoryData'
-    ); // Menghapus seluruh data.
-    $router->delete(
-      'place/{id}/destroy',
-      'PlaceController@deleteHistoryData'
-    ); // Menghapus seluruh data sesuai dengan ID.
+    $router->delete('place/destroy', 'PlaceController@deleteAllHistoryData'); // Menghapus seluruh data.
+    $router->delete('place/{id}/destroy', 'PlaceController@deleteHistoryData'); // Menghapus seluruh data sesuai dengan ID.
     $router->post('place/search', 'PlaceController@search'); // Untuk query pencarian
     $router->get('place/{id}/detail', 'PlaceController@detail'); //Untuk mendapatkan detail item
     $router->post('place/delete', 'PlaceController@destroySome'); // Untuk menghapus data yang dipilih
     $router->post('place/update', 'PlaceController@updateSome'); // Untuk melakukan update beberapa data
-    $router->put(
-      'place/restore',
-      'PlaceController@returnAllDeleteHistoryData'
-    ); // Mengembalikan seluruh data yang sudah terhapus
+    $router->put('place/restore', 'PlaceController@returnAllDeleteHistoryData'); // Mengembalikan seluruh data yang sudah terhapus
     $router->put(
       'place/{id}/restore',
       'PlaceController@returnDeleteHistoryData'

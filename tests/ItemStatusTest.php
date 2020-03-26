@@ -1,29 +1,30 @@
 <?php
 
-use App\Place;
+use App\ItemStatus;
 
-class PlaceTest extends TestCase
+class ItemStatusTest extends TestCase
 {
   /**
-   * Testing untuk menampilkan hasil PLACE.
+   * Testing untuk menampilkan hasil ITEM STATUS.
    *
    *  @return void
    */
-  public function testGetDataPlace()
+  public function testGetDataItemStatus()
   {
-    $response = $this->call('GET', 'place');
+    $response = $this->call('GET', 'item');
     $this->assertEquals(200, $response->status());
   }
 
   /**
-   * Testing untuk menyimpan data kedalam database PLACE.
+   * Testing untuk menyimpan data kedalam database ITEM STATUS.
    *
    *  @return void
    */
-  public function testStorePlace()
+  public function testStoreItemStatus()
   {
     $faker = Faker\Factory::create();
-    $response = $this->call('POST', 'place', [
+    $response = $this->call('POST', 'item', [
+      'code' => $faker->randomNumber(3, false),
       'name' => $faker->name
     ]);
 
@@ -31,58 +32,59 @@ class PlaceTest extends TestCase
   }
 
   /**
-   * Testing untuk gagal menyimpan data kedalam database PLACE.
+   * Testing untuk gagal menyimpan data kedalam database ITEM STATUS.
    * Data untk metode post dikonsongkan. Hal ini dilakukan untuk
    * Melakukan cek pada method validasi
    *  @return void
    */
-  public function testFailedStorePlace()
+  public function testFailedStoreItemStatus()
   {
-    $response = $this->call('POST', 'place');
+    $response = $this->call('POST', 'item');
     $this->assertEquals(400, $response->status());
   }
 
   /**
-   * Testing ketika melakukan update PLACE.
+   * Testing ketika melakukan update ITEM STATUS.
    *
    *  @return void
    */
-  public function testUpdatePlace()
+  public function testUpdateItemStatus()
   {
     $faker = Faker\Factory::create();
-    $place = Place::first();
-    $id = $place->id;
-    $response = $this->call('PUT', "place/{$id}/edit", [
+    $itemStatus = ItemStatus::first();
+    $id = $itemStatus->id;
+    $response = $this->call('PUT', "item/{$id}/edit", [
+      'code' => $faker->randomNumber(3, false),
       'name' => $faker->name
     ]);
     $this->assertEquals(200, $response->status());
   }
 
   /**
-   * Testing ketika gagal melakukan update PLACE.
+   * Testing ketika gagal melakukan update ITEM STATUS.
    * Data untk metode update dikonsongkan. Hal ini dilakukan untuk
    * Melakukan cek pada method validasi
    *
    *  @return void
    */
-  public function testFailedUpdatePlace()
+  public function testFailedUpdateItemStatus()
   {
-    $place = Place::first();
-    $id = $place->id;
-    $response = $this->call('PUT', "place/{$id}/edit");
+    $itemStatus = ItemStatus::first();
+    $id = $itemStatus->id;
+    $response = $this->call('PUT', "item/{$id}/edit");
     $this->assertEquals(400, $response->status());
   }
 
   /**
-   * Testing ketika melakukan request terhadap detail PLACE.
+   * Testing ketika melakukan request terhadap detail ITEM STATUS.
    *
    * @return void
    */
-  public function testGetDetailPlace()
+  public function testGetDetailItemStatus()
   {
-    $place = Place::first();
-    $id = $place->id;
-    $response = $this->call('GET', "place/{$id}/detail");
+    $itemStatus = ItemStatus::first();
+    $id = $itemStatus->id;
+    $response = $this->call('GET', "item/{$id}/detail");
     $this->assertEquals(200, $response->status());
   }
 
@@ -94,10 +96,10 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testFailedGetDetailPlace()
+  public function testFailedGetDetailItemStatus()
   {
     $id = '12345';
-    $response = $this->call('GET', "place/{$id}/detail");
+    $response = $this->call('GET', "item/{$id}/detail");
     $this->assertEquals(404, $response->status());
   }
 
@@ -106,11 +108,11 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testSearchPlace()
+  public function testSearchItemStatus()
   {
-    $place = Place::first();
-    $name = $place->name;
-    $response = $this->call("POST", "place/search", [
+    $itemStatus = ItemStatus::first();
+    $name = $itemStatus->name;
+    $response = $this->call("POST", "item/search", [
       "search" => $name
     ]);
     $this->assertEquals(200, $response->status());
@@ -123,37 +125,37 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testFailedSearchPlace()
+  public function testFailedSearchItemStatus()
   {
     $search = "tidak ada";
-    $response = $this->call("POST", "place/search", [
+    $response = $this->call("POST", "item/search", [
       "search" => $search
     ]);
     $this->assertEquals(404, $response->status());
   }
 
   /**
-   * Testing ketika melakukan hapus data PLACE.
+   * Testing ketika melakukan hapus data ITEM STATUS.
    *
    * @return void
    */
-  public function testDestroyPlace()
+  public function testDestroyItemStatus()
   {
-    $place = Place::first();
-    $id = $place->id;
-    $response = $this->call("DELETE", "place/{$id}/delete");
+    $itemStatus = ItemStatus::first();
+    $id = $itemStatus->id;
+    $response = $this->call("DELETE", "item/{$id}/delete");
     $this->assertEquals(200, $response->status());
   }
 
   /**
-   * Testing ketika gagal melakukan hapus data PLACE.
+   * Testing ketika gagal melakukan hapus data ITEM STATUS.
    *
    * @return void
    */
-  public function testFailedDestroyPlace()
+  public function testFailedDestroyItemStatus()
   {
     $id = 123;
-    $response = $this->call("DELETE", "place/{$id}/delete");
+    $response = $this->call("DELETE", "item/{$id}/delete");
     $this->assertEquals(500, $response->status());
   }
 
@@ -162,17 +164,19 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testUpdateSomePlace()
+  public function testUpdateSomeItemStatus()
   {
     $faker = Faker\Factory::create();
-    $place = Place::all();
+    $itemStatus = ItemStatus::all();
 
-    $response = $this->call("POST", "place/update", [
+    $response = $this->call("POST", "item/update", [
       "update" => [
-        $place[0]->id => [
+        $itemStatus[0]->id => [
+          "code" => $faker->randomNumber(3, false),
           "name" => $faker->name
         ],
-        $place[1]->id => [
+        $itemStatus[1]->id => [
+          "code" => $faker->randomNumber(3, false),
           "name" => $faker->name
         ]
       ]
@@ -185,9 +189,9 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testFailedUpdateSomePlace()
+  public function testFailedUpdateSomeItemStatus()
   {
-    $response = $this->call("POST", "place/update");
+    $response = $this->call("POST", "item/update");
     $this->assertEquals(400, $response->status());
   }
 
@@ -196,11 +200,11 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testDestroySamePlace()
+  public function testDestroySameItemStatus()
   {
-    $place = Place::all();
-    $response = $this->call("POST", "place/delete", [
-      "delete" => [$place[0]->id, $place[1]->id]
+    $itemStatus = ItemStatus::all();
+    $response = $this->call("POST", "item/delete", [
+      "delete" => [$itemStatus[0]->id, $itemStatus[1]->id]
     ]);
     $this->assertEquals(200, $response->status());
   }
@@ -210,9 +214,9 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testFailedDestroySamePlace()
+  public function testFailedDestroySameItemStatus()
   {
-    $response = $this->call("POST", "place/delete");
+    $response = $this->call("POST", "item/delete");
     $this->assertEquals(400, $response->status());
   }
 
@@ -221,9 +225,9 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testRetrieveDeleteHistoryDataPlace()
+  public function testRetrieveDeleteHistoryDataItemStatus()
   {
-    $response = $this->call("GET", "place/delete");
+    $response = $this->call("GET", "item/delete");
     $this->assertEquals(200, $response->status());
   }
 
@@ -232,10 +236,10 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testReturnDeleteHistoryPlace()
+  public function testReturnDeleteHistoryItemStatus()
   {
-    $place = Place::onlyTrashed()->get();
-    $response = $this->call("PUT", "place/{$place[0]->id}/restore");
+    $itemStatus = ItemStatus::onlyTrashed()->get();
+    $response = $this->call("PUT", "item/{$itemStatus[0]->id}/restore");
     $this->assertEquals(200, $response->status());
   }
 
@@ -244,10 +248,10 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testDeleteHistoryDataPlace()
+  public function testDeleteHistoryDataItemStatus()
   {
-    $place = Place::onlyTrashed()->get();
-    $response = $this->call("DELETE", "place/{$place[0]->id}/destroy");
+    $itemStatus = ItemStatus::onlyTrashed()->get();
+    $response = $this->call("DELETE", "item/{$itemStatus[0]->id}/destroy");
     $this->assertEquals(200, $response->status());
   }
 
@@ -256,9 +260,9 @@ class PlaceTest extends TestCase
    *
    * @return void
    */
-  public function testReturnAllDeleteHistoryDataPlace()
+  public function testReturnAllDeleteHistoryDataItemStatus()
   {
-    $response = $this->call("PUT", "place/restore");
+    $response = $this->call("PUT", "item/restore");
     $this->assertEquals(200, $response->status());
   }
 }

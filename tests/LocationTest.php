@@ -5,7 +5,7 @@ use App\Location;
 class LocationTest extends TestCase
 {
   /**
-   * Testing untuk menampilkan hasil AUTHOR.
+   * Testing untuk menampilkan hasil LOCATION.
    *
    *  @return void
    */
@@ -16,7 +16,7 @@ class LocationTest extends TestCase
   }
 
   /**
-   * Testing untuk menyimpan data kedalam database AUTHOR.
+   * Testing untuk menyimpan data kedalam database LOCATION.
    *
    *  @return void
    */
@@ -32,7 +32,7 @@ class LocationTest extends TestCase
   }
 
   /**
-   * Testing untuk gagal menyimpan data kedalam database AUTHOR.
+   * Testing untuk gagal menyimpan data kedalam database LOCATION.
    * Data untk metode post dikonsongkan. Hal ini dilakukan untuk
    * Melakukan cek pada method validasi
    *  @return void
@@ -44,15 +44,15 @@ class LocationTest extends TestCase
   }
 
   /**
-   * Testing ketika melakukan update AUTHOR.
+   * Testing ketika melakukan update LOCATION.
    *
    *  @return void
    */
   public function testUpdateLocation()
   {
     $faker = Faker\Factory::create();
-    $publisher = Location::first();
-    $id = $publisher->id;
+    $location = Location::first();
+    $id = $location->id;
     $response = $this->call('PUT', "location/{$id}/edit", [
       'code' => $faker->randomNumber(3, false),
       'name' => $faker->name
@@ -61,7 +61,7 @@ class LocationTest extends TestCase
   }
 
   /**
-   * Testing ketika gagal melakukan update AUTHOR.
+   * Testing ketika gagal melakukan update LOCATION.
    * Data untk metode update dikonsongkan. Hal ini dilakukan untuk
    * Melakukan cek pada method validasi
    *
@@ -69,21 +69,21 @@ class LocationTest extends TestCase
    */
   public function testFailedUpdateLocation()
   {
-    $publisher = Location::first();
-    $id = $publisher->id;
+    $location = Location::first();
+    $id = $location->id;
     $response = $this->call('PUT', "location/{$id}/edit");
     $this->assertEquals(400, $response->status());
   }
 
   /**
-   * Testing ketika melakukan request terhadap detail AUTHOR.
+   * Testing ketika melakukan request terhadap detail LOCATION.
    *
    * @return void
    */
   public function testGetDetailLocation()
   {
-    $publisher = Location::first();
-    $id = $publisher->id;
+    $location = Location::first();
+    $id = $location->id;
     $response = $this->call('GET', "location/{$id}/detail");
     $this->assertEquals(200, $response->status());
   }
@@ -110,8 +110,8 @@ class LocationTest extends TestCase
    */
   public function testSearchLocation()
   {
-    $publisher = Location::first();
-    $name = $publisher->name;
+    $location = Location::first();
+    $name = $location->name;
     $response = $this->call("POST", "location/search", [
       "search" => $name
     ]);
@@ -135,20 +135,20 @@ class LocationTest extends TestCase
   }
 
   /**
-   * Testing ketika melakukan hapus data AUTHOR.
+   * Testing ketika melakukan hapus data LOCATION.
    *
    * @return void
    */
   public function testDestroyLocation()
   {
-    $publisher = Location::first();
-    $id = $publisher->id;
+    $location = Location::first();
+    $id = $location->id;
     $response = $this->call("DELETE", "location/{$id}/delete");
     $this->assertEquals(200, $response->status());
   }
 
   /**
-   * Testing ketika gagal melakukan hapus data AUTHOR.
+   * Testing ketika gagal melakukan hapus data LOCATION.
    *
    * @return void
    */
@@ -167,15 +167,15 @@ class LocationTest extends TestCase
   public function testUpdateSomeLocation()
   {
     $faker = Faker\Factory::create();
-    $publisher = Location::all();
+    $location = Location::all();
 
     $response = $this->call("POST", "location/update", [
       "update" => [
-        $publisher[0]->id => [
+        $location[0]->id => [
           "code" => $faker->randomNumber(3, false),
           "name" => $faker->name
         ],
-        $publisher[1]->id => [
+        $location[1]->id => [
           "code" => $faker->randomNumber(3, false),
           "name" => $faker->name
         ]
@@ -202,9 +202,9 @@ class LocationTest extends TestCase
    */
   public function testDestroySameLocation()
   {
-    $publisher = Location::all();
+    $location = Location::all();
     $response = $this->call("POST", "location/delete", [
-      "delete" => [$publisher[0]->id, $publisher[1]->id]
+      "delete" => [$location[0]->id, $location[1]->id]
     ]);
     $this->assertEquals(200, $response->status());
   }
@@ -238,8 +238,8 @@ class LocationTest extends TestCase
    */
   public function testReturnDeleteHistoryLocation()
   {
-    $publisher = Location::onlyTrashed()->get();
-    $response = $this->call("PUT", "location/{$publisher[0]->id}/restore");
+    $location = Location::onlyTrashed()->get();
+    $response = $this->call("PUT", "location/{$location[0]->id}/restore");
     $this->assertEquals(200, $response->status());
   }
 
@@ -250,8 +250,8 @@ class LocationTest extends TestCase
    */
   public function testDeleteHistoryDataLocation()
   {
-    $publisher = Location::onlyTrashed()->get();
-    $response = $this->call("DELETE", "location/{$publisher[0]->id}/destroy");
+    $location = Location::onlyTrashed()->get();
+    $response = $this->call("DELETE", "location/{$location[0]->id}/destroy");
     $this->assertEquals(200, $response->status());
   }
 
