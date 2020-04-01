@@ -140,7 +140,7 @@ class LocationController extends Controller
 
       $sendData = [
         $th->getCode(),
-        'Gagal Disimpan',
+        'Pencarian Dibatalkan',
         $th->GetOptions(),
         $th->getMessage()
       ];
@@ -155,11 +155,10 @@ class LocationController extends Controller
   /**
    *  Fungsi atau method ini berguna untuk menampilkan detail item Location.
    *
-   * @param Request $request
    * @param String $id
    * @return JSON response;
    */
-  public function detail(string $id, Request $request)
+  public function detail(string $id)
   {
     try {
       $data = Location::find($id);

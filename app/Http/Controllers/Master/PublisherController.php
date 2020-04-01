@@ -139,7 +139,7 @@ class PublisherController extends Controller
 
       $sendData = [
         $th->getCode(),
-        'Gagal Disimpan',
+        'Pencarian Dibatalkan',
         $th->GetOptions(),
         $th->getMessage()
       ];
@@ -154,11 +154,10 @@ class PublisherController extends Controller
   /**
    *  Fungsi atau method ini berguna untuk menampilkan detail item Publisher.
    *
-   * @param Request $request
    * @param String $id
    * @return JSON response;
    */
-  public function detail(string $id, Request $request)
+  public function detail(string $id)
   {
     try {
       $data = Publisher::find($id);
