@@ -13,6 +13,7 @@ class Member extends Model
   public $incrementing = false;
   protected $guarded = [];
   protected $with = ["memberType"];
+  protected $hidden = ['password'];
 
   public function memberType()
   {
