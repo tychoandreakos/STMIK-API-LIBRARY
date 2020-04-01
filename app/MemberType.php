@@ -14,6 +14,6 @@ class MemberType extends Model
 
   public function member()
   {
-    return $this->belongsTo("App\Member", 'id', 'membertype_id');
+    return $this->hasMany("App\Member", 'membertype_id', 'id');
   }
 }
