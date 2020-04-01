@@ -12,13 +12,25 @@ use App\MemberType;
 
 class MemberController extends Controller
 {
-  protected $fillable = [
+  private $fillable = [
     'id',
     'membertype_id',
     'name',
     'birthdate',
     "member_since",
     'expiry_date'
+  ];
+
+  private $validationStore = [
+    'id' => 'required|unique:member|integer'
+  ];
+
+  private $validationOccurs = [
+    'membertype_id' => 'required|integer',
+    'name' => 'required|string|max:150',
+    'birthdate' => 'nullable',
+    'member_since' => 'required|date',
+    'expiry_date' => 'required|date'
   ];
 
   public function index(Request $request)
@@ -53,14 +65,10 @@ class MemberController extends Controller
   public function store(Request $request)
   {
     try {
-      $this->validate($request, [
-        'id' => 'required|unique:member|integer',
-        'membertype_id' => 'required|integer',
-        'name' => 'required|string|max:150',
-        'birthdate' => 'nullable',
-        'member_since' => 'required|date',
-        'expiry_date' => 'required|date'
-      ]);
+      $this->validate(
+        $request,
+        array_merge($this->validationStore, $this->validationOccurs)
+      );
 
       try {
         $this->storeMember($request);
@@ -213,13 +221,7 @@ class MemberController extends Controller
   public function update(int $id, Request $request)
   {
     try {
-      $this->validate($request, [
-        'membertype_id' => 'required|integer',
-        'name' => 'required|string|max:150',
-        'birthdate' => 'nullable',
-        'member_since' => 'required|date',
-        'expiry_date' => 'required|date'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -548,7 +550,7 @@ class MemberController extends Controller
    * @param Request $request
    * @return Member $member
    */
-  protected function storeMember($request)
+  private function storeMember($request)
   {
     $Member = new Member();
     foreach ($this->fillable as $column) {
@@ -568,7 +570,7 @@ class MemberController extends Controller
    * @param Request $request
    * @return Member $member;
    */
-  protected function updateMember(int $id, $request)
+  private function updateMember(int $id, $request)
   {
     $Member = Member::find($id);
 
@@ -590,7 +592,7 @@ class MemberController extends Controller
    * @param $result
    * @return Member
    */
-  protected function updateSomeMember($key, $result)
+  private function updateSomeMember($key, $result)
   {
     $Member = Member::find($key);
     foreach ($this->fillable as $column) {
@@ -600,5 +602,20 @@ class MemberController extends Controller
       }
     }
     return $Member->save();
+  }
+
+  private function importMember($file)
+  {
+    $row = 1;
+    if (($handle = fopen($file, "r")) !== false) {
+      while (($data = fgetcsv($handle, 1000, ",")) !== false) {
+        $num = count($data);
+        $row++;
+        for ($c = 0; $c < $num; $c++) {
+          echo $data[$c] . "<br />\n";
+        }
+      }
+      fclose($handle);
+    }
   }
 }
