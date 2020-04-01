@@ -11,4 +11,9 @@ class MemberType extends Model
 
   protected $table = 'member_type';
   protected $guarded = [];
+
+  public function member()
+  {
+    return $this->belongsTo("App\Member", 'id', 'membertype_id');
+  }
 }
