@@ -20,6 +20,13 @@ class CreateMembership extends Migration
       $table->date('birthdate')->nullable(true);
       $table->date('member_since')->nullable(false);
       $table->date('expiry_date')->nullable(false);
+      $table->string('alamat', 150)->nullable(true);
+      $table->string('username', 100)->nullable(false)->unique();
+      $table->string('email', 100)->nullable(false)->unique();
+      $table->string('password', 50)->nullable(false);
+      $table->string('phone', 25)->nullable(false)->unique();
+      $table->enum('pending', [0, 1])->default(0);
+      $table->string('image', 100)->nullable(true);
       $table->timestamps();
       $table->softDeletes();
 

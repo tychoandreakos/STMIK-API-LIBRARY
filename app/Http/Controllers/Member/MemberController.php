@@ -546,6 +546,49 @@ class MemberController extends Controller
     }
   }
 
+  public function exportMember()
+  {
+    $list = Member::without('memberType')
+      ->get()
+      ->toArray();
+    // $list = array(
+    //   array('aaa', 'bbb', 'ccc', 'dddd'),
+    //   array('123', '456', '789'),
+    //   array('"aaa"', '"bbb"')
+    // );
+
+    // var_dump($mem);
+    // echo PHP_EOL;
+    // var_dump($list);
+
+    // exit();
+    $fp = fopen("member-" . time() . ".csv", 'w');
+
+    foreach ($list as $fields) {
+      fputcsv($fp, $fields);
+    }
+    fclose($fp);
+  }
+
+  /**
+   * @param String $file
+   */
+  public function importMember(string $file)
+  {
+    $memberCount = Member::count();
+    $row = 1;
+    if (($handle = fopen($file, "r")) !== false) {
+      while (($data = fgetcsv($handle, $memberCount, ",", '"')) !== false) {
+        $num = count($data);
+        $row++;
+        for ($c = 0; $c < $num; $c++) {
+          echo $data[$c] . "<br />\n";
+        }
+      }
+      fclose($handle);
+    }
+  }
+
   /**
    * @param Request $request
    * @return Member $member
@@ -602,20 +645,5 @@ class MemberController extends Controller
       }
     }
     return $Member->save();
-  }
-
-  private function importMember($file)
-  {
-    $row = 1;
-    if (($handle = fopen($file, "r")) !== false) {
-      while (($data = fgetcsv($handle, 1000, ",")) !== false) {
-        $num = count($data);
-        $row++;
-        for ($c = 0; $c < $num; $c++) {
-          echo $data[$c] . "<br />\n";
-        }
-      }
-      fclose($handle);
-    }
   }
 }

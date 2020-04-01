@@ -56,21 +56,13 @@ $router->group(['namespace' => 'Member'], function () use ($router) {
 
   $router->group(['name' => 'member'], function () use ($router) {
     $router->get('member', 'MemberController@index'); // untuk mengambil keseluruhan data
-    $router->get(
-      'member/delete',
-      'MemberController@retrieveDeleteHistoryData'
-    );
+    $router->get('member/export', 'MemberController@exportMember'); // untuk melakukan export data
+    $router->get('member/delete', 'MemberController@retrieveDeleteHistoryData');
     $router->post('member', 'MemberController@store'); // untuk menyimpan data
     $router->put('member/{id}/edit', 'MemberController@update'); // untuk update data
-    $router->delete(
-      'member/delete-all',
-      'MemberController@destroyAll'
-    ); // Untuk menghapus seluruh data yang ada di database
+    $router->delete('member/delete-all', 'MemberController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
     $router->delete('member/{id}/delete', 'MemberController@destroy'); // untuk delete data
-    $router->delete(
-      'member/destroy',
-      'MemberController@deleteAllHistoryData'
-    ); // Menghapus seluruh data.
+    $router->delete('member/destroy', 'MemberController@deleteAllHistoryData'); // Menghapus seluruh data.
     $router->delete(
       'member/{id}/destroy',
       'MemberController@deleteHistoryData'
