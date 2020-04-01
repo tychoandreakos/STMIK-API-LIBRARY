@@ -234,7 +234,7 @@ class PublisherTest extends TestCase
    */
   public function testReturnDeleteHistoryDataPublisher()
   {
-    $publisher = PUBLISHER::onlyTrashed()->get();
+    $publisher = Publisher::onlyTrashed()->get();
     $response = $this->call("PUT", "publisher/{$publisher[0]->id}/restore");
     $this->assertEquals(200, $response->status());
   }
@@ -246,7 +246,7 @@ class PublisherTest extends TestCase
    */
   public function testDeleteHistoryDataPublisher()
   {
-    $publisher = PUBLISHER::onlyTrashed()->get();
+    $publisher = Publisher::onlyTrashed()->get();
     $response = $this->call("DELETE", "publisher/{$publisher[0]->id}/destroy");
     $this->assertEquals(200, $response->status());
   }
