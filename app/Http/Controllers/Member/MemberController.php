@@ -12,23 +12,22 @@ use App\MemberType;
 
 class MemberController extends Controller
 {
+  protected $fillable = [
+    'id',
+    'membertype_id',
+    'name',
+    'birthdate',
+    "member_since",
+    'expiry_date'
+  ];
+
   public function index(Request $request)
   {
     try {
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $dataDB = Member::with([
-        'memberType' => function ($query) {
-          $query->select(
-            'id',
-            'name',
-            'limit_loan',
-            'loan_periode',
-            'membership_periode'
-          );
-        }
-      ])->get();
+      $dataDB = Member::all();
       $data = [
         "dataCount" => $dataDB->count(),
         'result' => $dataDB->skip($skip)->take($take)
@@ -48,10 +47,10 @@ class MemberController extends Controller
 
   /**
    * @param Request $request
-   * @param Member $memberType
+   * @param Member $Member
    * @return JSON $json
    */
-  public function store(Member $memberType, Request $request)
+  public function store(Request $request)
   {
     try {
       $this->validate($request, [
@@ -64,14 +63,7 @@ class MemberController extends Controller
       ]);
 
       try {
-        $memberType->id = $request->id;
-        $memberType->membertype_id = $request->membertype_id;
-        $memberType->name = strtolower($request->name);
-        $memberType->birthdate = $request->birthdate;
-        $memberType->member_since = $request->member_since;
-        $memberType->expiry_date = $request->expiry_date;
-
-        $memberType->save();
+        $this->storeMember($request);
         $response = 201;
 
         $sendData = [$response, 'Berhasil Disimpan'];
@@ -81,7 +73,7 @@ class MemberController extends Controller
           $response
         );
       } catch (\Throwable $th) {
-        $response = ResponseHeader::responseStatusFailed($th->getCode());
+        $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
         $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
         return response(ResponseHeader::responseFailed($sendData), $response);
@@ -110,26 +102,25 @@ class MemberController extends Controller
 
       try {
         $search = $request->input('search');
-        $find = Member::with([
-          'memberType' => function ($query) {
-            $query->select(
-              'id',
-              'name',
-              'limit_loan',
-              'loan_periode',
-              'membership_periode'
-            );
-          }
-        ])
-          ->where('name', 'LIKE', "%$search%")
-          ->get();
-        if ($find && count($find) > 0) {
-          $data = $find;
+        $find = Member::where('name', 'LIKE', "%$search%")->orWhere(
+          'id',
+          $search
+        );
+        if ($find->get() && count($find->get()) > 0) {
+          $data = $find->get();
         } else {
-          $data = MemberType::with('member')
-            ->where('name', 'LIKE', "%$search%")
-            ->select('id')
-            ->get();
+          try {
+            $data = $find
+              ->orWhere('birthdate', $search)
+              ->orWhere('member_since', $search)
+              ->orWhere('expiry_date', $search)
+              ->get();
+          } catch (\Throwable $th) {
+            $data = MemberType::with('member')
+              ->where('name', 'LIKE', "%$search%")
+              ->select('id')
+              ->get();
+          }
         }
         if ($data && count($data) > 0) {
           $response = 200;
@@ -223,8 +214,11 @@ class MemberController extends Controller
   {
     try {
       $this->validate($request, [
-        'code' => 'required',
-        'name' => 'required'
+        'membertype_id' => 'required|integer',
+        'name' => 'required|string|max:150',
+        'birthdate' => 'nullable',
+        'member_since' => 'required|date',
+        'expiry_date' => 'required|date'
       ]);
     } catch (\Throwable $th) {
       $response = 400;
@@ -238,17 +232,11 @@ class MemberController extends Controller
     }
 
     try {
-      $memberType = Member::find($id);
-      $memberType->name = strtolower($request->input('name'));
-      $memberType->limit_loan = $request->input('limit_loan');
-      $memberType->loan_periode = $request->input('loan_periode');
-      $memberType->membership_periode = $request->input('membership_periode');
-      $memberType->fines = $request->input('fines');
-      $memberType->save();
+      $Member = $this->updateMember($id, $request);
 
       $response = 200;
 
-      $sendData = [$response, 'Berhasil Diubah', $memberType];
+      $sendData = [$response, 'Berhasil Diubah', $Member];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
       $response = ResponseHeader::responseStatusFailed($th->getCode());
@@ -265,8 +253,8 @@ class MemberController extends Controller
   public function destroy(int $id)
   {
     try {
-      $memberType = Member::find($id);
-      $memberType->delete();
+      $Member = Member::find($id);
+      $Member->delete();
 
       $response = 200;
       $data = [
@@ -297,15 +285,10 @@ class MemberController extends Controller
       try {
         $data = $request->input("update");
         if ($data && count($data) > 0) {
-          foreach ($data as $key => $value) {
+          foreach ($data as $key => $val) {
             $result = $data[$key];
-            $memberType = Member::find($key);
-            $memberType->name = strtolower($result['name']);
-            $memberType->limit_loan = $result['limit_loan'];
-            $memberType->loan_periode = $result['loan_periode'];
-            $memberType->membership_periode = $result['membership_periode'];
-            $memberType->fines = $result['fines'];
-            $memberType->save();
+
+            $this->updateSomeMember($key, $result);
           }
 
           $response = 200;
@@ -366,8 +349,8 @@ class MemberController extends Controller
         $data = $request->input('delete');
         if ($data && count($data) > 0) {
           foreach ($data as $id) {
-            $memberType = Member::find($id);
-            $memberType->delete();
+            $Member = Member::find($id);
+            $Member->delete();
           }
 
           $response = 200;
@@ -444,7 +427,7 @@ class MemberController extends Controller
         ->where('id', $id)
         ->get();
       if (is_null($check) && count($checkDataInSoftDelete) < 1) {
-        $msg = "Tipe member dengan nama: {$check->name} Tidak Dapat Ditemukan";
+        $msg = "Member dengan id: {$id} Tidak Dapat Ditemukan";
         $code = 400;
         throw new ResponseException($msg, $code);
       }
@@ -559,5 +542,63 @@ class MemberController extends Controller
       $sendData = [$response, 'Gagal Menghapus Semua Data', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
+  }
+
+  /**
+   * @param Request $request
+   * @return Member $member
+   */
+  protected function storeMember($request)
+  {
+    $Member = new Member();
+    foreach ($this->fillable as $column) {
+      $field = $request[$column];
+      if (strpos($field, "/") > 0 || is_numeric($field)) {
+        $Member->$column = $field;
+      } else {
+        $Member->$column = strtolower($field);
+      }
+    }
+
+    return $Member->save();
+  }
+
+  /**
+   * @param int $id
+   * @param Request $request
+   * @return Member $member;
+   */
+  protected function updateMember(int $id, $request)
+  {
+    $Member = Member::find($id);
+
+    foreach ($this->fillable as $column) {
+      $field = $request[$column];
+      if ($field != "id" && $column != "id") {
+        if (strpos($field, "/") > 0 || is_numeric($field)) {
+          $Member->$column = $field;
+        } else {
+          $Member->$column = strtolower($field);
+        }
+      }
+    }
+    return $Member->save();
+  }
+
+  /**
+   * @param $key
+   * @param $result
+   * @return Member
+   */
+  protected function updateSomeMember($key, $result)
+  {
+    $Member = Member::find($key);
+    foreach ($this->fillable as $column) {
+      if ($column != "id") {
+        $field = $result[$column];
+        $Member->$column = strtolower($field);
+      }
+    }
+    return $Member->save();
   }
 }

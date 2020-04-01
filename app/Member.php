@@ -12,9 +12,10 @@ class Member extends Model
   protected $table = 'member';
   public $incrementing = false;
   protected $guarded = [];
+  protected $with = ["memberType"];
 
   public function memberType()
   {
-    return $this->belongsTo('App\MemberType');
+    return $this->belongsTo('App\MemberType', 'membertype_id', 'id');
   }
 }
