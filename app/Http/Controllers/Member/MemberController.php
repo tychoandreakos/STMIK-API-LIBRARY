@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Member;
 use App\MemberType;
+use Illuminate\Support\Facades\Crypt;
 
 class MemberController extends Controller
 {
@@ -18,11 +19,19 @@ class MemberController extends Controller
     'name',
     'birthdate',
     "member_since",
-    'expiry_date'
+    'expiry_date',
+    'alamat',
+    'username',
+    'email',
+    'password',
+    'phone',
+    'pending',
+    'image'
   ];
 
   private $validationStore = [
-    'id' => 'required|unique:member|integer'
+    'id' => 'required|unique:member|integer',
+    'password' => 'required|string'
   ];
 
   private $validationOccurs = [
@@ -30,7 +39,13 @@ class MemberController extends Controller
     'name' => 'required|string|max:150',
     'birthdate' => 'nullable',
     'member_since' => 'required|date',
-    'expiry_date' => 'required|date'
+    'expiry_date' => 'required|date',
+    'alamat' => 'nullable|string',
+    'username' => 'required|string',
+    'email' => 'required|email',
+    'phone' => 'required|string',
+    'pending' => 'nullable',
+    'image' => 'nullable'
   ];
 
   public function index(Request $request)
@@ -595,16 +610,9 @@ class MemberController extends Controller
    */
   private function storeMember($request)
   {
-    $Member = new Member();
-    foreach ($this->fillable as $column) {
-      $field = $request[$column];
-      if (strpos($field, "/") > 0 || is_numeric($field)) {
-        $Member->$column = $field;
-      } else {
-        $Member->$column = strtolower($field);
-      }
-    }
-
+    $combine = array_combine($this->fillable, $request->all());
+    $combine['password'] = Crypt::encrypt($combine['password']);
+    $Member = Member::create($combine);
     return $Member->save();
   }
 
@@ -639,9 +647,13 @@ class MemberController extends Controller
   {
     $Member = Member::find($key);
     foreach ($this->fillable as $column) {
-      if ($column != "id") {
+      if ($column != "id" && $column != "password") {
         $field = $result[$column];
-        $Member->$column = strtolower($field);
+        if (strpos($field, "/") > 0 || is_numeric($field)) {
+          $Member->$column = $field;
+        } else {
+          $Member->$column = strtolower($field);
+        }
       }
     }
     return $Member->save();

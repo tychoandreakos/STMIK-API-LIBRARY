@@ -25,9 +25,17 @@ class MemberTest extends TestCase
       'id' => $faker->randomNumber(3, false),
       'membertype_id' => $typeMemberID,
       'name' => $faker->name,
-      'birthdate' => $faker->date($format = 'Y-m-d', $max = 'now'),
-      'member_since' => $faker->date($format = 'Y-m-d', $max = 'now'),
-      'expiry_date' => $faker->date($format = 'Y-m-d', $max = 'now')
+      'birthdate' => $faker->date('Y/m/d', 'now'),
+      'member_since' => $faker->date('Y/m/d', 'now'),
+      'expiry_date' => $faker->date('Y/m/d', 'now'),
+      'alamat' => $faker->address,
+      'username' => $faker->username,
+      'email' => $faker->email,
+      'password' => "123",
+      'phone' => $faker->phoneNumber,
+      'pending' => 0,
+      'image' =>
+        "https://direct.rhapsody.com/imageserver/images/alb.222782138/70x70.jpeg"
     ]);
 
     $this->assertEquals(201, $response->status());
@@ -133,16 +141,30 @@ class MemberTest extends TestCase
         $member[0]->id => [
           'membertype_id' => $typeMemberID,
           'name' => $faker->name,
-          'birthdate' => $faker->date($format = 'Y-m-d', $max = 'now'),
-          'member_since' => $faker->date($format = 'Y-m-d', $max = 'now'),
-          'expiry_date' => $faker->date($format = 'Y-m-d', $max = 'now')
+          'birthdate' => $faker->date('Y/m/d', 'now'),
+          'member_since' => $faker->date('Y/m/d', 'now'),
+          'expiry_date' => $faker->date('Y/m/d', 'now'),
+          'alamat' => $faker->address,
+          'username' => $faker->username,
+          'email' => $faker->email,
+          'phone' => $faker->phoneNumber,
+          'pending' => 0,
+          'image' =>
+            "https://direct.rhapsody.com/imageserver/images/alb.222782138/70x70.jpeg"
         ],
         $member[1]->id => [
           'membertype_id' => $typeMemberID,
           'name' => $faker->name,
-          'birthdate' => $faker->date($format = 'Y-m-d', $max = 'now'),
-          'member_since' => $faker->date($format = 'Y-m-d', $max = 'now'),
-          'expiry_date' => $faker->date($format = 'Y-m-d', $max = 'now')
+          'birthdate' => $faker->date('Y/m/d', 'now'),
+          'member_since' => $faker->date('Y/m/d', 'now'),
+          'expiry_date' => $faker->date('Y/m/d', 'now'),
+          'alamat' => $faker->address,
+          'username' => $faker->username,
+          'email' => $faker->email,
+          'phone' => $faker->phoneNumber,
+          'pending' => 0,
+          'image' =>
+            "https://direct.rhapsody.com/imageserver/images/alb.222782138/70x70.jpeg"
         ]
       ]
     ]);
