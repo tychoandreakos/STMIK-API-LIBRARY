@@ -566,17 +566,6 @@ class MemberController extends Controller
     $list = Member::without('memberType')
       ->get()
       ->toArray();
-    // $list = array(
-    //   array('aaa', 'bbb', 'ccc', 'dddd'),
-    //   array('123', '456', '789'),
-    //   array('"aaa"', '"bbb"')
-    // );
-
-    // var_dump($mem);
-    // echo PHP_EOL;
-    // var_dump($list);
-
-    // exit();
     $fp = fopen("member-" . time() . ".csv", 'w');
 
     foreach ($list as $fields) {
