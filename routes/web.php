@@ -87,6 +87,28 @@ $router->group(['namespace' => 'Member'], function () use ($router) {
   });
 });
 
+$router->group(['namespace' => 'Classifications'], function () use ($router) {
+  /**
+   * Router untuk classification.
+   */
+  $router->group(['name' => 'classification'], function () use ($router) {
+    $router->get('classification', 'ClassificationNameController@index'); // untuk mengambil keseluruhan data
+    $router->post('classification', 'ClassificationNameController@store'); // untuk menyimpan data
+    $router->put(
+      'classification/{id}/edit',
+      'ClassificationNameController@update'
+    ); // untuk update data
+    $router->delete(
+      'classification/{id}/delete',
+      'ClassificationNameController@destroy'
+    ); // untuk delete data});
+    $router->post(
+      'classification/search',
+      'ClassificationNameController@search'
+    ); // Untuk query pencarian
+  });
+});
+
 $router->group(['namespace' => 'Master'], function () use ($router) {
   /**
    * Router untuk gmd.
