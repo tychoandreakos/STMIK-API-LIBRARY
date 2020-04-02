@@ -16,7 +16,6 @@ class CreateClassificationName extends Migration
         Schema::create('classification_name', function (Blueprint $table) {
             $table->id();
             $table->string("name", 50)->nullable(false)->unique();
-            $table->timestamps();
         });
     }
 
