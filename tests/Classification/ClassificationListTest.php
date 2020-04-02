@@ -9,7 +9,7 @@ class ClassificationListTest extends TestCase
    */
   public function testIndexCase()
   {
-    $response = $this->call('GET', 'classification/list');
+    $response = $this->call('GET', 'classification');
     $this->assertEquals(200, $response->status());
   }
 
@@ -19,7 +19,7 @@ class ClassificationListTest extends TestCase
   public function testStoreCase()
   {
     $faker = Faker\Factory::create();
-    $response = $this->call('POST', 'classification/list', [
+    $response = $this->call('POST', 'classification', [
       'name' => $faker->name
     ]);
 
@@ -31,7 +31,7 @@ class ClassificationListTest extends TestCase
    */
   public function testFailedValidationStoreCase()
   {
-    $response = $this->call('POST', 'classification/list');
+    $response = $this->call('POST', 'classification');
     $this->assertEquals(400, $response->status());
   }
 
@@ -43,7 +43,7 @@ class ClassificationListTest extends TestCase
   {
     $classification = ClassificationList::first();
     $name = $classification->name;
-    $response = $this->call("POST", "classification/list/search", [
+    $response = $this->call("POST", "classification/search", [
       "search" => $name
     ]);
     $this->assertEquals(200, $response->status());
@@ -55,7 +55,7 @@ class ClassificationListTest extends TestCase
   public function testFailedSearchCase()
   {
     $search = "tidak ditemukan";
-    $response = $this->call("POST", "classification/list/search", [
+    $response = $this->call("POST", "classification/search", [
       "search" => $search
     ]);
     $this->assertEquals(404, $response->status());
@@ -71,7 +71,7 @@ class ClassificationListTest extends TestCase
 
     $response = $this->call(
       "PUT",
-      "classification/list/${classification}/edit",
+      "classification/${classification}/edit",
       [
         "name" => $faker->firstName()
       ]
@@ -84,7 +84,7 @@ class ClassificationListTest extends TestCase
    */
   public function testFailedUpdateSomeCase()
   {
-    $response = $this->call("PUT", "classification/list/100/edit");
+    $response = $this->call("PUT", "classification/100/edit");
     $this->assertEquals(400, $response->status());
   }
 
@@ -95,7 +95,7 @@ class ClassificationListTest extends TestCase
   {
     $classification = ClassificationList::first();
     $id = $classification->id;
-    $response = $this->call("DELETE", "classification/list/{$id}/delete");
+    $response = $this->call("DELETE", "classification/{$id}/delete");
     $this->assertEquals(200, $response->status());
   }
 
@@ -105,7 +105,7 @@ class ClassificationListTest extends TestCase
   public function testFailedDestroyCase()
   {
     $id = 123;
-    $response = $this->call("DELETE", "classification/list/{$id}/delete");
+    $response = $this->call("DELETE", "classification/{$id}/delete");
     $this->assertEquals(500, $response->status());
   }
 }

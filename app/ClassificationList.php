@@ -10,9 +10,4 @@ class ClassificationList extends Model
   protected $guarded = [];
   public $incrementing = false;
   public $timestamp = false;
-
-  public function classificationName()
-  {
-    return $this->belongsTo("App\ClassificationName");
-  }
 }

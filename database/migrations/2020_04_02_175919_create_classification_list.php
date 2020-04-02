@@ -15,16 +15,7 @@ class CreateClassificationList extends Migration
   {
     Schema::create('classification_list', function (Blueprint $table) {
       $table->string('id', 10)->primary();
-      $table->unsignedBigInteger('name_id');
-      $table
-        ->string("name", 200)
-        ->nullable(false)
-        ->unique();
-
-      $table
-        ->foreign("name_id")
-        ->references("id")
-        ->on("classification_name");
+      $table->string("name", 200)->nullable(false);
     });
   }
 
