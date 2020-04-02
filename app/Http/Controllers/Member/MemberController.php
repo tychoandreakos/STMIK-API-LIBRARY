@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Member;
 
 use App\Exceptions\ResponseException;
+use App\Helpers\CSV;
 use App\Helpers\Pagination;
 use App\Helpers\ResponseHeader;
 use App\Http\Controllers\Controller;
@@ -10,6 +11,9 @@ use Illuminate\Http\Request;
 use App\Member;
 use App\MemberType;
 use Illuminate\Support\Facades\Crypt;
+use League\Csv\Reader;
+use League\Csv\Writer;
+use SplTempFileObject;
 
 class MemberController extends Controller
 {
@@ -86,7 +90,7 @@ class MemberController extends Controller
       );
 
       try {
-        $this->storeMember($request);
+        $this->storeMember($request->all());
         $response = 201;
 
         $sendData = [$response, 'Berhasil Disimpan'];
@@ -561,35 +565,54 @@ class MemberController extends Controller
     }
   }
 
+  /**
+   * Fungsi untuk melakukan export Member.
+   */
   public function exportMember()
   {
     $list = Member::without('memberType')
       ->get()
       ->toArray();
-    $fp = fopen("member-" . time() . ".csv", 'w');
 
-    foreach ($list as $fields) {
-      fputcsv($fp, $fields);
-    }
-    fclose($fp);
+    $csv = Writer::createFromFileObject(new SplTempFileObject());
+    $csv->insertAll($list);
+    $csv->output('member-' . time() . '.csv');
   }
 
   /**
    * @param String $file
    */
-  public function importMember(string $file)
+  public function importMember()
   {
-    $memberCount = Member::count();
-    $row = 1;
-    if (($handle = fopen($file, "r")) !== false) {
-      while (($data = fgetcsv($handle, $memberCount, ",", '"')) !== false) {
-        $num = count($data);
-        $row++;
-        for ($c = 0; $c < $num; $c++) {
-          echo $data[$c] . "<br />\n";
+    try {
+      $csv = Reader::createFromPath(
+        CSV::getPath() . '/storage/app/csv/users.csv'
+      );
+
+      try {
+        foreach (CSV::structuredCsv($csv) as $data) {
+          $this->storeMember($data);
         }
+
+        $response = 201;
+
+        $sendData = [$response, 'Berhasil Disimpan'];
+
+        return response(
+          ResponseHeader::responseSuccessWithoutData($sendData),
+          $response
+        );
+      } catch (\Throwable $th) {
+        $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
+
+        $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
+        return response(ResponseHeader::responseFailed($sendData), $response);
       }
-      fclose($handle);
+    } catch (\Throwable $th) {
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
+
+      $sendData = [$response, 'Gagal Mengambil Data', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
     }
   }
 
@@ -597,12 +620,11 @@ class MemberController extends Controller
    * @param Request $request
    * @return Member $member
    */
-  private function storeMember($request)
+  private function storeMember(array $request)
   {
-    $combine = array_combine($this->fillable, $request->all());
+    $combine = array_combine($this->fillable, $request);
     $combine['password'] = Crypt::encrypt($combine['password']);
-    $Member = Member::create($combine);
-    return $Member->save();
+    return Member::create($combine);
   }
 
   /**

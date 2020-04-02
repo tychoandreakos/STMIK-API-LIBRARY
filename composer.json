@@ -7,6 +7,7 @@
     "require": {
         "php": "^7.2.5",
         "laravel/lumen-framework": "^7.0",
+        "league/csv": "^9.0",
         "ramsey/uuid": "^3.9"
     },
     "require-dev": {
