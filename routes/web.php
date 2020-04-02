@@ -57,6 +57,10 @@ $router->group(['namespace' => 'Member'], function () use ($router) {
   $router->group(['name' => 'member'], function () use ($router) {
     $router->get('member', 'MemberController@index'); // untuk mengambil keseluruhan data
     $router->get('member/import', 'MemberController@importMember'); // untuk melakukan import data
+    $router->get(
+      'member/vendor-import',
+      'MemberController@importMemberAnotherVendor'
+    );
     $router->get('member/export', 'MemberController@exportMember'); // untuk melakukan export data
     $router->get('member/delete', 'MemberController@retrieveDeleteHistoryData');
     $router->post('member', 'MemberController@store'); // untuk menyimpan data

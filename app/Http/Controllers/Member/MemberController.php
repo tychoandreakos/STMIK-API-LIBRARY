@@ -11,9 +11,6 @@ use Illuminate\Http\Request;
 use App\Member;
 use App\MemberType;
 use Illuminate\Support\Facades\Crypt;
-use League\Csv\Reader;
-use League\Csv\Writer;
-use SplTempFileObject;
 
 class MemberController extends Controller
 {
@@ -570,24 +567,75 @@ class MemberController extends Controller
    */
   public function exportMember()
   {
-    $list = Member::without('memberType')
-      ->get()
-      ->toArray();
+    try {
+      $list = Member::without('memberType')
+        ->get()
+        ->toArray();
 
-    $csv = Writer::createFromFileObject(new SplTempFileObject());
-    $csv->insertAll($list);
-    $csv->output('member-' . time() . '.csv');
+      $csv = CSV::writeCSV();
+      $csv->insertAll($list);
+      $csv->output('member-' . time() . '.csv');
+
+      $response = 200;
+
+      $sendData = [$response, 'Sukses'];
+
+      return response(
+        ResponseHeader::responseSuccessWithoutData($sendData),
+        $response
+      );
+    } catch (\Throwable $th) {
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
+
+      $sendData = [$response, 'Gagal Mengambil Data', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
   }
 
   /**
-   * @param String $file
+   * Fungsi untuk melakukan import Member pada vendor senayan.
+   */
+  public function importMemberAnotherVendor()
+  {
+    $file = "senayan.csv";
+    try {
+      $csv = CSV::getCsv($file);
+
+      try {
+        foreach (CSV::senayanCSV($csv) as $data) {
+          $this->storeMember($data);
+        }
+
+        $response = 201;
+
+        $sendData = [$response, 'Berhasil Disimpan'];
+
+        return response(
+          ResponseHeader::responseSuccessWithoutData($sendData),
+          $response
+        );
+      } catch (\Throwable $th) {
+        $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
+
+        $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
+        return response(ResponseHeader::responseFailed($sendData), $response);
+      }
+    } catch (\Throwable $th) {
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
+
+      $sendData = [$response, 'Gagal Mengambil Data', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
+   * fungsi untuk melakukan import Member
    */
   public function importMember()
   {
+    $file = "users.csv";
     try {
-      $csv = Reader::createFromPath(
-        CSV::getPath() . '/storage/app/csv/users.csv'
-      );
+      $csv = CSV::getCsv($file);
 
       try {
         foreach (CSV::structuredCsv($csv) as $data) {
