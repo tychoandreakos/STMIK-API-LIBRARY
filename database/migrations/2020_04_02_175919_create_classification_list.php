@@ -14,13 +14,12 @@ class CreateClassificationList extends Migration
   public function up()
   {
     Schema::create('classification_list', function (Blueprint $table) {
-      $table->bigInteger('id')->primary();
+      $table->string('id', 10)->primary();
       $table->unsignedBigInteger('name_id');
       $table
         ->string("name", 200)
         ->nullable(false)
         ->unique();
-      $table->timestamps();
 
       $table
         ->foreign("name_id")

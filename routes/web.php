@@ -106,6 +106,24 @@ $router->group(['namespace' => 'Classifications'], function () use ($router) {
       'classification/search',
       'ClassificationNameController@search'
     ); // Untuk query pencarian
+
+    /**
+     * Router untuk classification List.
+     */
+    $router->get('classification/list', 'ClassificationListController@index'); // untuk mengambil keseluruhan data
+    $router->post('classification/list', 'ClassificationListController@store'); // untuk menyimpan data
+    $router->put(
+      'classification/list/{id}/edit',
+      'ClassificationListController@update'
+    ); // untuk update data
+    $router->delete(
+      'classification/list/{id}/delete',
+      'ClassificationListController@destroy'
+    ); // untuk delete data});
+    $router->post(
+      'classification/list/search',
+      'ClassificationListController@search'
+    ); // Untuk query pencarian
   });
 });
 

@@ -9,9 +9,10 @@ class ClassificationName extends Model
   protected $table = "classification_name";
   protected $guarded = [];
   public $timestamp = false;
+  protected $with = ["classificationList"];
 
   public function classificationList()
   {
-    return $this->hasMany("App\ClassificationList", 'name_id', 'id');
+    return $this->hasMany("App\ClassificationList", "name_id", "id");
   }
 }

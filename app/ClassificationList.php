@@ -8,6 +8,8 @@ class ClassificationList extends Model
 {
   protected $table = "classification_list";
   protected $guarded = [];
+  public $incrementing = false;
+  public $timestamp = false;
 
   public function classificationName()
   {
