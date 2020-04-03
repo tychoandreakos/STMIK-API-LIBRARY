@@ -12,4 +12,9 @@ class Subject extends Model
 
   protected $table = "subject";
   protected $guarded = [];
+
+  public function book()
+  {
+    return $this->hasMany("App\Book", "subject_id", "id");
+  }
 }

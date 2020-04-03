@@ -12,4 +12,9 @@ class Author extends Model
 
   protected $table = "author";
   protected $guarded = [];
+
+  public function book()
+  {
+    return $this->hasMany("App\Book", "author_id", "id");
+  }
 }

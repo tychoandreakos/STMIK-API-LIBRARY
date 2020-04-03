@@ -12,4 +12,9 @@ class Publisher extends Model
 
   protected $table = "publisher";
   protected $guarded = [];
+
+  public function book()
+  {
+    return $this->hasMany("App\Book", "publisher_id", "id");
+  }
 }

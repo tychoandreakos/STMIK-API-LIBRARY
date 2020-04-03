@@ -12,4 +12,9 @@ class Place extends Model
 
   protected $table = "place";
   protected $guarded = [];
+
+  public function book()
+  {
+    return $this->hasMany("App\Book", "place_id", "id");
+  }
 }
