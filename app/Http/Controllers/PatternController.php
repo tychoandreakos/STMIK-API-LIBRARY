@@ -53,6 +53,9 @@ class PatternController extends Controller
       $this->validate($request, $this->validationOccurs);
 
       try {
+        $request[
+          'last_pattern'
+        ] = "{$request->prefix}{$request->middle}{$request->suffix}";
         $this->storePattern($request->all());
         $response = 201;
 
@@ -237,7 +240,12 @@ class PatternController extends Controller
    */
   private function storePattern(array $request)
   {
-    $combine = array_combine($this->fillable, $request);
+    $combine = array_combine(
+      $this->fillable,
+      array_map(function ($str) {
+        return strtolower($str);
+      }, $request)
+    );
     return Pattern::create($combine);
   }
 
