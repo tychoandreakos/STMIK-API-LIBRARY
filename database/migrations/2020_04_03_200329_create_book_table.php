@@ -18,7 +18,7 @@ class CreateBookTable extends Migration
             $table->string('title', 250)->nullable(false);
             $table->string("edition", 250)->nullable(true);
             $table->string("isbn", 100)->nullable(false);
-            $table->date("release-date")->nullable(true);
+            $table->date("release_date")->nullable(true);
             $table->integer("length")->nullable(false)->default(0);
             $table->string("file_image")->nullable(true);
             $table->string("file_name")->nullable(true);
