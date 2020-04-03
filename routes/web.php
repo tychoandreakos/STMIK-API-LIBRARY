@@ -109,6 +109,17 @@ $router->group(['namespace' => 'Classifications'], function () use ($router) {
   });
 });
 
+$router->group(['name' => 'pattern'], function () use ($router) {
+  /**
+   * Router untuk pattern.
+   */
+  $router->get('pattern', 'PatternController@index'); // untuk mengambil keseluruhan data
+  $router->post('pattern', 'PatternController@store'); // untuk menyimpan data
+  $router->put('pattern/{id}/edit', 'PatternController@update'); // untuk update data
+  $router->delete('pattern/{id}/delete', 'PatternController@destroy'); // untuk delete data});
+  $router->post('pattern/search', 'PatternController@search'); // Untuk query pencarian
+});
+
 $router->group(['namespace' => 'Master'], function () use ($router) {
   /**
    * Router untuk gmd.
