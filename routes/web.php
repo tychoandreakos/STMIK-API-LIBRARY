@@ -140,6 +140,26 @@ $router->group(['namespace' => "Book"], function () use ($router) {
     $router->put('book/restore', 'BookController@returnAllDeleteHistoryData'); // Mengembalikan seluruh data yang sudah terhapus
     $router->put('book/{id}/restore', 'BookController@returnDeleteHistoryData'); // Mengembalikan data yang sudah terhapus sesuai ID
   });
+
+    /**
+   * Router untuk Book Transaction.
+   */
+  $router->group(['name' => 'book_transaction'], function () use ($router) {
+    $router->get('book-list', 'BookTransactionController@index'); // untuk mengambil keseluruhan data
+    $router->get('book-list/delete', 'BookTransactionController@retrieveDeleteHistoryData');
+    $router->post('book-list', 'BookTransactionController@store'); // untuk menyimpan data
+    $router->put('book-list/{id}/edit', 'BookTransactionController@update'); // untuk update data
+    $router->delete('book-list/delete-all', 'BookTransactionController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
+    $router->delete('book-list/{id}/delete', 'BookTransactionController@destroy'); // untuk delete data
+    $router->delete('book-list/destroy', 'BookTransactionController@deleteAllHistoryData'); // Menghapus seluruh data.
+    $router->delete('book-list/{id}/destroy', 'BookTransactionController@deleteHistoryData'); // Menghapus seluruh data sesuai dengan ID.
+    $router->post('book-list/search', 'BookTransactionController@search'); // Untuk query pencarian
+    $router->get('book-list/{id}/detail', 'BookTransactionController@detail'); //Untuk mendapatkan detail item
+    $router->post('book-list/delete', 'BookTransactionController@destroySome'); // Untuk menghapus data yang dipilih
+    $router->post('book-list/update', 'BookTransactionController@updateSome'); // Untuk melakukan update beberapa data
+    $router->put('book-list/restore', 'BookTransactionController@returnAllDeleteHistoryData'); // Mengembalikan seluruh data yang sudah terhapus
+    $router->put('book-list/{id}/restore', 'BookTransactionController@returnDeleteHistoryData'); // Mengembalikan data yang sudah terhapus sesuai ID
+  });
 });
 
 $router->group(['namespace' => 'Master'], function () use ($router) {

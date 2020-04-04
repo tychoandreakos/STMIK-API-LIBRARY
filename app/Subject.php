@@ -13,8 +13,8 @@ class Subject extends Model
   protected $table = "subject";
   protected $guarded = [];
 
-  public function book()
+  public function book_transaction()
   {
-    return $this->hasMany("App\Book", "subject_id", "id");
+    return $this->hasMany("App\BookTransaction", "subject_id", "id");
   }
 }

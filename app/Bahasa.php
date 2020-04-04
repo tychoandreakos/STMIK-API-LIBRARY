@@ -13,8 +13,8 @@ class Bahasa extends Model
   protected $table = "bahasa";
   protected $guarded = [];
 
-  public function book()
+  public function book_transaction()
   {
-    return $this->hasMany("App\Book", "language_id", "id");
+    return $this->hasMany("App\BookTransaction", "language_id", "id");
   }
 }

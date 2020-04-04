@@ -13,8 +13,8 @@ class Author extends Model
   protected $table = "author";
   protected $guarded = [];
 
-  public function book()
+  public function book_transaction()
   {
-    return $this->hasMany("App\Book", "id_author", "id");
+    return $this->hasMany("App\BookTransaction", "id_author", "id");
   }
 }

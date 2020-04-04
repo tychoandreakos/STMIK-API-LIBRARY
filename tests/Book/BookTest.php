@@ -1,11 +1,6 @@
 <?php
 
 use App\Book;
-use App\Author;
-use App\Bahasa;
-use App\Place;
-use App\Publisher;
-use App\Subject;
 
 class BookTest extends TestCase
 {
@@ -24,11 +19,6 @@ class BookTest extends TestCase
   public function testStoreCase()
   {
     $faker = Faker\Factory::create();
-    $author = Author::first()->id;
-    $publisher = Publisher::first()->id;
-    $language = Bahasa::first()->id;
-    $place = Place::first()->id;
-    $subject = Subject::first()->id;
     $response = $this->call('POST', 'book', [
       "title" => $faker->title,
       "edition" => $faker->word,
@@ -38,11 +28,6 @@ class BookTest extends TestCase
       "file_image" => "{$faker->word}.jpg",
       'file_name' => "{$faker->word}.pdf",
       "file_size" => $faker->randomNumber(2, false),
-      "id_author" => $author,
-      "id_publisher" => $publisher,
-      "id_language" => $language,
-      "id_place" => $place,
-      "id_subject" => $subject,
       'description' => $faker->sentence(6, true)
     ]);
 
@@ -98,16 +83,6 @@ class BookTest extends TestCase
     $this->assertEquals(200, $response->status());
   }
 
-  public function testSearchRelationshipCase()
-  {
-    $book = Author::first();
-    $name = $book->name;
-    $response = $this->call("POST", "book/search", [
-      "search" => $name
-    ]);
-    $this->assertEquals(200, $response->status());
-  }
-
   /**
    * @return void
    */
@@ -148,11 +123,6 @@ class BookTest extends TestCase
   {
     $faker = Faker\Factory::create();
     $book = Book::all();
-    $author = Author::first()->id;
-    $publisher = Publisher::first()->id;
-    $language = Bahasa::first()->id;
-    $place = Place::first()->id;
-    $subject = Subject::first()->id;
 
     $response = $this->call("POST", "book/update", [
       "update" => [
@@ -165,11 +135,6 @@ class BookTest extends TestCase
           "file_image" => "{$faker->word}.jpg",
           'file_name' => "{$faker->word}.pdf",
           "file_size" => $faker->randomNumber(2, false),
-          "id_author" => $author,
-          "id_publisher" => $publisher,
-          "id_language" => $language,
-          "id_place" => $place,
-          "id_subject" => $subject,
           'description' => $faker->sentence(6, true)
         ],
         $book[1]->id => [
@@ -181,11 +146,6 @@ class BookTest extends TestCase
           "file_image" => "{$faker->word}.jpg",
           'file_name' => "{$faker->word}.pdf",
           "file_size" => $faker->randomNumber(2, false),
-          "id_author" => $author,
-          "id_publisher" => $publisher,
-          "id_language" => $language,
-          "id_place" => $place,
-          "id_subject" => $subject,
           'description' => $faker->sentence(6, true)
         ]
       ]

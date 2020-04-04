@@ -13,8 +13,8 @@ class Place extends Model
   protected $table = "place";
   protected $guarded = [];
 
-  public function book()
+  public function book_transaction()
   {
-    return $this->hasMany("App\Book", "place_id", "id");
+    return $this->hasMany("App\BookTransaction", "place_id", "id");
   }
 }

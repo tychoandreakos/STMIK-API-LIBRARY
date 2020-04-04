@@ -12,30 +12,9 @@ class Book extends Model
 
   protected $table = "book";
   protected $guarded = [];
-  protected $with = ["subject", "author", "publisher", "language", "place"];
 
-  public function subject()
+  public function book_transaction()
   {
-    return $this->belongsTo("App\Subject", "id_subject", "id");
-  }
-
-  public function author()
-  {
-    return $this->belongsTo("App\Author", "id_author", "id");
-  }
-
-  public function publisher()
-  {
-    return $this->belongsTo("App\Publisher", "id_publisher", "id");
-  }
-
-  public function language()
-  {
-    return $this->belongsTo("App\Bahasa", "id_language", "id");
-  }
-
-  public function place()
-  {
-    return $this->belongsTo("App\Place", "id_place", "id");
+    return $this->hasMany("App\BookTransaction", "id_book", "id");
   }
 }
