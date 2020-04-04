@@ -120,6 +120,28 @@ $router->group(['name' => 'pattern'], function () use ($router) {
   $router->post('pattern/search', 'PatternController@search'); // Untuk query pencarian
 });
 
+$router->group(['namespace' => "Book"], function () use ($router) {
+  /**
+   * Router untuk book.
+   */
+  $router->group(['name' => 'book'], function () use ($router) {
+    $router->get('book', 'BookController@index'); // untuk mengambil keseluruhan data
+    $router->get('book/delete', 'BookController@retrieveDeleteHistoryData');
+    $router->post('book', 'BookController@store'); // untuk menyimpan data
+    $router->put('book/{id}/edit', 'BookController@update'); // untuk update data
+    $router->delete('book/delete-all', 'BookController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
+    $router->delete('book/{id}/delete', 'BookController@destroy'); // untuk delete data
+    $router->delete('book/destroy', 'BookController@deleteAllHistoryData'); // Menghapus seluruh data.
+    $router->delete('book/{id}/destroy', 'BookController@deleteHistoryData'); // Menghapus seluruh data sesuai dengan ID.
+    $router->post('book/search', 'BookController@search'); // Untuk query pencarian
+    $router->get('book/{id}/detail', 'BookController@detail'); //Untuk mendapatkan detail item
+    $router->post('book/delete', 'BookController@destroySome'); // Untuk menghapus data yang dipilih
+    $router->post('book/update', 'BookController@updateSome'); // Untuk melakukan update beberapa data
+    $router->put('book/restore', 'BookController@returnAllDeleteHistoryData'); // Mengembalikan seluruh data yang sudah terhapus
+    $router->put('book/{id}/restore', 'BookController@returnDeleteHistoryData'); // Mengembalikan data yang sudah terhapus sesuai ID
+  });
+});
+
 $router->group(['namespace' => 'Master'], function () use ($router) {
   /**
    * Router untuk gmd.

@@ -126,26 +126,12 @@ class MemberController extends Controller
 
       try {
         $search = $request->input('search');
-        $find = Member::where('name', 'LIKE', "%$search%")->orWhere(
-          'id',
-          $search
-        );
-        if ($find->get() && count($find->get()) > 0) {
-          $data = $find->get();
-        } else {
-          try {
-            $data = $find
-              ->orWhere('birthdate', $search)
-              ->orWhere('member_since', $search)
-              ->orWhere('expiry_date', $search)
-              ->get();
-          } catch (\Throwable $th) {
-            $data = MemberType::with('member')
-              ->where('name', 'LIKE', "%$search%")
-              ->select('id')
-              ->get();
-          }
-        }
+        $data = Member::where('name', 'LIKE', "%$search%")
+          ->orWhere('id', $search)
+          ->orwhereHas("memberType", function ($q) use ($search) {
+            $q->where("name", 'LIKE', "%$search%");
+          })
+          ->get();
         if ($data && count($data) > 0) {
           $response = 200;
           $dataResult = [
