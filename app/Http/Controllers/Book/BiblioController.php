@@ -9,6 +9,7 @@ use App\Helpers\ResponseHeader;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Biblio;
+use App\Helpers\BibliobigrafiRelationship;
 
 class BiblioController extends Controller
 {
@@ -680,7 +681,19 @@ class BiblioController extends Controller
   private function storeBiblio(array $request)
   {
     $combine = array_combine($this->fillable, $request);
+    print_r($this->relationshipBiblio($combine['id_pattern']));
+    die();
     return Biblio::create($combine);
+  }
+
+  /**
+   *
+   */
+  private function relationshipBiblio($combine)
+  {
+    $pattern = new BibliobigrafiRelationship();
+    $pattern->modifyPattern($combine);
+    return $pattern->getPattern();
   }
 
   /**

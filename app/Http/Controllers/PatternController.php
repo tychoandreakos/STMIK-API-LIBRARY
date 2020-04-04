@@ -9,12 +9,12 @@ use App\Pattern;
 
 class PatternController extends Controller
 {
-  private $fillable = ['prefix', 'suffix', 'middle', 'last_pattern'];
+  private $fillable = ['prefix', 'middle', 'suffix', 'last_pattern'];
 
   private $validationOccurs = [
     'prefix' => 'required|string',
-    'suffix' => 'required|string',
     'middle' => 'required|string',
+    'suffix' => 'required|string',
     'last_pattern' => 'string'
   ];
 
