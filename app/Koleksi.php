@@ -12,4 +12,9 @@ class Koleksi extends Model
 
   protected $table = "koleksi";
   protected $guarded = [];
+
+  public function biblio()
+  {
+    return $this->hasMany(Biblio::class, "id_koleksi", "id");
+  }
 }

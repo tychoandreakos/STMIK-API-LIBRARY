@@ -216,8 +216,7 @@ class PatternController extends Controller
   public function destroy(int $id)
   {
     try {
-      $Pattern = Pattern::find($id);
-      $Pattern->delete();
+      Pattern::destroy($id);
 
       $response = 200;
       $data = [

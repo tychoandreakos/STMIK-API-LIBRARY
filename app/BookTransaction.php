@@ -13,7 +13,14 @@ class BookTransaction extends Model
   protected $table = "book_transaction";
   protected $guarded = [];
 
-  protected $with = ["book","subject", "author", "publisher", "language", "place"];
+  protected $with = [
+    "book",
+    "subject",
+    "author",
+    "publisher",
+    "language",
+    "place"
+  ];
 
   public function subject()
   {
@@ -43,5 +50,10 @@ class BookTransaction extends Model
   public function place()
   {
     return $this->belongsTo("App\Place", "id_place", "id");
+  }
+
+  public function biblio()
+  {
+    return $this->hasMany(Biblio::class, "id_book_transaction", "id");
   }
 }

@@ -198,11 +198,11 @@ class BookController extends Controller
   }
 
   /**
-   * @param int $id
+   * @param string $id
    * @param Request $request
    * @return JSON $response
    */
-  public function update(int $id, Request $request)
+  public function update(string $id, Request $request)
   {
     try {
       $this->validate($request, $this->validationOccurs);

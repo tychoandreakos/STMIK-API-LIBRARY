@@ -8,26 +8,30 @@ use App\Helpers\Pagination;
 use App\Helpers\ResponseHeader;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\BookTransaction;
+use App\Biblio;
 
-class BookTransactionController extends Controller
+class BiblioController extends Controller
 {
   private $fillable = [
-    'id_book',
-    'id_author',
-    'id_publisher',
-    'id_language',
-    'id_place',
-    'id_subject'
+    'pattern_id',
+    'id_book_transaction',
+    'id_pattern',
+    "id_classification",
+    'id_location',
+    'id_gmd',
+    'id_koleksi',
+    'id_item_status'
   ];
 
   private $validationOccurs = [
-    'id_book' => 'required',
-    'id_author' => 'required',
-    'id_publisher' => 'required',
-    'id_language' => 'required',
-    'id_place' => 'required',
-    'id_subject' => 'required'
+    'pattern_id' => 'required',
+    'id_book_transaction' => 'required',
+    'id_pattern' => 'required',
+    'id_classification' => 'required',
+    'id_location' => 'required',
+    'id_gmd' => 'required',
+    'id_koleksi' => 'required',
+    'id_item_status' => 'required'
   ];
 
   public function index(Request $request)
@@ -36,7 +40,7 @@ class BookTransactionController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $dataDB = BookTransaction::all();
+      $dataDB = Biblio::all();
       $data = [
         "dataCount" => $dataDB->count(),
         'result' => $dataDB->skip($skip)->take($take)
@@ -56,7 +60,7 @@ class BookTransactionController extends Controller
 
   /**
    * @param Request $request
-   * @param BookTransaction $BookTransaction
+   * @param Biblio $Biblio
    * @return JSON $json
    */
   public function store(Request $request)
@@ -64,7 +68,7 @@ class BookTransactionController extends Controller
     try {
       $this->validate($request, $this->validationOccurs);
       try {
-        $this->storeBookTransaction($request->all());
+        $this->storeBiblio($request->all());
         $response = 201;
 
         $sendData = [$response, 'Berhasil Disimpan'];
@@ -103,26 +107,51 @@ class BookTransactionController extends Controller
 
       try {
         $search = $request->input('search');
-        $data = BookTransaction::whereHas("book", function ($q) use ($search) {
-          $q
-            ->where('title', 'LIKE', "%$search%")
-            ->orWhere('isbn', $search)
-            ->orWhere("id", $search);
-        })
-          ->orwhereHas("author", function ($q) use ($search) {
-            $q->where("name", 'LIKE', "%$search%");
+        $data = Biblio::where('pattern_id', 'LIKE', "%$search%")
+          ->orWhereHas('classification', function ($q) use ($search) {
+            $q->where("id", $search)->orWhere("name", 'LIKE', "%$search%");
           })
-          ->orwhereHas("publisher", function ($q) use ($search) {
-            $q->where("name", 'LIKE', "%$search%");
+          ->orWhereHas('location', function ($q) use ($search) {
+            $q
+              ->where("name", 'LIKE', "%$search%")
+              ->orWhere("code", 'LIKE', "%$search%");
           })
-          ->orwhereHas("language", function ($q) use ($search) {
-            $q->where("name", 'LIKE', "%$search%");
+          ->orWhereHas('gmd', function ($q) use ($search) {
+            $q
+              ->where("gmd_name", 'LIKE', "%$search%")
+              ->orWhere("gmd_code", 'LIKE', "%$search%");
           })
-          ->orwhereHas("place", function ($q) use ($search) {
-            $q->where("name", 'LIKE', "%$search%");
+          ->orWhereHas('koleksi', function ($q) use ($search) {
+            $q->where("tipe", 'LIKE', "%$search%");
           })
-          ->orwhereHas("subject", function ($q) use ($search) {
-            $q->where("name", 'LIKE', "%$search%");
+          ->orWhereHas('itemStatus', function ($q) use ($search) {
+            $q
+              ->where("name", 'LIKE', "%$search%")
+              ->orWhere("code", 'LIKE', "%$search%");
+          })
+          ->orWhereHas('bookTransaction', function ($q) use ($search) {
+            $q
+              ->whereHas("book", function ($q) use ($search) {
+                $q
+                  ->where('title', 'LIKE', "%$search%")
+                  ->orWhere("isbn", $search)
+                  ->orWhere("id", $search);
+              })
+              ->orWhereHas("author", function ($q) use ($search) {
+                $q->where("name", 'LIKE', "%$search");
+              })
+              ->orWhereHas("publisher", function ($q) use ($search) {
+                $q->where("name", 'LIKE', "%$search");
+              })
+              ->orWhereHas("language", function ($q) use ($search) {
+                $q->where("name", 'LIKE', "%$search");
+              })
+              ->orWhereHas("subject", function ($q) use ($search) {
+                $q->where("type", 'LIKE', "%$search");
+              })
+              ->orWhereHas("place", function ($q) use ($search) {
+                $q->where("name", 'LIKE', "%$search");
+              });
           })
           ->get();
 
@@ -186,7 +215,7 @@ class BookTransactionController extends Controller
   public function detail(string $id)
   {
     try {
-      $data = BookTransaction::find($id);
+      $data = Biblio::find($id);
       if ($data && !empty($data)) {
         $response = 200;
 
@@ -230,11 +259,11 @@ class BookTransactionController extends Controller
     }
 
     try {
-      $BookTransaction = $this->updateBookTransaction($id, $request);
+      $Biblio = $this->updateBiblio($id, $request);
 
       $response = 200;
 
-      $sendData = [$response, 'Berhasil Diubah', $BookTransaction];
+      $sendData = [$response, 'Berhasil Diubah', $Biblio];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
       $response = ResponseHeader::responseStatusFailed($th->getCode());
@@ -251,8 +280,8 @@ class BookTransactionController extends Controller
   public function destroy(string $id)
   {
     try {
-      $BookTransaction = BookTransaction::find($id);
-      $BookTransaction->delete();
+      $Biblio = Biblio::find($id);
+      $Biblio->delete();
 
       $response = 200;
       $data = [
@@ -286,7 +315,7 @@ class BookTransactionController extends Controller
           foreach ($data as $key => $val) {
             $result = $data[$key];
 
-            $this->updateSomeBookTransaction($key, $result);
+            $this->updateSomeBiblio($key, $result);
           }
 
           $response = 200;
@@ -347,8 +376,8 @@ class BookTransactionController extends Controller
         $data = $request->input('delete');
         if ($data && count($data) > 0) {
           foreach ($data as $id) {
-            $BookTransaction = BookTransaction::find($id);
-            $BookTransaction->delete();
+            $Biblio = Biblio::find($id);
+            $Biblio->delete();
           }
 
           $response = 200;
@@ -399,7 +428,7 @@ class BookTransactionController extends Controller
   public function retrieveDeleteHistoryData()
   {
     try {
-      $data = BookTransaction::onlyTrashed()->get();
+      $data = Biblio::onlyTrashed()->get();
 
       $response = 200;
 
@@ -420,21 +449,21 @@ class BookTransactionController extends Controller
   public function returnDeleteHistoryData(string $id)
   {
     try {
-      $check = BookTransaction::find($id);
-      $checkDataInSoftDelete = BookTransaction::onlyTrashed()
+      $check = Biblio::find($id);
+      $checkDataInSoftDelete = Biblio::onlyTrashed()
         ->where('id', $id)
         ->get();
       if (is_null($check) && count($checkDataInSoftDelete) < 1) {
-        $msg = "BookTransaction dengan id: {$id} Tidak Dapat Ditemukan";
+        $msg = "Biblio dengan id: {$id} Tidak Dapat Ditemukan";
         $code = 400;
         throw new ResponseException($msg, $code);
       }
 
-      BookTransaction::withTrashed()
+      Biblio::withTrashed()
         ->where('id', $id)
         ->restore();
 
-      $data = BookTransaction::find($id);
+      $data = Biblio::find($id);
 
       $response = 200;
 
@@ -454,7 +483,7 @@ class BookTransactionController extends Controller
   public function returnAllDeleteHistoryData()
   {
     try {
-      BookTransaction::onlyTrashed()->restore();
+      Biblio::onlyTrashed()->restore();
 
       $response = 200;
 
@@ -478,7 +507,7 @@ class BookTransactionController extends Controller
   public function deleteHistoryData(string $id)
   {
     try {
-      BookTransaction::withTrashed()
+      Biblio::withTrashed()
         ->where('id', $id)
         ->forceDelete();
 
@@ -503,7 +532,7 @@ class BookTransactionController extends Controller
   public function deleteAllHistoryData()
   {
     try {
-      BookTransaction::onlyTrashed()->forceDelete();
+      Biblio::onlyTrashed()->forceDelete();
 
       $response = 200;
 
@@ -526,7 +555,7 @@ class BookTransactionController extends Controller
   public function destroyAll()
   {
     try {
-      BookTransaction::truncate();
+      Biblio::truncate();
       $response = 200;
 
       $sendData = [$response, 'Berhasil Menghapus Semua Data'];
@@ -543,12 +572,12 @@ class BookTransactionController extends Controller
   }
 
   /**
-   * Fungsi untuk melakukan export BookTransaction.
+   * Fungsi untuk melakukan export Biblio.
    */
-  public function exportBookTransaction()
+  public function exportBiblio()
   {
     try {
-      $list = BookTransaction::without('memberType')
+      $list = Biblio::without('memberType')
         ->get()
         ->toArray();
 
@@ -573,9 +602,9 @@ class BookTransactionController extends Controller
   }
 
   /**
-   * Fungsi untuk melakukan import BookTransaction pada vendor senayan.
+   * Fungsi untuk melakukan import Biblio pada vendor senayan.
    */
-  public function importBookTransactionAnotherVendor()
+  public function importBiblioAnotherVendor()
   {
     $file = "senayan.csv";
     try {
@@ -583,7 +612,7 @@ class BookTransactionController extends Controller
 
       try {
         foreach (CSV::senayanCSV($csv) as $data) {
-          $this->storeBookTransaction($data);
+          $this->storeBiblio($data);
         }
 
         $response = 201;
@@ -609,9 +638,9 @@ class BookTransactionController extends Controller
   }
 
   /**
-   * fungsi untuk melakukan import BookTransaction
+   * fungsi untuk melakukan import Biblio
    */
-  public function importBookTransaction()
+  public function importBiblio()
   {
     $file = "users.csv";
     try {
@@ -619,7 +648,7 @@ class BookTransactionController extends Controller
 
       try {
         foreach (CSV::structuredCsv($csv) as $data) {
-          $this->storeBookTransaction($data);
+          $this->storeBiblio($data);
         }
 
         $response = 201;
@@ -646,54 +675,54 @@ class BookTransactionController extends Controller
 
   /**
    * @param Request $request
-   * @return BookTransaction $member
+   * @return Biblio $member
    */
-  private function storeBookTransaction(array $request)
+  private function storeBiblio(array $request)
   {
     $combine = array_combine($this->fillable, $request);
-    return BookTransaction::create($combine);
+    return Biblio::create($combine);
   }
 
   /**
    * @param int $id
    * @param Request $request
-   * @return BookTransaction $member;
+   * @return Biblio $member;
    */
-  private function updateBookTransaction(int $id, $request)
+  private function updateBiblio(int $id, $request)
   {
-    $BookTransaction = BookTransaction::find($id);
+    $Biblio = Biblio::find($id);
 
     foreach ($this->fillable as $column) {
       $field = $request[$column];
       if ($field != "id" && $column != "id") {
         if (strpos($field, "/") > 0 || is_numeric($field)) {
-          $BookTransaction->$column = $field;
+          $Biblio->$column = $field;
         } else {
-          $BookTransaction->$column = strtolower($field);
+          $Biblio->$column = strtolower($field);
         }
       }
     }
-    return $BookTransaction->save();
+    return $Biblio->save();
   }
 
   /**
    * @param $key
    * @param $result
-   * @return BookTransaction
+   * @return Biblio
    */
-  private function updateSomeBookTransaction($key, $result)
+  private function updateSomeBiblio($key, $result)
   {
-    $BookTransaction = BookTransaction::find($key);
+    $Biblio = Biblio::find($key);
     foreach ($this->fillable as $column) {
       if ($column != "id" && $column != "password") {
         $field = $result[$column];
         if (strpos($field, "/") > 0 || is_numeric($field)) {
-          $BookTransaction->$column = $field;
+          $Biblio->$column = $field;
         } else {
-          $BookTransaction->$column = strtolower($field);
+          $Biblio->$column = strtolower($field);
         }
       }
     }
-    return $BookTransaction->save();
+    return $Biblio->save();
   }
 }

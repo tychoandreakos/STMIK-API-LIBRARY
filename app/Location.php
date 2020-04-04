@@ -12,4 +12,9 @@ class Location extends Model
 
   protected $table = "location";
   protected $guarded = [];
+
+  public function biblio()
+  {
+    return $this->hasMany(Biblio::class, "id_location", "id");
+  }
 }

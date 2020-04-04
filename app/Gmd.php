@@ -12,4 +12,9 @@ class Gmd extends Model
 
   protected $table = "gmd";
   protected $guarded = [];
+
+  public function biblio()
+  {
+    return $this->hasMany(Biblio::class, "id_gmd", "id");
+  }
 }

@@ -33,7 +33,7 @@ class CreateMembership extends Migration
       $table
         ->foreign('membertype_id')
         ->references('id')
-        ->on('member_type');
+        ->on('member_type')->onDelete('cascade');
     });
   }
 

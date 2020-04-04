@@ -10,4 +10,9 @@ class ClassificationList extends Model
   protected $guarded = [];
   public $incrementing = false;
   public $timestamp = false;
+
+  public function biblio()
+  {
+    return $this->hasMany(Biblio::class, "id_classification", "id");
+  }
 }

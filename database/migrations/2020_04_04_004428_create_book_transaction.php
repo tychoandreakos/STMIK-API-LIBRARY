@@ -27,27 +27,27 @@ class CreateBookTransaction extends Migration
       $table
       ->foreign("id_book")
       ->references("id")
-      ->on("book");
+      ->on("book")->onDelete("cascade");
       $table
         ->foreign("id_author")
         ->references("id")
-        ->on("author");
+        ->on("author")->onDelete("cascade");
       $table
         ->foreign("id_publisher")
         ->references("id")
-        ->on("publisher");
+        ->on("publisher")->onDelete("cascade");
       $table
         ->foreign("id_language")
         ->references("id")
-        ->on("bahasa");
+        ->on("bahasa")->onDelete("cascade");
       $table
         ->foreign("id_place")
         ->references("id")
-        ->on("place");
+        ->on("place")->onDelete("cascade");
       $table
         ->foreign("id_subject")
         ->references("id")
-        ->on("subject");
+        ->on("subject")->onDelete("cascade");
     });
   }
 
