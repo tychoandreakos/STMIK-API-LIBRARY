@@ -23,7 +23,7 @@ class PublisherController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $dataDB = Publisher::all();
+      $dataDB = Publisher::latest()->get();
 
       $data = [
         "dataCount" => $dataDB->count(),

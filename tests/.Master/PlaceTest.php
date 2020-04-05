@@ -165,7 +165,7 @@ class PlaceTest extends TestCase
   public function testUpdateSomePlace()
   {
     $faker = Faker\Factory::create();
-    $place = Place::all();
+    $place = Place::latest()->get();
 
     $response = $this->call("POST", "place/update", [
       "update" => [
@@ -198,7 +198,7 @@ class PlaceTest extends TestCase
    */
   public function testDestroySamePlace()
   {
-    $place = Place::all();
+    $place = Place::latest()->get();
     $response = $this->call("POST", "place/delete", [
       "delete" => [$place[0]->id, $place[1]->id]
     ]);

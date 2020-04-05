@@ -165,7 +165,7 @@ class AuthorTest extends TestCase
   public function testUpdateSomeAuthor()
   {
     $faker = Faker\Factory::create();
-    $author = Author::all();
+    $author = Author::latest()->get();
 
     $response = $this->call("POST", "author/update", [
       "update" => [
@@ -198,7 +198,7 @@ class AuthorTest extends TestCase
    */
   public function testDestroySameAuthor()
   {
-    $author = Author::all();
+    $author = Author::latest()->get();
     $response = $this->call("POST", "author/delete", [
       "delete" => [$author[0]->id, $author[1]->id]
     ]);

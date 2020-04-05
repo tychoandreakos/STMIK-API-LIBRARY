@@ -122,7 +122,7 @@ class BookTest extends TestCase
   public function testUpdateSomeCase()
   {
     $faker = Faker\Factory::create();
-    $book = Book::all();
+    $book = Book::latest()->get();
 
     $response = $this->call("POST", "book/update", [
       "update" => [
@@ -167,7 +167,7 @@ class BookTest extends TestCase
    */
   public function testDestroySameCase()
   {
-    $book = Book::all();
+    $book = Book::latest()->get();
     $response = $this->call("POST", "book/delete", [
       "delete" => [$book[0]->id, $book[1]->id]
     ]);

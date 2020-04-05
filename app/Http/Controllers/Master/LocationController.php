@@ -23,7 +23,7 @@ class LocationController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $dataDB = Location::all();
+      $dataDB = Location::latest()->get();
       $data = [
         "dataCount" => $dataDB->count(),
         'result' => $dataDB->skip($skip)->take($take)

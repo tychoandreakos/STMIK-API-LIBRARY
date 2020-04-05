@@ -9,6 +9,8 @@ use App\Helpers\ResponseHeader;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Biblio;
+use App\Book;
+use App\BookTransaction;
 use App\Helpers\BibliobigrafiRelationship;
 
 class BiblioController extends Controller
@@ -24,15 +26,36 @@ class BiblioController extends Controller
     'id_item_status'
   ];
 
-  private $validationOccurs = [
-    'pattern_id' => 'nullable',
-    'id_book_transaction' => 'required',
+  private $modifiedRequest = [];
+
+  private $additional = [
     'id_pattern' => 'required',
-    'id_classification' => 'required',
+    "id_classification" => 'required',
     'id_location' => 'required',
     'id_gmd' => 'required',
     'id_koleksi' => 'required',
     'id_item_status' => 'required'
+  ];
+
+  private $additionBook = [
+    'id_author' => 'required',
+    'id_publisher' => 'required',
+    'id_language' => 'required',
+    'id_place' => 'required',
+    'id_subject' => 'required'
+  ];
+
+  private $validationOccurs = [
+    'title' => 'required|string',
+    'edition' => 'required',
+    'isbn' => 'required',
+    'release_date' => 'required',
+    'length' => 'nullable',
+    'file_image' => 'nullable',
+    'file_name' => 'nullable',
+    'file_size' => 'nullable',
+    'description' => 'nullable',
+    'count' => 'required'
   ];
 
   public function index(Request $request)
@@ -41,7 +64,7 @@ class BiblioController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $dataDB = Biblio::all();
+      $dataDB = Biblio::latest()->get();
       $data = [
         "dataCount" => $dataDB->count(),
         'result' => $dataDB->skip($skip)->take($take)
@@ -67,12 +90,19 @@ class BiblioController extends Controller
   public function store(Request $request)
   {
     try {
-      $this->validate($request, $this->validationOccurs);
+      $this->validate(
+        $request,
+        array_merge(
+          $this->validationOccurs,
+          $this->additionBook,
+          $this->additional
+        )
+      );
       try {
+        $this->bookTransaction($request->all());
         $count = $request->count;
-        unset($request['count']);
         for ($i = 0; $i < $count; $i++) {
-          $this->storeBiblio($request->all());
+          $this->storeBiblio($this->modifiedRequest);
         }
         $response = 201;
 
@@ -687,6 +717,53 @@ class BiblioController extends Controller
     $request["pattern_id"] = $this->relationshipBiblio($request['id_pattern']);
     $combine = array_combine($this->fillable, $request);
     return Biblio::create($combine);
+  }
+
+  /**
+   *
+   */
+  private function bookTransaction(array $request)
+  {
+    $bookKey = [
+      "title",
+      "edition",
+      "isbn",
+      "release_date",
+      "length",
+      "file_image",
+      "file_name",
+      "file_size",
+      'description'
+    ];
+    $bookSave = [];
+    foreach ($bookKey as $key) {
+      $bookSave[$key] = $request[$key];
+    }
+    $book = Book::create($bookSave);
+    $bookTransactionKey = [
+      'id_author',
+      'id_publisher',
+      'id_language',
+      'id_place',
+      'id_subject'
+    ];
+    $bookEntity = ["id_book" => $book->id];
+    foreach ($bookTransactionKey as $key) {
+      $bookEntity[$key] = $request[$key];
+    }
+
+    $bookTransaction = BookTransaction::create($bookEntity);
+
+    $this->modifiedRequest = [
+      'pattern_id' => "",
+      'id_book_transaction' => $bookTransaction->id,
+      'id_pattern' => $request['id_pattern'],
+      'id_classification' => $request['id_classification'],
+      'id_location' => $request['id_location'],
+      'id_gmd' => $request['id_gmd'],
+      'id_koleksi' => $request['id_koleksi'],
+      'id_item_status' => $request['id_item_status']
+    ];
   }
 
   /**

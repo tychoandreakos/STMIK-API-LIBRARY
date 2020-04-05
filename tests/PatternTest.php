@@ -29,4 +29,18 @@ class PatternTest extends TestCase
     array_shift($matches);
     return $matches;
   }
+
+  public function testArray()
+  {
+    $x = ["a" => "a"];
+    $a = [1];
+    foreach ($a as $key) {
+      $x[$key] = "x";
+    }
+
+    $this->assertEquals($x, [
+      "a" => "a",
+      1 => "x"
+    ]);
+  }
 }

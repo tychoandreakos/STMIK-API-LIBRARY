@@ -167,7 +167,7 @@ class LocationTest extends TestCase
   public function testUpdateSomeLocation()
   {
     $faker = Faker\Factory::create();
-    $location = Location::all();
+    $location = Location::latest()->get();
 
     $response = $this->call("POST", "location/update", [
       "update" => [
@@ -202,7 +202,7 @@ class LocationTest extends TestCase
    */
   public function testDestroySameLocation()
   {
-    $location = Location::all();
+    $location = Location::latest()->get();
     $response = $this->call("POST", "location/delete", [
       "delete" => [$location[0]->id, $location[1]->id]
     ]);

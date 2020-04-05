@@ -167,7 +167,7 @@ class SubjectTest extends TestCase
   public function testUpdateSomeSubject()
   {
     $faker = Faker\Factory::create();
-    $subject = Subject::all();
+    $subject = Subject::latest()->get();
 
     $response = $this->call("POST", "subject/update", [
       "update" => [
@@ -202,7 +202,7 @@ class SubjectTest extends TestCase
    */
   public function testDestroySameSubject()
   {
-    $subject = Subject::all();
+    $subject = Subject::latest()->get();
     $response = $this->call("POST", "subject/delete", [
       "delete" => [$subject[0]->id, $subject[1]->id]
     ]);

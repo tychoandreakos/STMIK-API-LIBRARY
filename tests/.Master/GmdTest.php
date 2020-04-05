@@ -171,7 +171,7 @@ class GmdTest extends TestCase
   public function testUpdateSome()
   {
     $faker = Faker\Factory::create();
-    $gmd = Gmd::all();
+    $gmd = Gmd::latest()->get();
 
     $response = $this->call("POST", "gmd/update", [
       "update" => [
@@ -206,7 +206,7 @@ class GmdTest extends TestCase
    */
   public function testDestroySame()
   {
-    $gmd = Gmd::all();
+    $gmd = Gmd::latest()->get();
     $response = $this->call("POST", "gmd/delete", [
       "delete" => [$gmd[0]->id, $gmd[1]->id]
     ]);

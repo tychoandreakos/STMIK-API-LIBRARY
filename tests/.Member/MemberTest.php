@@ -20,7 +20,7 @@ class MemberTest extends TestCase
   public function testStoreCase()
   {
     $faker = Faker\Factory::create();
-    $typeMemberID = MemberType::all()[0]->id;
+    $typeMemberID = MemberType::latest()->get()[0]->id;
     $response = $this->call('POST', 'member', [
       'id' => $faker->randomNumber(3, false),
       'membertype_id' => $typeMemberID,
@@ -133,8 +133,8 @@ class MemberTest extends TestCase
   public function testUpdateSomeCase()
   {
     $faker = Faker\Factory::create();
-    $member = Member::all();
-    $typeMemberID = MemberType::all()[0]->id;
+    $member = Member::latest()->get();
+    $typeMemberID = MemberType::latest()->get()[0]->id;
 
     $response = $this->call("POST", "member/update", [
       "update" => [
@@ -185,7 +185,7 @@ class MemberTest extends TestCase
    */
   public function testDestroySameCase()
   {
-    $member = Member::all();
+    $member = Member::latest()->get();
     $response = $this->call("POST", "member/delete", [
       "delete" => [$member[0]->id, $member[1]->id]
     ]);

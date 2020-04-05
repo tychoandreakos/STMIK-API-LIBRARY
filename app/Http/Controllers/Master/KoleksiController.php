@@ -23,7 +23,7 @@ class KoleksiController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $dataDB = Koleksi::all();
+      $dataDB = Koleksi::latest()->get();
       $data = [
         "dataCount" => $dataDB->count(),
         'result' => $dataDB->skip($skip)->take($take)

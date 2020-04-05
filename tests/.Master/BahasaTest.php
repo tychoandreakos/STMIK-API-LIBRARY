@@ -165,7 +165,7 @@ class BahasaTest extends TestCase
   public function testUpdateSomeBahasa()
   {
     $faker = Faker\Factory::create();
-    $bahasa = Bahasa::all();
+    $bahasa = Bahasa::latest()->get();
 
     $response = $this->call("POST", "bahasa/update", [
       "update" => [
@@ -198,7 +198,7 @@ class BahasaTest extends TestCase
    */
   public function testDestroySameBahasa()
   {
-    $bahasa = Bahasa::all();
+    $bahasa = Bahasa::latest()->get();
     $response = $this->call("POST", "bahasa/delete", [
       "delete" => [$bahasa[0]->id, $bahasa[1]->id]
     ]);

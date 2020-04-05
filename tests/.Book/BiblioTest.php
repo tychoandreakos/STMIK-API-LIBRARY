@@ -113,7 +113,7 @@ class BiblioTest extends TestCase
   // public function testUpdateSomeCase()
   // {
   //   $faker = Faker\Factory::create();
-  //   $biblio = Biblio::all();
+  //   $biblio = Biblio::latest()->get();
   //   $pattern = Pattern::first()->id;
   //   $classification = ClassificationList::first()->id;
   //   $location = Location::first()->id;
@@ -163,7 +163,7 @@ class BiblioTest extends TestCase
    */
   public function testDestroySameCase()
   {
-    $book = Biblio::all();
+    $book = Biblio::latest()->get();
     $response = $this->call("POST", "bibliobigrafi/delete", [
       "delete" => [$book[0]->id, $book[1]->id]
     ]);

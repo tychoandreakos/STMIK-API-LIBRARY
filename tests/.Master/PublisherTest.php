@@ -165,7 +165,7 @@ class PublisherTest extends TestCase
   public function testUpdateSomePublisher()
   {
     $faker = Faker\Factory::create();
-    $publisher = Publisher::all();
+    $publisher = Publisher::latest()->get();
 
     $response = $this->call("POST", "publisher/update", [
       "update" => [
@@ -198,7 +198,7 @@ class PublisherTest extends TestCase
    */
   public function testDestroySamePublisher()
   {
-    $publisher = Publisher::all();
+    $publisher = Publisher::latest()->get();
     $response = $this->call("POST", "publisher/delete", [
       "delete" => [$publisher[0]->id, $publisher[1]->id]
     ]);

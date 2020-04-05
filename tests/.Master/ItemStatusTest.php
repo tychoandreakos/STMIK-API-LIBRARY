@@ -167,7 +167,7 @@ class ItemStatusTest extends TestCase
   public function testUpdateSomeItemStatus()
   {
     $faker = Faker\Factory::create();
-    $itemStatus = ItemStatus::all();
+    $itemStatus = ItemStatus::latest()->get();
 
     $response = $this->call("POST", "item/update", [
       "update" => [
@@ -202,7 +202,7 @@ class ItemStatusTest extends TestCase
    */
   public function testDestroySameItemStatus()
   {
-    $itemStatus = ItemStatus::all();
+    $itemStatus = ItemStatus::latest()->get();
     $response = $this->call("POST", "item/delete", [
       "delete" => [$itemStatus[0]->id, $itemStatus[1]->id]
     ]);

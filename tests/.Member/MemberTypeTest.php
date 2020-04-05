@@ -112,7 +112,7 @@ class MemberTypeTest extends TestCase
   public function testUpdateSomeCase()
   {
     $faker = Faker\Factory::create();
-    $memberType = MemberType::all();
+    $memberType = MemberType::latest()->get();
 
     $response = $this->call("POST", "member-type/update", [
       "update" => [
@@ -149,7 +149,7 @@ class MemberTypeTest extends TestCase
    */
   public function testDestroySameCase()
   {
-    $memberType = MemberType::all();
+    $memberType = MemberType::latest()->get();
     $response = $this->call("POST", "member-type/delete", [
       "delete" => [$memberType[0]->id, $memberType[1]->id]
     ]);

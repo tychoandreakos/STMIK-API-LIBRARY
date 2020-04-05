@@ -165,7 +165,7 @@ class KoleksiTest extends TestCase
   public function testUpdateSomeKoleksi()
   {
     $faker = Faker\Factory::create();
-    $koleksi = Koleksi::all();
+    $koleksi = Koleksi::latest()->get();
 
     $response = $this->call("POST", "koleksi/update", [
       "update" => [
@@ -198,7 +198,7 @@ class KoleksiTest extends TestCase
    */
   public function testDestroySameKoleksi()
   {
-    $koleksi = Koleksi::all();
+    $koleksi = Koleksi::latest()->get();
     $response = $this->call("POST", "koleksi/delete", [
       "delete" => [$koleksi[0]->id, $koleksi[1]->id]
     ]);

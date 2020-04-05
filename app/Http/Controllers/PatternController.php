@@ -24,7 +24,7 @@ class PatternController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $dataDB = Pattern::all()->sort();
+      $dataDB = Pattern::latest()->get()->sort();
       $data = [
         "dataCount" => $dataDB->count(),
         'result' => $dataDB->skip($skip)->take($take)

@@ -109,7 +109,7 @@ class BookTransactionTest extends TestCase
   public function testUpdateSomeCase()
   {
     $faker = Faker\Factory::create();
-    $bookTransaction = BookTransaction::all();
+    $bookTransaction = BookTransaction::latest()->get();
     $book = Book::first()->id;
     $author = Author::first()->id;
     $publisher = Publisher::first()->id;
@@ -154,7 +154,7 @@ class BookTransactionTest extends TestCase
    */
   public function testDestroySameCase()
   {
-    $book = BookTransaction::all();
+    $book = BookTransaction::latest()->get();
     $response = $this->call("POST", "book-list/delete", [
       "delete" => [$book[0]->id, $book[1]->id]
     ]);

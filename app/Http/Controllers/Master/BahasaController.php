@@ -23,7 +23,7 @@ class BahasaController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $dataDB = Bahasa::all();
+      $dataDB = Bahasa::latest()->get();
       $data = [
         "dataCount" => $dataDB->count(),
         'result' => $dataDB->skip($skip)->take($take)

@@ -23,7 +23,7 @@ class GmdController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $dataDB = Gmd::all();
+      $dataDB = Gmd::latest()->get();
 
       $data = [
         "dataCount" => $dataDB->count(),
