@@ -1,113 +1,32 @@
 <?php
 
-use App\Pattern;
-
 class PatternTest extends TestCase
 {
-  /**
-   * @return void
-   */
-  public function testIndexCase()
+  private $lastAcesst = "b2003";
+  public function testMe()
   {
-    $response = $this->call('GET', 'pattern');
-    $this->assertEquals(200, $response->status());
+    $arr = ["b", "200", "3"];
+    $this->assertEquals($this->access(), $arr);
   }
 
-  /**
-   * @return void
-   */
-  public function testStoreCase()
+  public function testIncrement()
   {
-    $faker = Faker\Factory::create();
-    $response = $this->call('POST', 'pattern', [
-      'suffix' => $faker->word,
-      'prefix' => $faker->word,
-      'middle' => $faker->word,
-      'last_pattern' => $faker->word
-    ]);
-
-    $this->assertEquals(201, $response->status());
+    $int = (int) ($this->access()[1] += 1);
+    $inc = substr_replace(
+      $this->lastAcesst,
+      $int,
+      strlen($this->access()[0]),
+      strlen($this->access()[1])
+    );
+    $this->assertEquals($inc, "b2013");
   }
 
-  /**
-   * @return void
-   */
-  public function testFailedValidationStoreCase()
+  public function access()
   {
-    $response = $this->call('POST', 'pattern');
-    $this->assertEquals(400, $response->status());
-  }
-
-  /**
-   * @return void
-   */
-
-  public function testSearchCase()
-  {
-    $pattern = Pattern::first();
-    $last_pattern = $pattern->last_pattern;
-    $response = $this->call("POST", "pattern/search", [
-      "search" => $last_pattern
-    ]);
-    $this->assertEquals(200, $response->status());
-  }
-
-  /**
-   * @return void
-   */
-  public function testFailedSearchCase()
-  {
-    $search = "tidak ditemukan";
-    $response = $this->call("POST", "pattern/search", [
-      "search" => $search
-    ]);
-    $this->assertEquals(404, $response->status());
-  }
-
-  /**
-   * @return void
-   */
-  public function testUpdateCase()
-  {
-    $faker = Faker\Factory::create();
-    $pattern = Pattern::first()->id;
-
-    $response = $this->call("PUT", "pattern/${pattern}/edit", [
-      'suffix' => $faker->word,
-      'prefix' => $faker->word,
-      'middle' => $faker->word,
-      'last_pattern' => $faker->word
-    ]);
-    $this->assertEquals(200, $response->status());
-  }
-
-  /**
-   * @return void
-   */
-  public function testFailedUpdateSomeCase()
-  {
-    $response = $this->call("PUT", "pattern/100/edit");
-    $this->assertEquals(400, $response->status());
-  }
-
-  /**
-   * @return void
-   */
-  public function testDestroyCase()
-  {
-    $pattern = Pattern::first();
-    $id = $pattern->id;
-    $response = $this->call("DELETE", "pattern/{$id}/delete");
-    $this->assertEquals(200, $response->status());
-  }
-
-  /**
-   * @return void
-   */
-  public function testFailedDestroyCase()
-  {
-    $id = 123;
-    $response = $this->call("DELETE", "pattern/{$id}/delete");
-    $this->assertEquals(500, $response->status());
+    $matches = [];
+    $pattern = '/(\w)(\d{3,})(\w)/';
+    preg_match($pattern, $this->lastAcesst, $matches);
+    array_shift($matches);
+    return $matches;
   }
 }

@@ -25,7 +25,7 @@ class BiblioController extends Controller
   ];
 
   private $validationOccurs = [
-    'pattern_id' => 'required',
+    'pattern_id' => 'nullable',
     'id_book_transaction' => 'required',
     'id_pattern' => 'required',
     'id_classification' => 'required',
@@ -69,7 +69,11 @@ class BiblioController extends Controller
     try {
       $this->validate($request, $this->validationOccurs);
       try {
-        $this->storeBiblio($request->all());
+        $count = $request->count;
+        unset($request['count']);
+        for ($i = 0; $i < $count; $i++) {
+          $this->storeBiblio($request->all());
+        }
         $response = 201;
 
         $sendData = [$response, 'Berhasil Disimpan'];
@@ -680,9 +684,8 @@ class BiblioController extends Controller
    */
   private function storeBiblio(array $request)
   {
+    $request["pattern_id"] = $this->relationshipBiblio($request['id_pattern']);
     $combine = array_combine($this->fillable, $request);
-    print_r($this->relationshipBiblio($combine['id_pattern']));
-    die();
     return Biblio::create($combine);
   }
 

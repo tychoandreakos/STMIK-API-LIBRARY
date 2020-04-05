@@ -7,59 +7,63 @@ use App\Pattern;
 class BibliobigrafiRelationship
 {
   private $pattern;
-  private $patternModify;
   private $str;
-  /***
-   * @return int $pattern
-   */
-  public function getPattern(): string
-  {
-    return $this->patternModify;
-  }
-
-  /**
-   * @param int $str
-   * @return void
-   */
-  public function setPattern(): void
-  {
-    $this->pattern = Pattern::findOrFail($this->str);
-  }
-
-  public function modifyPattern(int $str): void
+  private $newPattern;
+  private $patternId;
+  public function modifyPattern($str)
   {
     $this->str = $str;
-    $this->initPattern();
+    $this->findPattern();
   }
 
-  /**
-   *
-   */
-  private function initPattern(): void
+  public function getPattern()
   {
-    $this->setPattern();
-    $this->patternModify = "{$this->pattern["prefix"]}{$this->incrementMiddle()}{$this->pattern["suffix"]}";
     $this->updatePattern();
+    return $this->preventNull();
   }
 
-  private function incrementMiddle(): string
+  public function preventNull()
   {
-    $middle = $this->pattern["middle"];
-    $count = $middle;
-    $inc = (int) ($count += 1);
-    return substr_replace(
-      $middle,
-      $inc,
-      strlen($middle) - strlen((string) $inc)
+    return is_null($this->patternId) ? $this->pattern : $this->patternId;
+  }
+
+  private function updatePattern()
+  {
+    try {
+      $pattern = Pattern::find($this->str);
+      $pattern->last_pattern = $this->joinPattern();
+      $pattern->save();
+    } catch (\Throwable $th) {
+      return $th;
+    }
+  }
+
+  private function joinPattern()
+  {
+    $int = (int) ($this->newPattern[1] += 1);
+    $inc = substr_replace(
+      $this->pattern,
+      $int,
+      strlen($this->newPattern[0]),
+      strlen($this->newPattern[1])
     );
+
+    $this->patternId = $inc;
+    return $inc;
   }
 
-  /**
-   *
-   */
-  private function updatePattern(): void
+  private function processPattern()
   {
-    $pattern = Pattern::findOrFail($this->str);
-    $pattern->last_pattern = $this->patternModify;
+    $matches = [];
+    $pattern = '/(\w)(\d{3,})(\w)/';
+    preg_match($pattern, $this->pattern, $matches);
+    array_shift($matches);
+    $this->newPattern = $matches;
+  }
+
+  private function findPattern()
+  {
+    $this->pattern = Pattern::findOrFail($this->str)->last_pattern;
+    $this->processPattern();
   }
 }
