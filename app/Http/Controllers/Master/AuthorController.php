@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Master;
 
 use App\Author;
 use App\Exceptions\ResponseException;
+use App\Helpers\ControllerHelper;
 use Illuminate\Http\Request;
 use App\Helpers\Pagination;
 use App\Helpers\ResponseHeader;
@@ -11,6 +12,12 @@ use App\Http\Controllers\Controller as Controller;
 
 class AuthorController extends Controller
 {
+  private $fillable = ['name'];
+
+  private $validationOccurs = [
+    'name' => 'required|string'
+  ];
+
   /**
    * Fungsi ini berfungsi untuk mendapakatkan data dari database. Response yang diterima
    * adalah seluruh data Author.
@@ -51,9 +58,7 @@ class AuthorController extends Controller
   public function store(Author $author, Request $request)
   {
     try {
-      $this->validate($request, [
-        'name' => 'required|unique:author'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -65,8 +70,7 @@ class AuthorController extends Controller
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
     try {
-      $author->name = strtolower($request->name);
-      $author->save();
+      $this->storeAuthor($request->all());
 
       $response = 201;
 
@@ -76,7 +80,7 @@ class AuthorController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -194,9 +198,7 @@ class AuthorController extends Controller
   public function update(string $id, Request $request)
   {
     try {
-      $this->validate($request, [
-        'name' => 'required'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -209,9 +211,7 @@ class AuthorController extends Controller
     }
 
     try {
-      $author = Author::find($id);
-      $author->name = strtolower($request->input('name'));
-      $author->save();
+      $author = $this->updateAuthor($request->all(), $id);
 
       $response = 200;
 
@@ -256,10 +256,11 @@ class AuthorController extends Controller
    *
    * Fungsi ini untuk mengubah data sesuai keinginan admin.
    *
-   * @param Request
+   * @param Request $request
+   * @param ControllerHelper $updateHelper
    * @return JSON response
    */
-  public function updateSome(Request $request)
+  public function updateSome(ControllerHelper $updateHelper, Request $request)
   {
     try {
       $this->validate($request, [
@@ -279,11 +280,11 @@ class AuthorController extends Controller
     try {
       $data = $request->input("update");
       if ($data && count($data) > 0) {
-        foreach ($data as $key => $value) {
+        foreach ($data as $key => $val) {
           $result = $data[$key];
-          $author = Author::find($key);
-          $author->name = strtolower($result['name']);
-          $author->save();
+
+          $Author = Author::find($key);
+          $updateHelper->update($Author, $this->fillable, $result);
         }
 
         $response = 200;
@@ -457,6 +458,26 @@ class AuthorController extends Controller
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
+  }
+
+  /**
+   *
+   */
+  private function storeAuthor(array $request)
+  {
+    $combine = array_combine($this->fillable, $request);
+    return Author::create($combine);
+  }
+
+  private function updateAuthor(array $request, $id)
+  {
+    // $author = Author::find($id);
+    //   $author->name = strtolower($request->input('name'));
+    //   $author->save();
+    $combine = array_combine($this->fillable, $request);
+    Author::find($id)->update($combine);
+
+    return $combine;
   }
 
   /**
