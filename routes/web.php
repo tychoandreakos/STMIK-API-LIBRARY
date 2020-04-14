@@ -141,44 +141,80 @@ $router->group(['namespace' => "Book"], function () use ($router) {
     $router->put('book/{id}/restore', 'BookController@returnDeleteHistoryData'); // Mengembalikan data yang sudah terhapus sesuai ID
   });
 
-    /**
+  /**
    * Router untuk Book Transaction.
    */
   $router->group(['name' => 'book_transaction'], function () use ($router) {
     $router->get('book-list', 'BookTransactionController@index'); // untuk mengambil keseluruhan data
-    $router->get('book-list/delete', 'BookTransactionController@retrieveDeleteHistoryData');
+    $router->get(
+      'book-list/delete',
+      'BookTransactionController@retrieveDeleteHistoryData'
+    );
     $router->post('book-list', 'BookTransactionController@store'); // untuk menyimpan data
     $router->put('book-list/{id}/edit', 'BookTransactionController@update'); // untuk update data
-    $router->delete('book-list/delete-all', 'BookTransactionController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
-    $router->delete('book-list/{id}/delete', 'BookTransactionController@destroy'); // untuk delete data
-    $router->delete('book-list/destroy', 'BookTransactionController@deleteAllHistoryData'); // Menghapus seluruh data.
-    $router->delete('book-list/{id}/destroy', 'BookTransactionController@deleteHistoryData'); // Menghapus seluruh data sesuai dengan ID.
+    $router->delete(
+      'book-list/delete-all',
+      'BookTransactionController@destroyAll'
+    ); // Untuk menghapus seluruh data yang ada di database
+    $router->delete(
+      'book-list/{id}/delete',
+      'BookTransactionController@destroy'
+    ); // untuk delete data
+    $router->delete(
+      'book-list/destroy',
+      'BookTransactionController@deleteAllHistoryData'
+    ); // Menghapus seluruh data.
+    $router->delete(
+      'book-list/{id}/destroy',
+      'BookTransactionController@deleteHistoryData'
+    ); // Menghapus seluruh data sesuai dengan ID.
     $router->post('book-list/search', 'BookTransactionController@search'); // Untuk query pencarian
     $router->get('book-list/{id}/detail', 'BookTransactionController@detail'); //Untuk mendapatkan detail item
     $router->post('book-list/delete', 'BookTransactionController@destroySome'); // Untuk menghapus data yang dipilih
     $router->post('book-list/update', 'BookTransactionController@updateSome'); // Untuk melakukan update beberapa data
-    $router->put('book-list/restore', 'BookTransactionController@returnAllDeleteHistoryData'); // Mengembalikan seluruh data yang sudah terhapus
-    $router->put('book-list/{id}/restore', 'BookTransactionController@returnDeleteHistoryData'); // Mengembalikan data yang sudah terhapus sesuai ID
+    $router->put(
+      'book-list/restore',
+      'BookTransactionController@returnAllDeleteHistoryData'
+    ); // Mengembalikan seluruh data yang sudah terhapus
+    $router->put(
+      'book-list/{id}/restore',
+      'BookTransactionController@returnDeleteHistoryData'
+    ); // Mengembalikan data yang sudah terhapus sesuai ID
   });
 
-   /**
+  /**
    * Router untuk Book Biblio.
    */
   $router->group(['name' => 'biblio'], function () use ($router) {
     $router->get('bibliobigrafi', 'BiblioController@index'); // untuk mengambil keseluruhan data
-    $router->get('bibliobigrafi/delete', 'BiblioController@retrieveDeleteHistoryData');
+    $router->get(
+      'bibliobigrafi/delete',
+      'BiblioController@retrieveDeleteHistoryData'
+    );
     $router->post('bibliobigrafi', 'BiblioController@store'); // untuk menyimpan data
     $router->put('bibliobigrafi/{id}/edit', 'BiblioController@update'); // untuk update data
     $router->delete('bibliobigrafi/delete-all', 'BiblioController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
     $router->delete('bibliobigrafi/{id}/delete', 'BiblioController@destroy'); // untuk delete data
-    $router->delete('bibliobigrafi/destroy', 'BiblioController@deleteAllHistoryData'); // Menghapus seluruh data.
-    $router->delete('bibliobigrafi/{id}/destroy', 'BiblioController@deleteHistoryData'); // Menghapus seluruh data sesuai dengan ID.
+    $router->delete(
+      'bibliobigrafi/destroy',
+      'BiblioController@deleteAllHistoryData'
+    ); // Menghapus seluruh data.
+    $router->delete(
+      'bibliobigrafi/{id}/destroy',
+      'BiblioController@deleteHistoryData'
+    ); // Menghapus seluruh data sesuai dengan ID.
     $router->post('bibliobigrafi/search', 'BiblioController@search'); // Untuk query pencarian
     $router->get('bibliobigrafi/{id}/detail', 'BiblioController@detail'); //Untuk mendapatkan detail item
     $router->post('bibliobigrafi/delete', 'BiblioController@destroySome'); // Untuk menghapus data yang dipilih
     $router->post('bibliobigrafi/update', 'BiblioController@updateSome'); // Untuk melakukan update beberapa data
-    $router->put('bibliobigrafi/restore', 'BiblioController@returnAllDeleteHistoryData'); // Mengembalikan seluruh data yang sudah terhapus
-    $router->put('bibliobigrafi/{id}/restore', 'BiblioController@returnDeleteHistoryData'); // Mengembalikan data yang sudah terhapus sesuai ID
+    $router->put(
+      'bibliobigrafi/restore',
+      'BiblioController@returnAllDeleteHistoryData'
+    ); // Mengembalikan seluruh data yang sudah terhapus
+    $router->put(
+      'bibliobigrafi/{id}/restore',
+      'BiblioController@returnDeleteHistoryData'
+    ); // Mengembalikan data yang sudah terhapus sesuai ID
   });
 });
 
