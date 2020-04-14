@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Master;
 
 use App\Subject;
 use App\Exceptions\ResponseException;
+use App\Helpers\ControllerHelper;
 use Illuminate\Http\Request;
 use App\Helpers\Pagination;
 use App\Helpers\ResponseHeader;
@@ -11,6 +12,13 @@ use App\Http\Controllers\Controller as Controller;
 
 class SubjectController extends Controller
 {
+  private $fillable = ['name'];
+
+  private $validationOccurs = [
+    'name' => 'required',
+    'type' => 'required'
+  ];
+
   /**
    * Fungsi ini berfungsi untuk mendapakatkan data dari database. Response yang diterima
    * adalah seluruh data Subject.
@@ -42,19 +50,16 @@ class SubjectController extends Controller
   }
 
   /**
-   * Ini fungsi untuk menyimpan data Subject kedalam database menggunakan
-   * class Request & Subject sebagai Param
+   * Ini fungsi untuk menyimpan data subject kedalam database menggunakan
+   * class Request & subject sebagai Param
    * @param $subject
    * @param $request
    * @return JSON response json
    */
-  public function store(Subject $subject, Request $request)
+  public function store(Request $request)
   {
     try {
-      $this->validate($request, [
-        'name' => 'required|unique:subject',
-        'type' => 'required'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -66,9 +71,7 @@ class SubjectController extends Controller
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
     try {
-      $subject->name = strtolower($request->name);
-      $subject->type = strtolower($request->type);
-      $subject->save();
+      $this->storeSubject($request->all());
 
       $response = 201;
 
@@ -78,7 +81,7 @@ class SubjectController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -186,7 +189,7 @@ class SubjectController extends Controller
 
   /**
    *
-   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database Subject.
+   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database subject.
    * Data yang diubah sesuai dengan $id dalam parameter yang diberikan
    *
    * @param String $id,
@@ -196,10 +199,7 @@ class SubjectController extends Controller
   public function update(string $id, Request $request)
   {
     try {
-      $this->validate($request, [
-        'name' => 'required',
-        'type' => 'required'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -212,17 +212,14 @@ class SubjectController extends Controller
     }
 
     try {
-      $subject = Subject::find($id);
-      $subject->name = strtolower($request->input('name'));
-      $subject->type = strtolower($request->input('type'));
-      $subject->save();
+      $subject = $this->updateSubject($request->all(), $id);
 
       $response = 200;
 
       $sendData = [$response, 'Berhasil Diubah', $subject];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -260,10 +257,11 @@ class SubjectController extends Controller
    *
    * Fungsi ini untuk mengubah data sesuai keinginan admin.
    *
-   * @param Request
+   * @param Request $request
+   * @param ControllerHelpers $updateHelper
    * @return JSON response
    */
-  public function updateSome(Request $request)
+  public function updateSome(ControllerHelper $updateHelper, Request $request)
   {
     try {
       $this->validate($request, [
@@ -285,10 +283,8 @@ class SubjectController extends Controller
       if ($data && count($data) > 0) {
         foreach ($data as $key => $value) {
           $result = $data[$key];
-          $subject = Subject::find($key);
-          $subject->name = strtolower($result['name']);
-          $subject->type = strtolower($result['type']);
-          $subject->save();
+          $Subject = Subject::find($key);
+          $updateHelper->update($Subject, $this->fillable, $result);
         }
 
         $response = 200;
@@ -542,5 +538,25 @@ class SubjectController extends Controller
       $sendData = [$response, 'Gagal Menghapus Semua Data', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
+  }
+
+  /**
+   *
+   */
+  private function storeSubject(array $request)
+  {
+    $combine = array_combine($this->fillable, $request);
+    return Subject::create($combine);
+  }
+
+  /**
+   *
+   */
+  private function updateSubject(array $request, $id)
+  {
+    $combine = array_combine($this->fillable, $request);
+    Subject::find($id)->update($combine);
+
+    return $combine;
   }
 }
