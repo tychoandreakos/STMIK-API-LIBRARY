@@ -11,6 +11,11 @@ use App\Http\Controllers\Controller as Controller;
 
 class PublisherController extends Controller
 {
+  private $fillable = ['name'];
+
+  private $validationOccurs = [
+    'name' => 'required|string'
+  ];
   /**
    * Fungsi ini berfungsi untuk mendapakatkan data dari database. Response yang diterima
    * adalah seluruh data Publisher.
@@ -35,7 +40,7 @@ class PublisherController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -43,18 +48,15 @@ class PublisherController extends Controller
   }
 
   /**
-   * Ini fungsi untuk menyimpan data Publisher kedalam database menggunakan
-   * class Request & Publisher sebagai Param
-   * @param $Publisher
+   * Ini fungsi untuk menyimpan data publisher kedalam database menggunakan
+   * class Request & publisher sebagai Param
    * @param $request
    * @return JSON response json
    */
-  public function store(Publisher $publisher, Request $request)
+  public function store(Request $request)
   {
     try {
-      $this->validate($request, [
-        'name' => 'required|unique:publisher'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -66,8 +68,7 @@ class PublisherController extends Controller
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
     try {
-      $publisher->name = strtolower($request->name);
-      $publisher->save();
+      $this->storePublisher($request->all());
 
       $response = 201;
 
@@ -77,7 +78,7 @@ class PublisherController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -183,9 +184,9 @@ class PublisherController extends Controller
     }
   }
 
-  /**
+ /**
    *
-   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database Publisher.
+   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database publisher.
    * Data yang diubah sesuai dengan $id dalam parameter yang diberikan
    *
    * @param String $id,
@@ -195,9 +196,7 @@ class PublisherController extends Controller
   public function update(string $id, Request $request)
   {
     try {
-      $this->validate($request, [
-        'name' => 'required'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -210,16 +209,14 @@ class PublisherController extends Controller
     }
 
     try {
-      $publisher = Publisher::find($id);
-      $publisher->name = strtolower($request->input('name'));
-      $publisher->save();
+      $publisher = $this->updatePublisher($request->all(), $id);
 
       $response = 200;
 
       $sendData = [$response, 'Berhasil Diubah', $publisher];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -246,7 +243,7 @@ class PublisherController extends Controller
       $sendData = [$response, 'Berhasil Dihapus', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -257,10 +254,11 @@ class PublisherController extends Controller
    *
    * Fungsi ini untuk mengubah data sesuai keinginan admin.
    *
-   * @param Request
+   * @param Request $request
+   * @param ControllerHelpers $updateHelper
    * @return JSON response
    */
-  public function updateSome(Request $request)
+  public function updateSome(ControllerHelper $updateHelper, Request $request)
   {
     try {
       $this->validate($request, [
@@ -282,9 +280,8 @@ class PublisherController extends Controller
       if ($data && count($data) > 0) {
         foreach ($data as $key => $value) {
           $result = $data[$key];
-          $publisher = Publisher::find($key);
-          $publisher->name = strtolower($result['name']);
-          $publisher->save();
+          $Publisher = Publisher::find($key);
+          $updateHelper->update($Publisher, $this->fillable, $result);
         }
 
         $response = 200;
@@ -390,7 +387,7 @@ class PublisherController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -427,7 +424,7 @@ class PublisherController extends Controller
       $sendData = [$response, 'Berhasil Dikembalikan', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -453,7 +450,7 @@ class PublisherController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -482,7 +479,7 @@ class PublisherController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -508,7 +505,7 @@ class PublisherController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -533,10 +530,30 @@ class PublisherController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Menghapus Semua Data', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
+  }
+
+  /**
+   *
+   */
+  private function storePublisher(array $request)
+  {
+    $combine = array_combine($this->fillable, $request);
+    return Publisher::create($combine);
+  }
+
+  /**
+   *
+   */
+  private function updatePublisher(array $request, $id)
+  {
+    $combine = array_combine($this->fillable, $request);
+    Publisher::find($id)->update($combine);
+
+    return $combine;
   }
 }
