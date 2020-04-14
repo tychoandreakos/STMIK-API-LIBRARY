@@ -41,7 +41,7 @@ class AuthorController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -55,7 +55,7 @@ class AuthorController extends Controller
    * @param $request
    * @return JSON response json
    */
-  public function store(Author $author, Request $request)
+  public function store(Request $request)
   {
     try {
       $this->validate($request, $this->validationOccurs);
@@ -218,7 +218,7 @@ class AuthorController extends Controller
       $sendData = [$response, 'Berhasil Diubah', $author];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -245,7 +245,7 @@ class AuthorController extends Controller
       $sendData = [$response, 'Berhasil Dihapus', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -390,7 +390,7 @@ class AuthorController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -427,7 +427,7 @@ class AuthorController extends Controller
       $sendData = [$response, 'Berhasil Dikembalikan', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -453,7 +453,7 @@ class AuthorController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -471,9 +471,6 @@ class AuthorController extends Controller
 
   private function updateAuthor(array $request, $id)
   {
-    // $author = Author::find($id);
-    //   $author->name = strtolower($request->input('name'));
-    //   $author->save();
     $combine = array_combine($this->fillable, $request);
     Author::find($id)->update($combine);
 
@@ -502,7 +499,7 @@ class AuthorController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -528,7 +525,7 @@ class AuthorController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -553,7 +550,7 @@ class AuthorController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Menghapus Semua Data', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
