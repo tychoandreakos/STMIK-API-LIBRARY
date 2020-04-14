@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Master;
 
 use App\Location;
 use App\Exceptions\ResponseException;
+use App\Helpers\ControllerHelper;
 use Illuminate\Http\Request;
 use App\Helpers\Pagination;
 use App\Helpers\ResponseHeader;
@@ -11,6 +12,13 @@ use App\Http\Controllers\Controller as Controller;
 
 class LocationController extends Controller
 {
+  private $fillable = ['code', 'name'];
+
+  private $validationOccurs = [
+    'code' => 'required',
+    'name' => 'required'
+  ];
+
   /**
    * Fungsi ini berfungsi untuk mendapakatkan data dari database. Response yang diterima
    * adalah seluruh data Location.
@@ -34,7 +42,7 @@ class LocationController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -42,19 +50,16 @@ class LocationController extends Controller
   }
 
   /**
-   * Ini fungsi untuk menyimpan data Location kedalam database menggunakan
-   * class Request & Location sebagai Param
+   * Ini fungsi untuk menyimpan data location kedalam database menggunakan
+   * class Request & location sebagai Param
    * @param $location
    * @param $request
    * @return JSON response json
    */
-  public function store(Location $location, Request $request)
+  public function store(Request $request)
   {
     try {
-      $this->validate($request, [
-        'code' => 'required|unique:location',
-        'name' => 'required'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -66,9 +71,7 @@ class LocationController extends Controller
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
     try {
-      $location->code = strtolower($request->code);
-      $location->name = strtolower($request->name);
-      $location->save();
+      $this->storeLocation($request->all());
 
       $response = 201;
 
@@ -78,7 +81,7 @@ class LocationController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -186,7 +189,7 @@ class LocationController extends Controller
 
   /**
    *
-   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database Location.
+   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database location.
    * Data yang diubah sesuai dengan $id dalam parameter yang diberikan
    *
    * @param String $id,
@@ -196,10 +199,7 @@ class LocationController extends Controller
   public function update(string $id, Request $request)
   {
     try {
-      $this->validate($request, [
-        'code' => 'required',
-        'name' => 'required'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -212,17 +212,14 @@ class LocationController extends Controller
     }
 
     try {
-      $location = Location::find($id);
-      $location->code = strtolower($request->input('code'));
-      $location->name = strtolower($request->input('name'));
-      $location->save();
+      $location = $this->updateLocation($request->all(), $id);
 
       $response = 200;
 
       $sendData = [$response, 'Berhasil Diubah', $location];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -249,7 +246,7 @@ class LocationController extends Controller
       $sendData = [$response, 'Berhasil Dihapus', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -260,10 +257,11 @@ class LocationController extends Controller
    *
    * Fungsi ini untuk mengubah data sesuai keinginan admin.
    *
-   * @param Request
+   * @param Request $request
+   * @param ControllerHelpers $updateHelper
    * @return JSON response
    */
-  public function updateSome(Request $request)
+  public function updateSome(ControllerHelper $updateHelper, Request $request)
   {
     try {
       $this->validate($request, [
@@ -285,10 +283,8 @@ class LocationController extends Controller
       if ($data && count($data) > 0) {
         foreach ($data as $key => $value) {
           $result = $data[$key];
-          $location = Location::find($key);
-          $location->code = strtolower($result['code']);
-          $location->name = strtolower($result['name']);
-          $location->save();
+          $Location = Location::find($key);
+          $updateHelper->update($Location, $this->fillable, $result);
         }
 
         $response = 200;
@@ -394,7 +390,7 @@ class LocationController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -431,7 +427,7 @@ class LocationController extends Controller
       $sendData = [$response, 'Berhasil Dikembalikan', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -457,7 +453,7 @@ class LocationController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -486,7 +482,7 @@ class LocationController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -512,7 +508,7 @@ class LocationController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -537,10 +533,30 @@ class LocationController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Menghapus Semua Data', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
+  }
+
+  /**
+   *
+   */
+  private function storeLocation(array $request)
+  {
+    $combine = array_combine($this->fillable, $request);
+    return Location::create($combine);
+  }
+
+  /**
+   *
+   */
+  private function updateLocation(array $request, $id)
+  {
+    $combine = array_combine($this->fillable, $request);
+    Location::find($id)->update($combine);
+
+    return $combine;
   }
 }

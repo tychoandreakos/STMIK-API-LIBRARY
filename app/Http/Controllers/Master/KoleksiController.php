@@ -49,9 +49,9 @@ class KoleksiController extends Controller
   }
 
   /**
-   * Ini fungsi untuk menyimpan data Bahasa kedalam database menggunakan
-   * class Request & Bahasa sebagai Param
-   * @param $bahasa
+   * Ini fungsi untuk menyimpan data koleksi kedalam database menggunakan
+   * class Request & koleksi sebagai Param
+   * @param $koleksi
    * @param $request
    * @return JSON response json
    */
@@ -188,7 +188,7 @@ class KoleksiController extends Controller
 
   /**
    *
-   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database Bahasa.
+   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database koleksi.
    * Data yang diubah sesuai dengan $id dalam parameter yang diberikan
    *
    * @param String $id,
@@ -211,11 +211,11 @@ class KoleksiController extends Controller
     }
 
     try {
-      $bahasa = $this->updateKoleksi($request->all(), $id);
+      $koleksi = $this->updateKoleksi($request->all(), $id);
 
       $response = 200;
 
-      $sendData = [$response, 'Berhasil Diubah', $bahasa];
+      $sendData = [$response, 'Berhasil Diubah', $koleksi];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
       $response = ResponseHeader::responseStatusFailed((int) $th->getCode());

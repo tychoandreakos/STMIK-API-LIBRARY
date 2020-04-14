@@ -49,9 +49,9 @@ class ItemStatusController extends Controller
   }
 
   /**
-   * Ini fungsi untuk menyimpan data Bahasa kedalam database menggunakan
-   * class Request & Bahasa sebagai Param
-   * @param $bahasa
+   * Ini fungsi untuk menyimpan data item kedalam database menggunakan
+   * class Request & item sebagai Param
+   * @param $item
    * @param $request
    * @return JSON response json
    */
@@ -190,7 +190,7 @@ class ItemStatusController extends Controller
 
   /**
    *
-   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database Bahasa.
+   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database item.
    * Data yang diubah sesuai dengan $id dalam parameter yang diberikan
    *
    * @param String $id,
