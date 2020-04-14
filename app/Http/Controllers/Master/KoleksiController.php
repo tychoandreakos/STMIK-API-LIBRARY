@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Master;
 
 use App\Koleksi;
 use App\Exceptions\ResponseException;
+use App\Helpers\ControllerHelper;
 use Illuminate\Http\Request;
 use App\Helpers\Pagination;
 use App\Helpers\ResponseHeader;
@@ -11,6 +12,12 @@ use App\Http\Controllers\Controller as Controller;
 
 class KoleksiController extends Controller
 {
+  private $fillable = ['tipe'];
+
+  private $validationOccurs = [
+    'tipe' => 'required|unique'
+  ];
+
   /**
    * Fungsi ini berfungsi untuk mendapakatkan data dari database. Response yang diterima
    * adalah seluruh data Koleksi.
@@ -34,7 +41,7 @@ class KoleksiController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -42,18 +49,16 @@ class KoleksiController extends Controller
   }
 
   /**
-   * Ini fungsi untuk menyimpan data Koleksi kedalam database menggunakan
-   * class Request & Koleksi sebagai Param
-   * @param $koleksi
+   * Ini fungsi untuk menyimpan data Bahasa kedalam database menggunakan
+   * class Request & Bahasa sebagai Param
+   * @param $bahasa
    * @param $request
    * @return JSON response json
    */
-  public function store(Koleksi $koleksi, Request $request)
+  public function store(Request $request)
   {
     try {
-      $this->validate($request, [
-        'tipe' => 'required|unique:koleksi'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -65,8 +70,7 @@ class KoleksiController extends Controller
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
     try {
-      $koleksi->tipe = strtolower($request->tipe);
-      $koleksi->save();
+      $this->storeKoleksi($request->all());
 
       $response = 201;
 
@@ -76,7 +80,7 @@ class KoleksiController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -184,7 +188,7 @@ class KoleksiController extends Controller
 
   /**
    *
-   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database Koleksi.
+   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database Bahasa.
    * Data yang diubah sesuai dengan $id dalam parameter yang diberikan
    *
    * @param String $id,
@@ -194,9 +198,7 @@ class KoleksiController extends Controller
   public function update(string $id, Request $request)
   {
     try {
-      $this->validate($request, [
-        'tipe' => 'required'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -209,16 +211,14 @@ class KoleksiController extends Controller
     }
 
     try {
-      $koleksi = Koleksi::find($id);
-      $koleksi->tipe = strtolower($request->input('tipe'));
-      $koleksi->save();
+      $bahasa = $this->updateKoleksi($request->all(), $id);
 
       $response = 200;
 
-      $sendData = [$response, 'Berhasil Diubah', $koleksi];
+      $sendData = [$response, 'Berhasil Diubah', $bahasa];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -245,7 +245,7 @@ class KoleksiController extends Controller
       $sendData = [$response, 'Berhasil Dihapus', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -256,10 +256,11 @@ class KoleksiController extends Controller
    *
    * Fungsi ini untuk mengubah data sesuai keinginan admin.
    *
-   * @param Request
+   * @param Request $request
+   * @param ControllerHelpers $updateHelper
    * @return JSON response
    */
-  public function updateSome(Request $request)
+  public function updateSome(ControllerHelper $updateHelper, Request $request)
   {
     try {
       $this->validate($request, [
@@ -281,9 +282,8 @@ class KoleksiController extends Controller
       if ($data && count($data) > 0) {
         foreach ($data as $key => $value) {
           $result = $data[$key];
-          $koleksi = Koleksi::find($key);
-          $koleksi->tipe = strtolower($result['tipe']);
-          $koleksi->save();
+          $Koleksi = Koleksi::find($key);
+          $updateHelper->update($Koleksi, $this->fillable, $result);
         }
 
         $response = 200;
@@ -389,7 +389,7 @@ class KoleksiController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -426,7 +426,7 @@ class KoleksiController extends Controller
       $sendData = [$response, 'Berhasil Dikembalikan', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -452,7 +452,7 @@ class KoleksiController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -481,7 +481,7 @@ class KoleksiController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -507,7 +507,7 @@ class KoleksiController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -532,10 +532,30 @@ class KoleksiController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Menghapus Semua Data', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
+  }
+
+  /**
+   *
+   */
+  private function storeKoleksi(array $request)
+  {
+    $combine = array_combine($this->fillable, $request);
+    return Koleksi::create($combine);
+  }
+
+  /**
+   *
+   */
+  private function updateKoleksi(array $request, $id)
+  {
+    $combine = array_combine($this->fillable, $request);
+    Koleksi::find($id)->update($combine);
+
+    return $combine;
   }
 }
