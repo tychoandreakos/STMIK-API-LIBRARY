@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Master;
 
 use App\ItemStatus;
 use App\Exceptions\ResponseException;
+use App\Helpers\ControllerHelper;
 use Illuminate\Http\Request;
 use App\Helpers\Pagination;
 use App\Helpers\ResponseHeader;
@@ -11,6 +12,12 @@ use App\Http\Controllers\Controller as Controller;
 
 class ItemStatusController extends Controller
 {
+  private $fillable = ['code', 'name'];
+
+  private $validationOccurs = [
+    'code' => 'required',
+    'name' => 'required'
+  ];
   /**
    * Fungsi ini berfungsi untuk mendapakatkan data dari database. Response yang diterima
    * adalah seluruh data ItemStatus.
@@ -34,7 +41,7 @@ class ItemStatusController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -42,19 +49,16 @@ class ItemStatusController extends Controller
   }
 
   /**
-   * Ini fungsi untuk menyimpan data ItemStatus kedalam database menggunakan
-   * class Request & ItemStatus sebagai Param
-   * @param $itemStatus
+   * Ini fungsi untuk menyimpan data Bahasa kedalam database menggunakan
+   * class Request & Bahasa sebagai Param
+   * @param $bahasa
    * @param $request
    * @return JSON response json
    */
-  public function store(ItemStatus $itemStatus, Request $request)
+  public function store(Request $request)
   {
     try {
-      $this->validate($request, [
-        'code' => 'required|unique:item_status',
-        'name' => 'required'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -66,9 +70,7 @@ class ItemStatusController extends Controller
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
     try {
-      $itemStatus->code = strtolower($request->code);
-      $itemStatus->name = strtolower($request->name);
-      $itemStatus->save();
+      $this->storeItem($request->all());
 
       $response = 201;
 
@@ -78,7 +80,9 @@ class ItemStatusController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed(
+        (int) (int) $th->getCode()
+      );
 
       $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -186,7 +190,7 @@ class ItemStatusController extends Controller
 
   /**
    *
-   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database ItemStatus.
+   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database Bahasa.
    * Data yang diubah sesuai dengan $id dalam parameter yang diberikan
    *
    * @param String $id,
@@ -196,10 +200,7 @@ class ItemStatusController extends Controller
   public function update(string $id, Request $request)
   {
     try {
-      $this->validate($request, [
-        'code' => 'required',
-        'name' => 'required'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -212,17 +213,16 @@ class ItemStatusController extends Controller
     }
 
     try {
-      $itemStatus = ItemStatus::find($id);
-      $itemStatus->code = strtolower($request->input('code'));
-      $itemStatus->name = strtolower($request->input('name'));
-      $itemStatus->save();
+      $item = $this->updateItem($request->all(), $id);
 
       $response = 200;
 
-      $sendData = [$response, 'Berhasil Diubah', $itemStatus];
+      $sendData = [$response, 'Berhasil Diubah', $item];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed(
+        (int) (int) $th->getCode()
+      );
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -249,7 +249,7 @@ class ItemStatusController extends Controller
       $sendData = [$response, 'Berhasil Dihapus', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -260,10 +260,11 @@ class ItemStatusController extends Controller
    *
    * Fungsi ini untuk mengubah data sesuai keinginan admin.
    *
-   * @param Request
+   * @param Request $request
+   * @param ControllerHelpers $updateHelper
    * @return JSON response
    */
-  public function updateSome(Request $request)
+  public function updateSome(ControllerHelper $updateHelper, Request $request)
   {
     try {
       $this->validate($request, [
@@ -285,10 +286,8 @@ class ItemStatusController extends Controller
       if ($data && count($data) > 0) {
         foreach ($data as $key => $value) {
           $result = $data[$key];
-          $itemStatus = ItemStatus::find($key);
-          $itemStatus->code = strtolower($result['code']);
-          $itemStatus->name = strtolower($result['name']);
-          $itemStatus->save();
+          $ItemStatus = ItemStatus::find($key);
+          $updateHelper->update($ItemStatus, $this->fillable, $result);
         }
 
         $response = 200;
@@ -394,7 +393,7 @@ class ItemStatusController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -431,7 +430,7 @@ class ItemStatusController extends Controller
       $sendData = [$response, 'Berhasil Dikembalikan', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -457,7 +456,7 @@ class ItemStatusController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -486,7 +485,7 @@ class ItemStatusController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -512,7 +511,7 @@ class ItemStatusController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -537,10 +536,30 @@ class ItemStatusController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Menghapus Semua Data', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
+  }
+
+  /**
+   *
+   */
+  private function storeItem(array $request)
+  {
+    $combine = array_combine($this->fillable, $request);
+    return ItemStatus::create($combine);
+  }
+
+  /**
+   *
+   */
+  private function updateItem(array $request, $id)
+  {
+    $combine = array_combine($this->fillable, $request);
+    ItemStatus::find($id)->update($combine);
+
+    return $combine;
   }
 }

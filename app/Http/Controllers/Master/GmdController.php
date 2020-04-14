@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Master;
 
 use App\Gmd;
 use App\Exceptions\ResponseException;
+use App\Helpers\ControllerHelper;
 use Illuminate\Http\Request;
 use App\Helpers\Pagination;
 use App\Helpers\ResponseHeader;
@@ -11,6 +12,13 @@ use App\Http\Controllers\Controller as Controller;
 
 class GmdController extends Controller
 {
+  private $fillable = ['gmd_code', 'gmd_name'];
+
+  private $validationOccurs = [
+    'gmd_code' => 'required',
+    'gmd_name' => 'required'
+  ];
+
   /**
    * Fungsi ini berfungsi untuk mendapakatkan data dari database. Response yang diterima
    * adalah seluruh data GMD.
@@ -35,7 +43,7 @@ class GmdController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -43,19 +51,16 @@ class GmdController extends Controller
   }
 
   /**
-   * Ini fungsi untuk menyimpan data GMD kedalam database menggunakan
-   * class Request & Gmd sebagai Param
+   * Ini fungsi untuk menyimpan data gmd kedalam database menggunakan
+   * class Request & gmd sebagai Param
    * @param $gmd
    * @param $request
    * @return JSON response json
    */
-  public function store(Gmd $gmd, Request $request)
+  public function store(Request $request)
   {
     try {
-      $this->validate($request, [
-        'gmd_code' => 'required|unique:gmd',
-        'gmd_name' => 'required'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -67,9 +72,7 @@ class GmdController extends Controller
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
     try {
-      $gmd->gmd_code = strtolower($request->gmd_code);
-      $gmd->gmd_name = strtolower($request->gmd_name);
-      $gmd->save();
+      $this->storeGmd($request->all());
 
       $response = 201;
 
@@ -79,7 +82,9 @@ class GmdController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed(
+        (int) (int) $th->getCode()
+      );
 
       $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -189,7 +194,7 @@ class GmdController extends Controller
 
   /**
    *
-   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database GMD.
+   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database gmd.
    * Data yang diubah sesuai dengan $id dalam parameter yang diberikan
    *
    * @param String $id,
@@ -199,10 +204,7 @@ class GmdController extends Controller
   public function update(string $id, Request $request)
   {
     try {
-      $this->validate($request, [
-        'gmd_code' => 'required',
-        'gmd_name' => 'required'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -215,17 +217,16 @@ class GmdController extends Controller
     }
 
     try {
-      $gmd = Gmd::find($id);
-      $gmd->gmd_code = strtolower($request->input('gmd_code'));
-      $gmd->gmd_name = strtolower($request->input('gmd_name'));
-      $gmd->save();
+      $gmd = $this->updateGmd($request->all(), $id);
 
       $response = 200;
 
       $sendData = [$response, 'Berhasil Diubah', $gmd];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed(
+        (int) (int) $th->getCode()
+      );
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -252,7 +253,7 @@ class GmdController extends Controller
       $sendData = [$response, 'Berhasil Dihapus', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -263,10 +264,11 @@ class GmdController extends Controller
    *
    * Fungsi ini untuk mengubah data sesuai keinginan admin.
    *
-   * @param Request
+   * @param Request $request
+   * @param ControllerHelpers $updateHelper
    * @return JSON response
    */
-  public function updateSome(Request $request)
+  public function updateSome(ControllerHelper $updateHelper, Request $request)
   {
     try {
       $this->validate($request, [
@@ -288,10 +290,8 @@ class GmdController extends Controller
       if ($data && count($data) > 0) {
         foreach ($data as $key => $value) {
           $result = $data[$key];
-          $gmd = Gmd::find($key);
-          $gmd->gmd_code = strtolower($result['gmd_code']);
-          $gmd->gmd_name = strtolower($result['gmd_name']);
-          $gmd->save();
+          $Gmd = Gmd::find($key);
+          $updateHelper->update($Gmd, $this->fillable, $result);
         }
 
         $response = 200;
@@ -397,7 +397,7 @@ class GmdController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -434,7 +434,7 @@ class GmdController extends Controller
       $sendData = [$response, 'Berhasil Dikembalikan', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -460,7 +460,7 @@ class GmdController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -489,7 +489,7 @@ class GmdController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -515,7 +515,7 @@ class GmdController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -540,10 +540,30 @@ class GmdController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Menghapus Semua Data', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
+  }
+
+  /**
+   *
+   */
+  private function storeGmd(array $request)
+  {
+    $combine = array_combine($this->fillable, $request);
+    return Gmd::create($combine);
+  }
+
+  /**
+   *
+   */
+  private function updateGmd(array $request, $id)
+  {
+    $combine = array_combine($this->fillable, $request);
+    Gmd::find($id)->update($combine);
+
+    return $combine;
   }
 }

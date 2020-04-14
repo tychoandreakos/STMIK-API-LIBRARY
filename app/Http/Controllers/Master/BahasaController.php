@@ -198,9 +198,7 @@ class BahasaController extends Controller
   public function update(string $id, Request $request)
   {
     try {
-      $this->validate($request, [
-        'name' => 'required'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -258,7 +256,8 @@ class BahasaController extends Controller
    *
    * Fungsi ini untuk mengubah data sesuai keinginan admin.
    *
-   * @param Request
+   * @param Request $request
+   * @param ControllerHelpers $updateHelper
    * @return JSON response
    */
   public function updateSome(ControllerHelper $updateHelper, Request $request)
@@ -549,6 +548,9 @@ class BahasaController extends Controller
     return Bahasa::create($combine);
   }
 
+  /**
+   *
+   */
   private function updateBahasa(array $request, $id)
   {
     $combine = array_combine($this->fillable, $request);
