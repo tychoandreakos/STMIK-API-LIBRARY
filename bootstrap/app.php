@@ -70,9 +70,8 @@ $app->configure('app');
 |
 */
 
-$app->middleware([
-    App\Http\Middleware\CorsMiddleware::class
-]);
+// $app->middleware([App\Http\Middleware\CorsMiddleware::class]);
+$app->middleware(['Nord\Lumen\Cors\CorsMiddleware']);
 
 // $app->routeMiddleware([
 //     'auth' => App\Http\Middleware\Authenticate::class,
@@ -89,6 +88,7 @@ $app->middleware([
 |
 */
 
+$app->register('Nord\Lumen\Cors\CorsServiceProvider');
 // $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
@@ -99,7 +99,7 @@ $app->middleware([
 |--------------------------------------------------------------------------
 |
 | Next we will include the routes file so that they can all be added to
-| the application. This will provide all of the URLs the application
+| the application. This will provide all of `the URLs the application
 | can respond to, as well as the controllers that may handle them.
 |
 */
