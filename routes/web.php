@@ -120,7 +120,7 @@ $router->group(['name' => 'pattern'], function () use ($router) {
   $router->post('pattern/search', 'PatternController@search'); // Untuk query pencarian
 });
 
-$router->group(['namespace' => "Book"], function () use ($router) {
+$router->group(['namespace' => 'Book'], function () use ($router) {
   /**
    * Router untuk book.
    */
@@ -227,6 +227,11 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->get('gmd/delete', 'GmdController@retrieveDeleteHistoryData');
     $router->post('gmd', 'GmdController@store'); // untuk menyimpan data
     $router->put('gmd/{id}/edit', 'GmdController@update'); // untuk update data
+    $router->post(
+      'gmd/destroy-collections',
+      'GmdController@deleteHistoryCollectionData'
+    ); // Untuk menghapus data berupa collections
+    $router->post('gmd/restore', 'GmdController@restoreCollectionData'); //Untuk melakukan restorasi data
     $router->delete('gmd/delete-all', 'GmdController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
     $router->delete('gmd/{id}/delete', 'GmdController@destroy'); // untuk delete data
     $router->delete('gmd/destroy', 'GmdController@deleteAllHistoryData'); // Menghapus seluruh data.
