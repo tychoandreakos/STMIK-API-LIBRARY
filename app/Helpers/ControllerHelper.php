@@ -7,9 +7,9 @@ class ControllerHelper
   function update($Model, $fillable, $result)
   {
     foreach ($fillable as $column) {
-      if ($column != "id") {
+      if ($column != 'id') {
         $field = $result[$column];
-        if (strpos($field, "/") > 0 || is_numeric($field)) {
+        if (strpos($field, '/') > 0 || is_numeric($field)) {
           $Model->$column = $field;
         } else {
           $Model->$column = strtolower($field);

@@ -225,6 +225,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
   $router->group(['name' => 'gmd'], function () use ($router) {
     $router->get('gmd', 'GmdController@index'); // untuk mengambil keseluruhan data
     $router->get('gmd/delete', 'GmdController@retrieveDeleteHistoryData');
+    $router->post('gmd/details', 'GmdController@multipleDetail'); // untuk mendapatkan multipe data collections
     $router->post('gmd', 'GmdController@store'); // untuk menyimpan data
     $router->put('gmd/{id}/edit', 'GmdController@update'); // untuk update data
     $router->post(

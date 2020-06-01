@@ -162,6 +162,65 @@ class GmdController extends Controller
   }
 
   /**
+   * Fungsin ini berguna untuk menampilkkan detail item GMD berupa koleksi
+   *
+   * @param Request $request
+   * @return JSON response;
+   */
+  public function multipleDetail(Request $request)
+  {
+    try {
+      $this->validate($request, [
+        'detail' => 'required'
+      ]);
+
+      try {
+        $data = $request->input('detail');
+        $tempData = [];
+        if ($data && count($data) > 0) {
+          foreach ($data as $id) {
+            $tempData[] = Gmd::find($id);
+          }
+          $response = 200;
+
+          $sendData = [$response, 'Berhasil Diambil', $tempData];
+          return response(
+            ResponseHeader::responseSuccess($sendData),
+            $response
+          );
+        } elseif (count($data) < 0) {
+          $msg = 'Data tidak ditemukan';
+          $code = 404;
+          throw new ResponseException($msg, $code);
+        } else {
+          $msg = 'Kesalahan Pada Server';
+          $code = 500;
+          throw new ResponseException($msg, $code);
+        }
+      } catch (ResponseException $th) {
+        $message = $th->getCode();
+        $response = [
+          'time' => time(),
+          'status' => $message,
+          'message' => 'Gagal',
+          'exception' => $th->getMessage()
+        ];
+
+        return response($response, $message);
+      }
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
    *  Fungsi atau method ini berguna untuk menampilkan detail item GMD.
    *
    * @param String $id
@@ -273,7 +332,7 @@ class GmdController extends Controller
   {
     try {
       $this->validate($request, [
-        'update' => 'required'
+        'updates' => 'required'
       ]);
     } catch (\Throwable $th) {
       $response = 400;
@@ -287,7 +346,7 @@ class GmdController extends Controller
     }
 
     try {
-      $data = $request->input('update');
+      $data = $request->input('updates');
       if ($data && count($data) > 0) {
         foreach ($data as $key => $value) {
           $result = $data[$key];
