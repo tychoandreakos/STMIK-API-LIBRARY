@@ -12,7 +12,7 @@ use App\Http\Controllers\Controller as Controller;
 
 class SubjectController extends Controller
 {
-  private $fillable = ['name'];
+  private $fillable = ['name', 'type'];
 
   private $validationOccurs = [
     'name' => 'required',
@@ -33,7 +33,7 @@ class SubjectController extends Controller
 
       $dataDB = Subject::latest()->get();
       $data = [
-        "dataCount" => $dataDB->count(),
+        'dataCount' => $dataDB->count(),
         'result' => $dataDB->skip($skip)->take($take)
       ];
 
@@ -126,15 +126,15 @@ class SubjectController extends Controller
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) == 0) {
         // error jika data tidak ada
-        $msg = "Data tidak Dapat ditemukan";
+        $msg = 'Data tidak Dapat ditemukan';
         $code = 404;
         $option = [
-          "querySearch" => $search
+          'querySearch' => $search
         ];
         throw new ResponseException($msg, $code, $option);
       } else {
         // error terjadi ketika tidak ada error atapun ada kesalahan yang tidak dinginkan
-        $msg = "Telah Terjadi Error Pada Server";
+        $msg = 'Telah Terjadi Error Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -171,11 +171,11 @@ class SubjectController extends Controller
         $sendData = [$response, 'Sukses', $data];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (!$data) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -279,7 +279,7 @@ class SubjectController extends Controller
     }
 
     try {
-      $data = $request->input("update");
+      $data = $request->input('update');
       if ($data && count($data) > 0) {
         foreach ($data as $key => $value) {
           $result = $data[$key];
@@ -292,11 +292,11 @@ class SubjectController extends Controller
         $sendData = [$response, 'Berhasil Diupdate', $request->input('update')];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) < 0) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -353,11 +353,11 @@ class SubjectController extends Controller
         $sendData = [$response, 'Berhasil Dihapus', $dataResult];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) < 0) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }

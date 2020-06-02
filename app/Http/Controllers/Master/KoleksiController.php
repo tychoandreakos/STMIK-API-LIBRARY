@@ -15,7 +15,7 @@ class KoleksiController extends Controller
   private $fillable = ['tipe'];
 
   private $validationOccurs = [
-    'tipe' => 'required|unique'
+    'tipe' => 'required'
   ];
 
   /**
