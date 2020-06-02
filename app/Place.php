@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 
 class Place extends Model
 {
@@ -16,5 +17,15 @@ class Place extends Model
   public function book_transaction()
   {
     return $this->hasMany("App\BookTransaction", "place_id", "id");
+  }
+
+  public function getNameAttribute($val)
+  {
+    return ucfirst($val);
+  }
+
+  public function getUpdatedAtAttribute($time)
+  {
+    return Carbon::create($time)->diffForHumans();
   }
 }
