@@ -584,7 +584,6 @@ class PlaceController extends Controller
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
   }
-  }
 
   /**
    *
