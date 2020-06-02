@@ -31,7 +31,7 @@ class PlaceController extends Controller
 
       $dataDB = Place::latest()->get();
       $data = [
-        "dataCount" => $dataDB->count(),
+        'dataCount' => $dataDB->count(),
         'result' => $dataDB->skip($skip)->take($take)
       ];
 
@@ -124,15 +124,15 @@ class PlaceController extends Controller
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) == 0) {
         // error jika data tidak ada
-        $msg = "Data tidak Dapat ditemukan";
+        $msg = 'Data tidak Dapat ditemukan';
         $code = 404;
         $option = [
-          "querySearch" => $search
+          'querySearch' => $search
         ];
         throw new ResponseException($msg, $code, $option);
       } else {
         // error terjadi ketika tidak ada error atapun ada kesalahan yang tidak dinginkan
-        $msg = "Telah Terjadi Error Pada Server";
+        $msg = 'Telah Terjadi Error Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -169,11 +169,11 @@ class PlaceController extends Controller
         $sendData = [$response, 'Sukses', $data];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (!$data) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -277,7 +277,7 @@ class PlaceController extends Controller
     }
 
     try {
-      $data = $request->input("update");
+      $data = $request->input('update');
       if ($data && count($data) > 0) {
         foreach ($data as $key => $value) {
           $result = $data[$key];
@@ -290,11 +290,11 @@ class PlaceController extends Controller
         $sendData = [$response, 'Berhasil Diupdate', $request->input('update')];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) < 0) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -351,11 +351,11 @@ class PlaceController extends Controller
         $sendData = [$response, 'Berhasil Dihapus', $dataResult];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) < 0) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -372,7 +372,7 @@ class PlaceController extends Controller
     }
   }
 
-/**
+  /**
    * Fungsin ini berguna untuk menampilkkan detail item Place berupa koleksi
    *
    * @param Request $request
@@ -431,8 +431,7 @@ class PlaceController extends Controller
     }
   }
 
-
-/**
+  /**
    *
    * Fungsi ini berkerja untuk mengembalikan data sesuai pilihan user / admin.
    *
@@ -493,7 +492,7 @@ class PlaceController extends Controller
     }
   }
 
- /**
+  /**
    * Fungsi ini bertugas untuk mengahapus data bertipe koleksi.
    *
    * @param Request $request
@@ -552,7 +551,7 @@ class PlaceController extends Controller
     }
   }
 
-/**
+  /**
    *
    * Fungsi ini berfungsi untuk memunculkan data yang sudah terhapus dengan method softDelete.
    *
