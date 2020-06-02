@@ -112,12 +112,13 @@ class PublisherController extends Controller
 
     try {
       $search = $request->input('search');
-      $data = Publisher::where('name', $search)->get();
+      $data = Publisher::where('name', 'LIKE' , "%$search%")->get();
       if ($data && count($data) > 0) {
         $response = 200;
         $dataResult = [
           'querySearch' => $search,
-          'result' => $data
+          'length' => count($data),
+          'result' => $data,
         ];
 
         $sendData = [$response, 'Sukses', $dataResult];

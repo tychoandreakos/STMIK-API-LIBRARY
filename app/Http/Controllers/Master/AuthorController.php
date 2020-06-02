@@ -113,11 +113,12 @@ class AuthorController extends Controller
 
     try {
       $search = $request->input('search');
-      $data = Author::where('name', $search)->get();
+      $data = Author::where('name', 'LIKE' , "%$search%")->get();
       if ($data && count($data) > 0) {
         $response = 200;
         $dataResult = [
           'querySearch' => $search,
+          'length' => count($data),
           'result' => $data
         ];
 
