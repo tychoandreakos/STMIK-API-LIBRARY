@@ -27,12 +27,12 @@ class AuthorController extends Controller
   public function index(Request $request)
   {
     try {
-      $skip = Pagination::skip($request->input('skip')); //
+      $skip = Pagination::skip($request->input('skip'));
       $take = Pagination::take($request->input('take'));
 
       $dataDB = Author::latest()->get();
       $data = [
-        "dataCount" => $dataDB->count(),
+        'dataCount' => $dataDB->count(),
         'result' => $dataDB->skip($skip)->take($take)
       ];
 
@@ -125,15 +125,15 @@ class AuthorController extends Controller
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) == 0) {
         // error jika data tidak ada
-        $msg = "Data tidak Dapat ditemukan";
+        $msg = 'Data tidak Dapat ditemukan';
         $code = 404;
         $option = [
-          "querySearch" => $search
+          'querySearch' => $search
         ];
         throw new ResponseException($msg, $code, $option);
       } else {
         // error terjadi ketika tidak ada error atapun ada kesalahan yang tidak dinginkan
-        $msg = "Telah Terjadi Error Pada Server";
+        $msg = 'Telah Terjadi Error Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -155,6 +155,65 @@ class AuthorController extends Controller
   }
 
   /**
+   * Fungsin ini berguna untuk menampilkkan detail item Author berupa koleksi
+   *
+   * @param Request $request
+   * @return JSON response;
+   */
+  public function multipleDetail(Request $request)
+  {
+    try {
+      $this->validate($request, [
+        'detail' => 'required'
+      ]);
+
+      try {
+        $data = $request->input('detail');
+        $tempData = [];
+        if ($data && count($data) > 0) {
+          foreach ($data as $id) {
+            $tempData[] = Author::find($id);
+          }
+          $response = 200;
+
+          $sendData = [$response, 'Berhasil Diambil', $tempData];
+          return response(
+            ResponseHeader::responseSuccess($sendData),
+            $response
+          );
+        } elseif (count($data) < 0) {
+          $msg = 'Data tidak ditemukan';
+          $code = 404;
+          throw new ResponseException($msg, $code);
+        } else {
+          $msg = 'Kesalahan Pada Server';
+          $code = 500;
+          throw new ResponseException($msg, $code);
+        }
+      } catch (ResponseException $th) {
+        $message = $th->getCode();
+        $response = [
+          'time' => time(),
+          'status' => $message,
+          'message' => 'Gagal',
+          'exception' => $th->getMessage()
+        ];
+
+        return response($response, $message);
+      }
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
    *  Fungsi atau method ini berguna untuk menampilkan detail item Author.
    *
    * @param String $id
@@ -170,11 +229,11 @@ class AuthorController extends Controller
         $sendData = [$response, 'Sukses', $data];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (!$data) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -278,7 +337,7 @@ class AuthorController extends Controller
     }
 
     try {
-      $data = $request->input("update");
+      $data = $request->input('update');
       if ($data && count($data) > 0) {
         foreach ($data as $key => $val) {
           $result = $data[$key];
@@ -292,11 +351,11 @@ class AuthorController extends Controller
         $sendData = [$response, 'Berhasil Diupdate', $request->input('update')];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) < 0) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -353,11 +412,11 @@ class AuthorController extends Controller
         $sendData = [$response, 'Berhasil Dihapus', $dataResult];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) < 0) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -380,10 +439,20 @@ class AuthorController extends Controller
    *
    * @return JSON response response
    */
-  public function retrieveDeleteHistoryData()
+  public function retrieveDeleteHistoryData(Request $request)
   {
     try {
-      $data = Author::onlyTrashed()->get();
+      $skip = Pagination::skip($request->input('skip'));
+      $take = Pagination::take($request->input('take'));
+
+      $dataDB = Author::onlyTrashed()
+        ->latest()
+        ->get();
+
+      $data = [
+        'dataCount' => $dataDB->count(),
+        'result' => $dataDB->skip($skip)->take($take)
+      ];
 
       $response = 200;
 
@@ -394,6 +463,67 @@ class AuthorController extends Controller
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
+   *
+   * Fungsi ini berkerja untuk mengembalikan data sesuai pilihan user / admin.
+   *
+   * @param Request $request
+   * @return JSON $response
+   */
+
+  public function restoreCollectionData(Request $request)
+  {
+    try {
+      $this->validate($request, [
+        'restore' => 'required'
+      ]);
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+
+    try {
+      $data = $request->input('restore');
+      if ($data && count($data) > 0) {
+        foreach ($data as $key => $value) {
+          $result = $data[$key];
+          Author::withTrashed()
+            ->where('id', $result)
+            ->restore();
+        }
+
+        $response = 200;
+
+        $sendData = [$response, 'Berhasil Diupdate', $request->input('update')];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
+      } elseif (count($data) < 0) {
+        $msg = 'Data tidak ditemukan';
+        $code = 404;
+        throw new ResponseException($msg, $code);
+      } else {
+        $msg = 'Kesalahan Pada Server';
+        $code = 500;
+        throw new ResponseException($msg, $code);
+      }
+    } catch (ResponseException $th) {
+      $message = $th->getCode();
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
     }
   }
 
@@ -503,6 +633,65 @@ class AuthorController extends Controller
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
+   * Fungsi ini bertugas untuk mengahapus data bertipe koleksi.
+   *
+   * @param Request $request
+   * @return JSON ersponse response
+   */
+  public function deleteHistoryCollectionData(Request $request)
+  {
+    try {
+      $this->validate($request, [
+        'delete' => 'required'
+      ]);
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+
+    try {
+      $data = $request->input('delete');
+      if ($data && count($data) > 0) {
+        foreach ($data as $key => $value) {
+          $result = $data[$key];
+          Author::withTrashed()
+            ->where('id', $result)
+            ->forceDelete();
+        }
+
+        $response = 200;
+
+        $sendData = [$response, 'Berhasil Diupdate', $request->input('update')];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
+      } elseif (count($data) < 0) {
+        $msg = 'Data tidak ditemukan';
+        $code = 404;
+        throw new ResponseException($msg, $code);
+      } else {
+        $msg = 'Kesalahan Pada Server';
+        $code = 500;
+        throw new ResponseException($msg, $code);
+      }
+    } catch (ResponseException $th) {
+      $message = $th->getCode();
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
     }
   }
 

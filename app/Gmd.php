@@ -31,11 +31,6 @@ class Gmd extends Model
 
   public function getUpdatedAtAttribute($time)
   {
-    // Carbon::macro('fromTimestamp', static function (int $time) {
-    //   return (new Carbon())->setTimestamp($time);
-    // });
-    // return Carbon::fromTimestamp(time())->format('Y-m-d H:i:s');
-
     return Carbon::create($time)
       ->diffForHumans();
   }
