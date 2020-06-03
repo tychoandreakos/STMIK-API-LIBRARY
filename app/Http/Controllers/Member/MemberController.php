@@ -11,38 +11,41 @@ use Illuminate\Http\Request;
 use App\Member;
 use App\MemberType;
 use Illuminate\Support\Facades\Crypt;
+use App\Helpers\Image;
 
 class MemberController extends Controller
 {
   private $fillable = [
-    'id',
+    // 'id',
     'membertype_id',
     'name',
     'birthdate',
-    "member_since",
-    'expiry_date',
+    'member_since',
+    // 'expiry_date',
     'alamat',
     'username',
     'email',
     'password',
     'phone',
     'pending',
-    'image'
+    'image',
+    'sex'
   ];
 
   private $validationStore = [
-    'id' => 'required|unique:member|integer',
+    // 'id' => 'required|unique:member|integer',
     'password' => 'required|string'
   ];
 
   private $validationOccurs = [
-    'membertype_id' => 'required|integer',
+    'membertype_id' => 'required|string',
     'name' => 'required|string|max:150',
     'birthdate' => 'nullable',
     'member_since' => 'required|date',
-    'expiry_date' => 'required|date',
+    // 'expiry_date' => 'required|date',
     'alamat' => 'nullable|string',
-    'username' => 'required|string',
+    'username' => 'nullable|string',
+    'sex' => 'required|integer',
     'email' => 'required|email',
     'phone' => 'required|string',
     'pending' => 'nullable',
@@ -57,7 +60,7 @@ class MemberController extends Controller
 
       $dataDB = Member::latest()->get();
       $data = [
-        "dataCount" => $dataDB->count(),
+        'dataCount' => $dataDB->count(),
         'result' => $dataDB->skip($skip)->take($take)
       ];
 
@@ -78,7 +81,7 @@ class MemberController extends Controller
    * @param Member $Member
    * @return JSON $json
    */
-  public function store(Request $request)
+  public function store(Image $image, Request $request)
   {
     try {
       $this->validate(
@@ -87,6 +90,8 @@ class MemberController extends Controller
       );
 
       try {
+        // return base64_decode($request->image);
+        return $image->writeImage($request->image, 'storage/app/image');
         $this->storeMember($request->all());
         $response = 201;
 
@@ -128,8 +133,8 @@ class MemberController extends Controller
         $search = $request->input('search');
         $data = Member::where('name', 'LIKE', "%$search%")
           ->orWhere('id', $search)
-          ->orwhereHas("memberType", function ($q) use ($search) {
-            $q->where("name", 'LIKE', "%$search%");
+          ->orwhereHas('memberType', function ($q) use ($search) {
+            $q->where('name', 'LIKE', "%$search%");
           })
           ->get();
         if ($data && count($data) > 0) {
@@ -146,15 +151,15 @@ class MemberController extends Controller
           );
         } elseif (count($data) == 0) {
           // error jika data tidak ada
-          $msg = "Data tidak Dapat ditemukan";
+          $msg = 'Data tidak Dapat ditemukan';
           $code = 404;
           $option = [
-            "querySearch" => $search
+            'querySearch' => $search
           ];
           throw new ResponseException($msg, $code, $option);
         } else {
           // error terjadi ketika tidak ada error atapun ada kesalahan yang tidak dinginkan
-          $msg = "Telah Terjadi Error Pada Server";
+          $msg = 'Telah Terjadi Error Pada Server';
           $code = 500;
           throw new ResponseException($msg, $code);
         }
@@ -199,11 +204,11 @@ class MemberController extends Controller
         $sendData = [$response, 'Sukses', $data];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (!$data) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -287,7 +292,7 @@ class MemberController extends Controller
       ]);
 
       try {
-        $data = $request->input("update");
+        $data = $request->input('update');
         if ($data && count($data) > 0) {
           foreach ($data as $key => $val) {
             $result = $data[$key];
@@ -307,11 +312,11 @@ class MemberController extends Controller
             $response
           );
         } elseif (count($data) < 0) {
-          $msg = "Data tidak ditemukan";
+          $msg = 'Data tidak ditemukan';
           $code = 404;
           throw new ResponseException($msg, $code);
         } else {
-          $msg = "Kesalahan Pada Server";
+          $msg = 'Kesalahan Pada Server';
           $code = 500;
           throw new ResponseException($msg, $code);
         }
@@ -368,11 +373,11 @@ class MemberController extends Controller
             $response
           );
         } elseif (count($data) < 0) {
-          $msg = "Data tidak ditemukan";
+          $msg = 'Data tidak ditemukan';
           $code = 404;
           throw new ResponseException($msg, $code);
         } else {
-          $msg = "Kesalahan Pada Server";
+          $msg = 'Kesalahan Pada Server';
           $code = 500;
           throw new ResponseException($msg, $code);
         }
@@ -583,7 +588,7 @@ class MemberController extends Controller
    */
   public function importMemberAnotherVendor()
   {
-    $file = "senayan.csv";
+    $file = 'senayan.csv';
     try {
       $csv = CSV::getCsv($file);
 
@@ -619,7 +624,7 @@ class MemberController extends Controller
    */
   public function importMember()
   {
-    $file = "users.csv";
+    $file = 'users.csv';
     try {
       $csv = CSV::getCsv($file);
 
@@ -672,8 +677,8 @@ class MemberController extends Controller
 
     foreach ($this->fillable as $column) {
       $field = $request[$column];
-      if ($field != "id" && $column != "id") {
-        if (strpos($field, "/") > 0 || is_numeric($field)) {
+      if ($field != 'id' && $column != 'id') {
+        if (strpos($field, '/') > 0 || is_numeric($field)) {
           $Member->$column = $field;
         } else {
           $Member->$column = strtolower($field);
@@ -692,9 +697,9 @@ class MemberController extends Controller
   {
     $Member = Member::find($key);
     foreach ($this->fillable as $column) {
-      if ($column != "id" && $column != "password") {
+      if ($column != 'id' && $column != 'password') {
         $field = $result[$column];
-        if (strpos($field, "/") > 0 || is_numeric($field)) {
+        if (strpos($field, '/') > 0 || is_numeric($field)) {
           $Member->$column = $field;
         } else {
           $Member->$column = strtolower($field);
