@@ -60,9 +60,9 @@ class MemberTypeController extends Controller
   }
 
   /**
-   * Ini fungsi untuk menyimpan data gmd kedalam database menggunakan
-   * class Request & gmd sebagai Param
-   * @param $gmd
+   * Ini fungsi untuk menyimpan data memberType kedalam database menggunakan
+   * class Request & memberType sebagai Param
+   * @param $memberType
    * @param $request
    * @return JSON response json
    */
@@ -81,7 +81,7 @@ class MemberTypeController extends Controller
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
     try {
-      $this->storeGmd($request->all());
+      $this->storeMemberType($request->all());
 
       $response = 201;
 
@@ -263,7 +263,7 @@ class MemberTypeController extends Controller
 
   /**
    *
-   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database gmd.
+   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database memberType.
    * Data yang diubah sesuai dengan $id dalam parameter yang diberikan
    *
    * @param String $id,
@@ -286,11 +286,11 @@ class MemberTypeController extends Controller
     }
 
     try {
-      $gmd = $this->updateGmd($request->all(), $id);
+      $memberType = $this->updateMemberType($request->all(), $id);
 
       $response = 200;
 
-      $sendData = [$response, 'Berhasil Diubah', $gmd];
+      $sendData = [$response, 'Berhasil Diubah', $memberType];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
       $response = ResponseHeader::responseStatusFailed(
@@ -311,8 +311,8 @@ class MemberTypeController extends Controller
   public function destroy(string $id)
   {
     try {
-      $gmd = MemberType::find($id);
-      $gmd->delete();
+      $memberType = MemberType::find($id);
+      $memberType->delete();
 
       $response = 200;
       $data = [
@@ -417,8 +417,8 @@ class MemberTypeController extends Controller
       $data = $request->input('delete');
       if ($data && count($data) > 0) {
         foreach ($data as $id) {
-          $gmd = MemberType::find($id);
-          $gmd->delete();
+          $memberType = MemberType::find($id);
+          $memberType->delete();
         }
 
         $response = 200;
@@ -750,7 +750,7 @@ class MemberTypeController extends Controller
   /**
    *
    */
-  private function storeGmd(array $request)
+  private function storeMemberType(array $request)
   {
     $combine = array_combine($this->fillable, $request);
     return MemberType::create($combine);
@@ -759,7 +759,7 @@ class MemberTypeController extends Controller
   /**
    *
    */
-  private function updateGmd(array $request, $id)
+  private function updateMemberType(array $request, $id)
   {
     $combine = array_combine($this->fillable, $request);
     MemberType::find($id)->update($combine);
