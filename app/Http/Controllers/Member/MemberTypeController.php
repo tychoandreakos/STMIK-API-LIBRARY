@@ -60,6 +60,32 @@ class MemberTypeController extends Controller
   }
 
   /**
+   * Fungsi ini bekerja untuk mengambil data member name untuk digunakan pada pluck
+   * @return JSON response json
+   */
+  public function getNameCollection()
+  {
+    try {
+      $dataDB = MemberType::all()->pluck('name', 'id');
+
+      $data = [
+        'dataCount' => $dataDB->count(),
+        'result' => $dataDB
+      ];
+
+      $response = 200;
+
+      $sendData = [$response, 'Sukses', $data];
+      return response(ResponseHeader::responseSuccess($sendData), $response);
+    } catch (\Throwable $th) {
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
+
+      $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
    * Ini fungsi untuk menyimpan data memberType kedalam database menggunakan
    * class Request & memberType sebagai Param
    * @param $memberType

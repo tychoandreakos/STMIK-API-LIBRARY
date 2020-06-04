@@ -21,6 +21,7 @@ $router->get('/', function () use ($router) {
 $router->group(['namespace' => 'Member'], function () use ($router) {
   $router->group(['name' => 'membership'], function () use ($router) {
     $router->get('member-type', 'MemberTypeController@index'); // untuk mengambil keseluruhan data
+    $router->get('member-type/collections', 'MemberTypeController@getNameCollection');
     $router->get('member-type/delete', 'MemberTypeController@retrieveDeleteHistoryData');
     $router->post('member-type/details', 'MemberTypeController@multipleDetail'); // untuk mendapatkan multipe data collections
     $router->post('member-type', 'MemberTypeController@store'); // untuk menyimpan data
