@@ -2,15 +2,38 @@
 
 namespace App\Http\Controllers\Member;
 
+use App\MemberType;
 use App\Exceptions\ResponseException;
+use App\Helpers\ControllerHelper;
+use Illuminate\Http\Request;
 use App\Helpers\Pagination;
 use App\Helpers\ResponseHeader;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\MemberType;
+use App\Http\Controllers\Controller as Controller;
 
 class MemberTypeController extends Controller
 {
+  private $fillable = [
+    'name',
+    'limit_loan',
+    'loan_periode',
+    'membership_periode',
+    'fines'
+  ];
+
+  private $validationOccurs = [
+    'name' => 'required',
+    'limit_loan' => 'required',
+    'loan_periode' => 'required',
+    'membership_periode' => 'required',
+    'fines' => 'required'
+  ];
+
+  /**
+   * Fungsi ini berfungsi untuk mendapakatkan data dari database. Response yang diterima
+   * adalah seluruh data Member Type.
+   *
+   * @return JSON response $json;
+   */
   public function index(Request $request)
   {
     try {
@@ -18,8 +41,9 @@ class MemberTypeController extends Controller
       $take = Pagination::take($request->input('take'));
 
       $dataDB = MemberType::latest()->get();
+
       $data = [
-        "dataCount" => $dataDB->count(),
+        'dataCount' => $dataDB->count(),
         'result' => $dataDB->skip($skip)->take($take)
       ];
 
@@ -28,7 +52,7 @@ class MemberTypeController extends Controller
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -36,45 +60,19 @@ class MemberTypeController extends Controller
   }
 
   /**
-   * @param Request $request
-   * @param MemberType $memberType
-   * @return JSON $json
+   * Ini fungsi untuk menyimpan data gmd kedalam database menggunakan
+   * class Request & gmd sebagai Param
+   * @param $gmd
+   * @param $request
+   * @return JSON response json
    */
-  public function store(MemberType $memberType, Request $request)
+  public function store(Request $request)
   {
     try {
-      $this->validate($request, [
-        'name' => 'required|unique:member_type|max:50|string',
-        'limit_loan' => 'required|integer',
-        'loan_periode' => 'required|integer',
-        'membership_periode' => 'required|integer',
-        'fines' => 'required|numeric'
-      ]);
-
-      try {
-        $memberType->name = strtolower($request->name);
-        $memberType->limit_loan = $request->limit_loan;
-        $memberType->loan_periode = $request->loan_periode;
-        $memberType->membership_periode = $request->membership_periode;
-        $memberType->fines = $request->fines;
-
-        $memberType->save();
-        $response = 201;
-
-        $sendData = [$response, 'Berhasil Disimpan'];
-
-        return response(
-          ResponseHeader::responseSuccessWithoutData($sendData),
-          $response
-        );
-      } catch (\Throwable $th) {
-        $response = ResponseHeader::responseStatusFailed($th->getCode());
-
-        $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
-        return response(ResponseHeader::responseFailed($sendData), $response);
-      }
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
+
       $sendData = [
         $response,
         'Harap Masukan Data Yang Valid',
@@ -82,11 +80,32 @@ class MemberTypeController extends Controller
       ];
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
+    try {
+      $this->storeGmd($request->all());
+
+      $response = 201;
+
+      $sendData = [$response, 'Berhasil Disimpan'];
+      return response(
+        ResponseHeader::responseSuccessWithoutData($sendData),
+        $response
+      );
+    } catch (\Throwable $th) {
+      $response = ResponseHeader::responseStatusFailed(
+        (int) (int) $th->getCode()
+      );
+
+      $sendData = [$response, 'Gagal Disimpan', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
   }
 
   /**
-   * @param Request $request
-   * @return JSON response
+   *
+   * Fungsi ini bertugas untuk mencari data sesuai dengan parameters yang sudah diinginkan,
+   *
+   * @param Request $request;
+   * @return JSON response $json
    */
   public function search(Request $request)
   {
@@ -94,50 +113,109 @@ class MemberTypeController extends Controller
       $this->validate($request, [
         'search' => 'required'
       ]);
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+
+    try {
+      $search = $request->input('search');
+      $data = MemberType::where('name', 'LIKE', "%$search%")
+        ->orWhere('fines', 'LIKE', "%$search%")
+        ->get();
+      if ($data && count($data) > 0) {
+        $response = 200;
+        $dataResult = [
+          'querySearch' => $search,
+          'length' => count($data),
+          'result' => $data
+        ];
+
+        $sendData = [$response, 'Sukses', $dataResult];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
+      } elseif (count($data) == 0) {
+        // error jika data tidak ada
+        $msg = 'Data tidak Dapat ditemukan';
+        $code = 404;
+        $option = [
+          'querySearch' => $search
+        ];
+        throw new ResponseException($msg, $code, $option);
+      } else {
+        // error terjadi ketika tidak ada error atapun ada kesalahan yang tidak dinginkan
+        $msg = 'Telah Terjadi Error Pada Server';
+        $code = 500;
+        throw new ResponseException($msg, $code);
+      }
+    } catch (ResponseException $th) {
+      $response = $th->getCode();
+
+      $sendData = [
+        $th->getCode(),
+        'Pencarian Dibatalkan',
+        $th->GetOptions(),
+        $th->getMessage()
+      ];
+
+      return response(
+        ResponseHeader::responseFailedWithData($sendData),
+        $response
+      );
+    }
+  }
+
+  /**
+   * Fungsin ini berguna untuk menampilkkan detail item Member Type berupa koleksi
+   *
+   * @param Request $request
+   * @return JSON response;
+   */
+  public function multipleDetail(Request $request)
+  {
+    try {
+      $this->validate($request, [
+        'detail' => 'required'
+      ]);
 
       try {
-        $search = $request->input('search');
-        $data = MemberType::where('name', $search)->get();
+        $data = $request->input('detail');
+        $tempData = [];
         if ($data && count($data) > 0) {
+          foreach ($data as $id) {
+            $tempData[] = MemberType::find($id);
+          }
           $response = 200;
-          $dataResult = [
-            'querySearch' => $search,
-            'result' => $data
-          ];
 
-          $sendData = [$response, 'Sukses', $dataResult];
+          $sendData = [$response, 'Berhasil Diambil', $tempData];
           return response(
             ResponseHeader::responseSuccess($sendData),
             $response
           );
-        } elseif (count($data) == 0) {
-          // error jika data tidak ada
-          $msg = "Data tidak Dapat ditemukan";
+        } elseif (count($data) < 0) {
+          $msg = 'Data tidak ditemukan';
           $code = 404;
-          $option = [
-            "querySearch" => $search
-          ];
-          throw new ResponseException($msg, $code, $option);
+          throw new ResponseException($msg, $code);
         } else {
-          // error terjadi ketika tidak ada error atapun ada kesalahan yang tidak dinginkan
-          $msg = "Telah Terjadi Error Pada Server";
+          $msg = 'Kesalahan Pada Server';
           $code = 500;
           throw new ResponseException($msg, $code);
         }
       } catch (ResponseException $th) {
-        $response = $th->getCode();
-
-        $sendData = [
-          $th->getCode(),
-          'Pencarian Telah Gagal',
-          $th->GetOptions(),
-          $th->getMessage()
+        $message = $th->getCode();
+        $response = [
+          'time' => time(),
+          'status' => $message,
+          'message' => 'Gagal',
+          'exception' => $th->getMessage()
         ];
 
-        return response(
-          ResponseHeader::responseFailedWithData($sendData),
-          $response
-        );
+        return response($response, $message);
       }
     } catch (\Throwable $th) {
       $response = 400;
@@ -152,10 +230,12 @@ class MemberTypeController extends Controller
   }
 
   /**
-   * @param int $id
-   * @return JSON $response
+   *  Fungsi atau method ini berguna untuk menampilkan detail item Member Type.
+   *
+   * @param String $id
+   * @return JSON response;
    */
-  public function detail(int $id)
+  public function detail(string $id)
   {
     try {
       $data = MemberType::find($id);
@@ -165,11 +245,11 @@ class MemberTypeController extends Controller
         $sendData = [$response, 'Sukses', $data];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (!$data) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -182,17 +262,18 @@ class MemberTypeController extends Controller
   }
 
   /**
-   * @param int $id
+   *
+   * Fungsi ini bertugas untuk mengupdate data yang ada didalam database gmd.
+   * Data yang diubah sesuai dengan $id dalam parameter yang diberikan
+   *
+   * @param String $id,
    * @param Request $request
-   * @return JSON $response
+   * @return JSON response $reponse;
    */
-  public function update(int $id, Request $request)
+  public function update(string $id, Request $request)
   {
     try {
-      $this->validate($request, [
-        'code' => 'required',
-        'name' => 'required'
-      ]);
+      $this->validate($request, $this->validationOccurs);
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -205,20 +286,16 @@ class MemberTypeController extends Controller
     }
 
     try {
-      $memberType = MemberType::find($id);
-      $memberType->name = strtolower($request->input('name'));
-      $memberType->limit_loan = $request->input('limit_loan');
-      $memberType->loan_periode = $request->input('loan_periode');
-      $memberType->membership_periode = $request->input('membership_periode');
-      $memberType->fines = $request->input('fines');
-      $memberType->save();
+      $gmd = $this->updateGmd($request->all(), $id);
 
       $response = 200;
 
-      $sendData = [$response, 'Berhasil Diubah', $memberType];
+      $sendData = [$response, 'Berhasil Diubah', $gmd];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed(
+        (int) (int) $th->getCode()
+      );
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -226,14 +303,16 @@ class MemberTypeController extends Controller
   }
 
   /**
-   * @param Int $id
-   * @return JSON $json
+   * Fungsi ini bertugas untuk menghapus data yang ada didalam database menggunakan methode Hard Delete.
+   *
+   * @param String $id
+   * @return JSON response $json
    */
-  public function destroy(int $id)
+  public function destroy(string $id)
   {
     try {
-      $memberType = MemberType::find($id);
-      $memberType->delete();
+      $gmd = MemberType::find($id);
+      $gmd->delete();
 
       $response = 200;
       $data = [
@@ -243,7 +322,7 @@ class MemberTypeController extends Controller
       $sendData = [$response, 'Berhasil Dihapus', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -251,61 +330,19 @@ class MemberTypeController extends Controller
   }
 
   /**
-   * @param Request
+   *
+   * Fungsi ini untuk mengubah data sesuai keinginan admin.
+   *
+   * @param Request $request
+   * @param ControllerHelpers $updateHelper
    * @return JSON response
    */
-  public function updateSome(Request $request)
+  public function updateSome(ControllerHelper $updateHelper, Request $request)
   {
     try {
       $this->validate($request, [
-        'update' => 'required'
+        'updates' => 'required'
       ]);
-
-      try {
-        $data = $request->input("update");
-        if ($data && count($data) > 0) {
-          foreach ($data as $key => $value) {
-            $result = $data[$key];
-            $memberType = MemberType::find($key);
-            $memberType->name = strtolower($result['name']);
-            $memberType->limit_loan = $result['limit_loan'];
-            $memberType->loan_periode = $result['loan_periode'];
-            $memberType->membership_periode = $result['membership_periode'];
-            $memberType->fines = $result['fines'];
-            $memberType->save();
-          }
-
-          $response = 200;
-
-          $sendData = [
-            $response,
-            'Berhasil Diupdate',
-            $request->input('update')
-          ];
-          return response(
-            ResponseHeader::responseSuccess($sendData),
-            $response
-          );
-        } elseif (count($data) < 0) {
-          $msg = "Data tidak ditemukan";
-          $code = 404;
-          throw new ResponseException($msg, $code);
-        } else {
-          $msg = "Kesalahan Pada Server";
-          $code = 500;
-          throw new ResponseException($msg, $code);
-        }
-      } catch (ResponseException $th) {
-        $message = $th->getCode();
-        $response = [
-          'time' => time(),
-          'status' => $message,
-          'message' => 'Gagal',
-          'exception' => $th->getMessage()
-        ];
-
-        return response($response, $message);
-      }
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -316,9 +353,46 @@ class MemberTypeController extends Controller
       ];
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
+
+    try {
+      $data = $request->input('updates');
+      if ($data && count($data) > 0) {
+        foreach ($data as $key => $value) {
+          $result = $data[$key];
+          $MemberType = MemberType::find($key);
+          $updateHelper->update($MemberType, $this->fillable, $result);
+        }
+
+        $response = 200;
+
+        $sendData = [$response, 'Berhasil Diupdate', $request->input('update')];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
+      } elseif (count($data) < 0) {
+        $msg = 'Data tidak ditemukan';
+        $code = 404;
+        throw new ResponseException($msg, $code);
+      } else {
+        $msg = 'Kesalahan Pada Server';
+        $code = 500;
+        throw new ResponseException($msg, $code);
+      }
+    } catch (ResponseException $th) {
+      $message = $th->getCode();
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
+    }
   }
 
   /**
+   *
+   * Fungsi ini berfungsi untuk mengahapus sesuai pilihan admin.
+   *
    * @param Request $request
    * @return JSON response
    */
@@ -328,45 +402,6 @@ class MemberTypeController extends Controller
       $this->validate($request, [
         'delete' => 'required'
       ]);
-
-      try {
-        $data = $request->input('delete');
-        if ($data && count($data) > 0) {
-          foreach ($data as $id) {
-            $memberType = MemberType::find($id);
-            $memberType->delete();
-          }
-
-          $response = 200;
-          $dataResult = [
-            'id' => $data
-          ];
-
-          $sendData = [$response, 'Berhasil Dihapus', $dataResult];
-          return response(
-            ResponseHeader::responseSuccess($sendData),
-            $response
-          );
-        } elseif (count($data) < 0) {
-          $msg = "Data tidak ditemukan";
-          $code = 404;
-          throw new ResponseException($msg, $code);
-        } else {
-          $msg = "Kesalahan Pada Server";
-          $code = 500;
-          throw new ResponseException($msg, $code);
-        }
-      } catch (ResponseException $th) {
-        $message = $th->getCode();
-        $response = [
-          'time' => time(),
-          'status' => $message,
-          'message' => 'Gagal',
-          'exception' => $th->getMessage()
-        ];
-
-        return response($response, $message);
-      }
     } catch (\Throwable $th) {
       $response = 400;
 
@@ -377,22 +412,71 @@ class MemberTypeController extends Controller
       ];
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
+
+    try {
+      $data = $request->input('delete');
+      if ($data && count($data) > 0) {
+        foreach ($data as $id) {
+          $gmd = MemberType::find($id);
+          $gmd->delete();
+        }
+
+        $response = 200;
+        $dataResult = [
+          'id' => $data
+        ];
+
+        $sendData = [$response, 'Berhasil Dihapus', $dataResult];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
+      } elseif (count($data) < 0) {
+        $msg = 'Data tidak ditemukan';
+        $code = 404;
+        throw new ResponseException($msg, $code);
+      } else {
+        $msg = 'Kesalahan Pada Server';
+        $code = 500;
+        throw new ResponseException($msg, $code);
+      }
+    } catch (ResponseException $th) {
+      $message = $th->getCode();
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
+    }
   }
 
   /**
+   *
+   * Fungsi ini berfungsi untuk memunculkan data yang sudah terhapus dengan method softDelete.
+   *
    * @return JSON response response
    */
-  public function retrieveDeleteHistoryData()
+  public function retrieveDeleteHistoryData(Request $request)
   {
     try {
-      $data = MemberType::onlyTrashed()->get();
+      $skip = Pagination::skip($request->input('skip')); //
+      $take = Pagination::take($request->input('take'));
+
+      $dataDB = MemberType::onlyTrashed()
+        ->latest()
+        ->get();
+
+      $data = [
+        'dataCount' => $dataDB->count(),
+        'result' => $dataDB->skip($skip)->take($take)
+      ];
 
       $response = 200;
 
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -400,10 +484,74 @@ class MemberTypeController extends Controller
   }
 
   /**
-   * @param int $id
+   *
+   * Fungsi ini berkerja untuk mengembalikan data sesuai pilihan user / admin.
+   *
+   * @param Request $request
+   * @return JSON $response
+   */
+
+  public function restoreCollectionData(Request $request)
+  {
+    try {
+      $this->validate($request, [
+        'restore' => 'required'
+      ]);
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+
+    try {
+      $data = $request->input('restore');
+      if ($data && count($data) > 0) {
+        foreach ($data as $key => $value) {
+          $result = $data[$key];
+          MemberType::withTrashed()
+            ->where('id', $result)
+            ->restore();
+        }
+
+        $response = 200;
+
+        $sendData = [$response, 'Berhasil Diupdate', $request->input('update')];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
+      } elseif (count($data) < 0) {
+        $msg = 'Data tidak ditemukan';
+        $code = 404;
+        throw new ResponseException($msg, $code);
+      } else {
+        $msg = 'Kesalahan Pada Server';
+        $code = 500;
+        throw new ResponseException($msg, $code);
+      }
+    } catch (ResponseException $th) {
+      $message = $th->getCode();
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
+    }
+  }
+
+  /**
+   *
+   * Fungsi ini berfungsi untuk mengembalikan data yang sudah terhapus dengan method softDelete.
+   *
+   * @param String $id
    * @return JSON response response
    */
-  public function returnDeleteHistoryData(int $id)
+  public function returnDeleteHistoryData(string $id)
   {
     try {
       $check = MemberType::find($id);
@@ -411,7 +559,7 @@ class MemberTypeController extends Controller
         ->where('id', $id)
         ->get();
       if (is_null($check) && count($checkDataInSoftDelete) < 1) {
-        $msg = "Tipe member dengan nama: {$check->name} Tidak Dapat Ditemukan";
+        $msg = "Id: {$id} Tidak Dapat Ditemukan";
         $code = 400;
         throw new ResponseException($msg, $code);
       }
@@ -427,7 +575,7 @@ class MemberTypeController extends Controller
       $sendData = [$response, 'Berhasil Dikembalikan', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -435,6 +583,9 @@ class MemberTypeController extends Controller
   }
 
   /**
+   *
+   * Fungsi ini berfungsi untuk mengembalikan semua data yang sudah terhapus dengan method softDelete.
+   *
    * @return JSON response response
    */
   public function returnAllDeleteHistoryData()
@@ -450,7 +601,7 @@ class MemberTypeController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -458,10 +609,13 @@ class MemberTypeController extends Controller
   }
 
   /**
+   *
+   * Fungsi ini berfungsi untuk menghapus data yang sudah terhapus dengan method softDelete.
+   *
    * @param string $id
    * @return JSON response response
    */
-  public function deleteHistoryData(int $id)
+  public function deleteHistoryData(string $id)
   {
     try {
       MemberType::withTrashed()
@@ -476,7 +630,7 @@ class MemberTypeController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -484,6 +638,68 @@ class MemberTypeController extends Controller
   }
 
   /**
+   * Fungsi ini bertugas untuk mengahapus data bertipe koleksi.
+   *
+   * @param Request $request
+   * @return JSON ersponse response
+   */
+  public function deleteHistoryCollectionData(Request $request)
+  {
+    try {
+      $this->validate($request, [
+        'delete' => 'required'
+      ]);
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+
+    try {
+      $data = $request->input('delete');
+      if ($data && count($data) > 0) {
+        foreach ($data as $key => $value) {
+          $result = $data[$key];
+          MemberType::withTrashed()
+            ->where('id', $result)
+            ->forceDelete();
+        }
+
+        $response = 200;
+
+        $sendData = [$response, 'Berhasil Diupdate', $request->input('update')];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
+      } elseif (count($data) < 0) {
+        $msg = 'Data tidak ditemukan';
+        $code = 404;
+        throw new ResponseException($msg, $code);
+      } else {
+        $msg = 'Kesalahan Pada Server';
+        $code = 500;
+        throw new ResponseException($msg, $code);
+      }
+    } catch (ResponseException $th) {
+      $message = $th->getCode();
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
+    }
+  }
+
+  /**
+   *
+   * Fungsi ini berfungsi untuk menghapus semua data yang sudah terhapus dengan method softDelete.
+   *
    * @return JSON response response
    */
   public function deleteAllHistoryData()
@@ -499,7 +715,7 @@ class MemberTypeController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
@@ -507,6 +723,9 @@ class MemberTypeController extends Controller
   }
 
   /**
+   *
+   * Fungsi ini berfungsi untuk menghapus seluruh data
+   *
    * @return JSON response
    */
   public function destroyAll()
@@ -521,10 +740,30 @@ class MemberTypeController extends Controller
         $response
       );
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Menghapus Semua Data', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
+  }
+
+  /**
+   *
+   */
+  private function storeGmd(array $request)
+  {
+    $combine = array_combine($this->fillable, $request);
+    return MemberType::create($combine);
+  }
+
+  /**
+   *
+   */
+  private function updateGmd(array $request, $id)
+  {
+    $combine = array_combine($this->fillable, $request);
+    MemberType::find($id)->update($combine);
+
+    return $combine;
   }
 }

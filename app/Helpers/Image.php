@@ -10,7 +10,7 @@ class Image
 {
   private $filepath;
   private $mime = 'data:image/';
-  private $allow = ['png' . 'jpg', 'jpeg'];
+  private $allow = ['png', 'jpg', 'jpeg'];
   private $fileName;
 
   public function writeImage(string $image, string $filepath)
@@ -31,8 +31,9 @@ class Image
   {
     $data = explode(',', $image);
     $mime = explode(';', $data[0])[0];
-    $this->checkMime($mime);
-    return $data[1];
+    if ($this->checkMime($mime)) {
+      return $data[1];
+    }
   }
 
   private function getName(string $extension): string

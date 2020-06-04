@@ -90,7 +90,6 @@ class MemberController extends Controller
       );
 
       try {
-        // return base64_decode($request->image);
         return $image->writeImage($request->image, 'storage/app/image');
         $this->storeMember($request->all());
         $response = 201;

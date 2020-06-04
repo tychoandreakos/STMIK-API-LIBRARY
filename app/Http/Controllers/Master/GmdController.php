@@ -229,7 +229,7 @@ class GmdController extends Controller
   public function detail(string $id)
   {
     try {
-      $data = GMD::find($id);
+      $data = Gmd::find($id);
       if ($data && !empty($data)) {
         $response = 200;
 

@@ -21,37 +21,25 @@ $router->get('/', function () use ($router) {
 $router->group(['namespace' => 'Member'], function () use ($router) {
   $router->group(['name' => 'membership'], function () use ($router) {
     $router->get('member-type', 'MemberTypeController@index'); // untuk mengambil keseluruhan data
-    $router->get(
-      'member-type/delete',
-      'MemberTypeController@retrieveDeleteHistoryData'
-    );
+    $router->get('member-type/delete', 'MemberTypeController@retrieveDeleteHistoryData');
+    $router->post('member-type/details', 'MemberTypeController@multipleDetail'); // untuk mendapatkan multipe data collections
     $router->post('member-type', 'MemberTypeController@store'); // untuk menyimpan data
     $router->put('member-type/{id}/edit', 'MemberTypeController@update'); // untuk update data
-    $router->delete(
-      'member-type/delete-all',
-      'MemberTypeController@destroyAll'
-    ); // Untuk menghapus seluruh data yang ada di database
+    $router->post(
+      'member-type/destroy-collections',
+      'MemberTypeController@deleteHistoryCollectionData'
+    ); // Untuk menghapus data berupa collections
+    $router->post('member-type/restore', 'MemberTypeController@restoreCollectionData'); //Untuk melakukan restorasi data
+    $router->delete('member-type/delete-all', 'MemberTypeController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
     $router->delete('member-type/{id}/delete', 'MemberTypeController@destroy'); // untuk delete data
-    $router->delete(
-      'member-type/destroy',
-      'MemberTypeController@deleteAllHistoryData'
-    ); // Menghapus seluruh data.
-    $router->delete(
-      'member-type/{id}/destroy',
-      'MemberTypeController@deleteHistoryData'
-    ); // Menghapus seluruh data sesuai dengan ID.
+    $router->delete('member-type/destroy', 'MemberTypeController@deleteAllHistoryData'); // Menghapus seluruh data.
+    $router->delete('member-type/{id}/destroy', 'MemberTypeController@deleteHistoryData'); // Menghapus seluruh data sesuai dengan ID.
     $router->post('member-type/search', 'MemberTypeController@search'); // Untuk query pencarian
     $router->get('member-type/{id}/detail', 'MemberTypeController@detail'); //Untuk mendapatkan detail item
     $router->post('member-type/delete', 'MemberTypeController@destroySome'); // Untuk menghapus data yang dipilih
     $router->post('member-type/update', 'MemberTypeController@updateSome'); // Untuk melakukan update beberapa data
-    $router->put(
-      'member-type/restore',
-      'MemberTypeController@returnAllDeleteHistoryData'
-    ); // Mengembalikan seluruh data yang sudah terhapus
-    $router->put(
-      'member-type/{id}/restore',
-      'MemberTypeController@returnDeleteHistoryData'
-    ); // Mengembalikan data yang sudah terhapus sesuai ID
+    $router->put('member-type/restore', 'MemberTypeController@returnAllDeleteHistoryData'); // Mengembalikan seluruh data yang sudah terhapus
+    $router->put('member-type/{id}/restore', 'MemberTypeController@returnDeleteHistoryData'); // Mengembalikan data yang sudah terhapus sesuai ID
   });
 
   $router->group(['name' => 'member'], function () use ($router) {
