@@ -33,7 +33,7 @@ class MemberController extends Controller
   private $path = 'public/storage';
 
   private $toCast = ['id', 'membertype_id'];
-  private $toCastUpdate = ['pending'];
+  private $toCastUpdate = ['pending', 'sex'];
 
   private $validationStore = [
     'id' => 'required|unique:member|integer',
@@ -729,6 +729,16 @@ class MemberController extends Controller
     foreach (array_merge($this->toCast, $this->toCastUpdate) as $key) {
       $request[$key] = intval($request[$key]);
     }
+    $validB64 = preg_match(
+      '/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).base64,.*/',
+      $request['image']
+    );
+    if ($validB64) {
+      $image = new Image();
+      $image->unlinkImage($Member->image, $this->path);
+      $request['image'] = $image->writeImage($request['image'], $this->path);
+    }
+
     foreach ($this->fillable as $column) {
       $field = $request[$column];
       if (

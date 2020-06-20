@@ -27,6 +27,15 @@ class Image
     }
   }
 
+  public function unlinkImage(string $image, string $filepath)
+  {
+    try {
+      unlink(base_path("$filepath/$image"));
+    } catch (\Throwable $th) {
+      return $th;
+    }
+  }
+
   private function processImage(string $image)
   {
     $data = explode(',', $image);
