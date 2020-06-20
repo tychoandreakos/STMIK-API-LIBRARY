@@ -9,31 +9,34 @@ use App\Helpers\ResponseHeader;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Member;
-use App\MemberType;
 use Illuminate\Support\Facades\Crypt;
 use App\Helpers\Image;
 
 class MemberController extends Controller
 {
   private $fillable = [
-    // 'id',
+    'id',
     'membertype_id',
     'name',
+    'sex',
     'birthdate',
     'member_since',
-    // 'expiry_date',
     'alamat',
     'username',
     'email',
     'password',
     'phone',
     'pending',
-    'image',
-    'sex'
+    'image'
   ];
 
+  private $path = 'public/storage';
+
+  private $toCast = ['id', 'membertype_id'];
+  private $toCastUpdate = ['pending'];
+
   private $validationStore = [
-    // 'id' => 'required|unique:member|integer',
+    'id' => 'required|unique:member|integer',
     'password' => 'required|string'
   ];
 
@@ -42,7 +45,6 @@ class MemberController extends Controller
     'name' => 'required|string|max:150',
     'birthdate' => 'nullable',
     'member_since' => 'required|date',
-    // 'expiry_date' => 'required|date',
     'alamat' => 'nullable|string',
     'username' => 'nullable|string',
     'sex' => 'required|integer',
@@ -58,11 +60,36 @@ class MemberController extends Controller
       $skip = Pagination::skip($request->input('skip')); //
       $take = Pagination::take($request->input('take'));
 
-      $dataDB = Member::latest()->get();
+      $dataDB = Member::select(
+        'name',
+        'image',
+        'id',
+        'membertype_id',
+        'email',
+        'updated_at'
+      )
+        ->latest()
+        ->get();
+
       $data = [
         'dataCount' => $dataDB->count(),
-        'result' => $dataDB->skip($skip)->take($take)
+        'result' => []
       ];
+
+      foreach ($dataDB->skip($skip)->take($take) as $db) {
+        array_push($data['result'], [
+          'image' => [
+            'img' => true,
+            'img_name' => 'http://localhost/storage/' . $db->image,
+            'title' => 'image'
+          ],
+          'id' => $db->id,
+          'name' => $db->name,
+          'membership_type' => $db->memberType->name,
+          'email' => $db->email,
+          'updated_at' => $db->updated_at
+        ]);
+      }
 
       $response = 200;
 
@@ -81,7 +108,7 @@ class MemberController extends Controller
    * @param Member $Member
    * @return JSON $json
    */
-  public function store(Image $image, Request $request)
+  public function store(Request $request)
   {
     try {
       $this->validate(
@@ -90,7 +117,6 @@ class MemberController extends Controller
       );
 
       try {
-        return $image->writeImage($request->image, 'storage/app/image');
         $this->storeMember($request->all());
         $response = 201;
 
@@ -226,19 +252,18 @@ class MemberController extends Controller
    */
   public function update(int $id, Request $request)
   {
-    try {
-      $this->validate($request, $this->validationOccurs);
-    } catch (\Throwable $th) {
-      $response = 400;
+    // try {
+    //   $this->validate($request, $this->validationOccurs);
+    // } catch (\Throwable $th) {
+    //   $response = 400;
 
-      $sendData = [
-        $response,
-        'Gagal Validasi atau Data Yang Anda Cari Tidak Ada',
-        $th->getMessage()
-      ];
-      return response(ResponseHeader::responseFailed($sendData), $response);
-    }
-
+    //   $sendData = [
+    //     $response,
+    //     'Gagal Validasi atau Data Yang Anda Cari Tidak Ada',
+    //     $th->getMessage()
+    //   ];
+    //   return response(ResponseHeader::responseFailed($sendData), $response);
+    // }
     try {
       $Member = $this->updateMember($id, $request);
 
@@ -654,13 +679,39 @@ class MemberController extends Controller
     }
   }
 
+  private function expiryDate(array $request): array
+  {
+    array_push($this->fillable, 'expiry_date');
+    $request['expiry_date'] = '2020/10/10';
+    return $request;
+  }
+
+  private function usernameProcess(string $email): string
+  {
+    return explode('@', $email)[0];
+  }
+
+  private function checkPassword(): bool
+  {
+    return true;
+  }
+
   /**
    * @param Request $request
    * @return Member $member
    */
   private function storeMember(array $request)
   {
+    foreach ($this->toCast as $key) {
+      $request[$key] = intval($request[$key]);
+    }
+    $image = new Image();
+    $request = $this->expiryDate($request);
+    strlen($request['username']) > 0
+      ? true
+      : ($request['username'] = $this->usernameProcess($request['email']));
     $combine = array_combine($this->fillable, $request);
+    $combine['image'] = $image->writeImage($combine['image'], $this->path);
     $combine['password'] = Crypt::encrypt($combine['password']);
     return Member::create($combine);
   }
@@ -674,9 +725,17 @@ class MemberController extends Controller
   {
     $Member = Member::find($id);
 
+    array_shift($this->toCast);
+    foreach (array_merge($this->toCast, $this->toCastUpdate) as $key) {
+      $request[$key] = intval($request[$key]);
+    }
     foreach ($this->fillable as $column) {
       $field = $request[$column];
-      if ($field != 'id' && $column != 'id') {
+      if (
+        $field != 'id' &&
+        $column != 'id' &&
+        ($field != 'sex' && $column != 'sex')
+      ) {
         if (strpos($field, '/') > 0 || is_numeric($field)) {
           $Member->$column = $field;
         } else {
@@ -684,6 +743,7 @@ class MemberController extends Controller
         }
       }
     }
+    $Member->sex = $request['sex'];
     return $Member->save();
   }
 

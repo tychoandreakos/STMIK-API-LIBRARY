@@ -23,7 +23,7 @@ class CreateMembership extends Migration
       $table->string('alamat', 150)->nullable(true);
       $table->string('username', 100)->nullable(false)->unique();
       $table->string('email', 100)->nullable(false)->unique();
-      $table->string('password', 200)->nullable(false);
+      $table->string('password')->nullable(false);
       $table->string('phone', 25)->nullable(true)->unique();
       $table->boolean('pending')->default(false);
       $table->string('image', 150)->nullable(true);

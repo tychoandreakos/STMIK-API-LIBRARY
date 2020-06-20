@@ -15,7 +15,7 @@ class AddingSexTableToMember extends Migration
   {
     Schema::table('member', function (Blueprint $table) {
       $table
-        ->enum('sex', [0, 1])
+        ->integer('sex')
         ->nullable(false)
         ->after('name');
     });
