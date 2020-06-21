@@ -431,17 +431,43 @@ class MemberController extends Controller
   /**
    * @return JSON response response
    */
-  public function retrieveDeleteHistoryData()
+  public function retrieveDeleteHistoryData(Request $request)
   {
     try {
-      $data = Member::onlyTrashed()->get();
+      $skip = Pagination::skip($request->input('skip')); //
+      $take = Pagination::take($request->input('take'));
+
+      $dataDB = Member::onlyTrashed()
+        ->select('name', 'image', 'id', 'membertype_id', 'email', 'updated_at')
+        ->latest()
+        ->get();
+
+      $data = [
+        'dataCount' => $dataDB->count(),
+        'result' => []
+      ];
+
+      foreach ($dataDB->skip($skip)->take($take) as $db) {
+        array_push($data['result'], [
+          'image' => [
+            'img' => true,
+            'img_name' => 'http://localhost/storage/' . $db->image,
+            'title' => 'image'
+          ],
+          'id' => $db->id,
+          'name' => $db->name,
+          'membership_type' => $db->memberType->name,
+          'email' => $db->email,
+          'updated_at' => $db->updated_at
+        ]);
+      }
 
       $response = 200;
 
       $sendData = [$response, 'Sukses', $data];
       return response(ResponseHeader::responseSuccess($sendData), $response);
     } catch (\Throwable $th) {
-      $response = ResponseHeader::responseStatusFailed($th->getCode());
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
