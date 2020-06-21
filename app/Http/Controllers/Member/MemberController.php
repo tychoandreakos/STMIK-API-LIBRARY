@@ -475,6 +475,67 @@ class MemberController extends Controller
   }
 
   /**
+   *
+   * Fungsi ini berkerja untuk mengembalikan data sesuai pilihan user / admin.
+   *
+   * @param Request $request
+   * @return JSON $response
+   */
+
+  public function restoreCollectionData(Request $request)
+  {
+    try {
+      $this->validate($request, [
+        'restore' => 'required'
+      ]);
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+
+    try {
+      $data = $request->input('restore');
+      if ($data && count($data) > 0) {
+        foreach ($data as $key => $value) {
+          $result = $data[$key];
+          Member::withTrashed()
+            ->where('id', $result)
+            ->restore();
+        }
+
+        $response = 200;
+
+        $sendData = [$response, 'Berhasil Diupdate', $request->input('update')];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
+      } elseif (count($data) < 0) {
+        $msg = 'Data tidak ditemukan';
+        $code = 404;
+        throw new ResponseException($msg, $code);
+      } else {
+        $msg = 'Kesalahan Pada Server';
+        $code = 500;
+        throw new ResponseException($msg, $code);
+      }
+    } catch (ResponseException $th) {
+      $message = $th->getCode();
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
+    }
+  }
+
+  /**
    * @param int $id
    * @return JSON response response
    */
@@ -555,6 +616,65 @@ class MemberController extends Controller
 
       $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+   /**
+   * Fungsi ini bertugas untuk mengahapus data bertipe koleksi.
+   *
+   * @param Request $request
+   * @return JSON ersponse response
+   */
+  public function deleteHistoryCollectionData(Request $request)
+  {
+    try {
+      $this->validate($request, [
+        'delete' => 'required'
+      ]);
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+
+    try {
+      $data = $request->input('delete');
+      if ($data && count($data) > 0) {
+        foreach ($data as $key => $value) {
+          $result = $data[$key];
+          Member::withTrashed()
+            ->where('id', $result)
+            ->forceDelete();
+        }
+
+        $response = 200;
+
+        $sendData = [$response, 'Berhasil Diupdate', $request->input('update')];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
+      } elseif (count($data) < 0) {
+        $msg = 'Data tidak ditemukan';
+        $code = 404;
+        throw new ResponseException($msg, $code);
+      } else {
+        $msg = 'Kesalahan Pada Server';
+        $code = 500;
+        throw new ResponseException($msg, $code);
+      }
+    } catch (ResponseException $th) {
+      $message = $th->getCode();
+      $response = [
+        'time' => time(),
+        'status' => $message,
+        'message' => 'Gagal',
+        'exception' => $th->getMessage()
+      ];
+
+      return response($response, $message);
     }
   }
 
