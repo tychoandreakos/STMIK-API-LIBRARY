@@ -242,6 +242,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
     $router->post('gmd/details', 'GmdController@multipleDetail'); // untuk mendapatkan multipe data collections
     $router->post('gmd', 'GmdController@store'); // untuk menyimpan data
     $router->put('gmd/{id}/edit', 'GmdController@update'); // untuk update data
+    $router->post('gmd/find', 'GmdController@searchDataForDropdown'); // untuk mencari data dropdown
     $router->post(
       'gmd/destroy-collections',
       'GmdController@deleteHistoryCollectionData'
