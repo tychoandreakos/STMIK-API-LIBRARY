@@ -741,6 +741,42 @@ class GmdController extends Controller
   /**
    *
    */
+  public function getDataForDropdown()
+  {
+    try {
+      // $skip = Pagination::skip($request->input('skip')); //
+      // $take = Pagination::take($request->input('take'));
+
+      $data = Gmd::select('id', 'gmd_name')->orderBy('gmd_name')->get();
+      $dataDB = [];
+
+      foreach ($data->skip(0)->take(35) as $temp) {
+        $dataDB[$temp->id] = [
+          'id' => $temp->id,
+          'name' => $temp->gmd_name
+        ];
+      }
+
+      $data = [
+        'dataCount' => $data->count(),
+        'result' => $dataDB
+      ];
+
+      $response = 200;
+
+      $sendData = [$response, 'Sukses', $data];
+      return response(ResponseHeader::responseSuccess($sendData), $response);
+    } catch (\Throwable $th) {
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
+
+      $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
+   *
+   */
   private function storeGmd(array $request)
   {
     $combine = array_combine($this->fillable, $request);

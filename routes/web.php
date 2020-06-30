@@ -238,6 +238,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
   $router->group(['name' => 'gmd'], function () use ($router) {
     $router->get('gmd', 'GmdController@index'); // untuk mengambil keseluruhan data
     $router->get('gmd/delete', 'GmdController@retrieveDeleteHistoryData');
+    $router->get('gmd/simple', 'GmdController@getDataForDropdown'); // untuk mendapatkan data yang akan disimpan didalam dropdown
     $router->post('gmd/details', 'GmdController@multipleDetail'); // untuk mendapatkan multipe data collections
     $router->post('gmd', 'GmdController@store'); // untuk menyimpan data
     $router->put('gmd/{id}/edit', 'GmdController@update'); // untuk update data
