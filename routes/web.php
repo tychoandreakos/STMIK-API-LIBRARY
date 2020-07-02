@@ -266,6 +266,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
       'publisher/delete',
       'PublisherController@retrieveDeleteHistoryData'
     );
+    $router->get('publisher/simple', 'PublisherController@getDataForDropdown'); // untuk mendapatkan data yang akan disimpan didalam dropdown
     $router->post('publisher', 'PublisherController@store'); // untuk menyimpan data
     $router->put('publisher/{id}/edit', 'PublisherController@update'); // untuk update data
     $router->post(
@@ -309,6 +310,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
       'author/destroy-collections',
       'AuthorController@deleteHistoryCollectionData'
     ); // Untuk menghapus data berupa collections
+    $router->get('author/simple', 'AuthorController@getDataForDropdown'); // untuk mendapatkan data yang akan disimpan didalam dropdown
     $router->post('author/restore', 'AuthorController@restoreCollectionData'); //Untuk melakukan restorasi data
     $router->delete('author/delete-all', 'AuthorController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
     $router->delete('author/{id}/delete', 'AuthorController@destroy'); // untuk delete data
@@ -380,6 +382,8 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
       'location/destroy-collections',
       'LocationController@deleteHistoryCollectionData'
     ); // Untuk menghapus data berupa collections
+    $router->get('location/simple', 'LocationController@getDataForDropdown'); // untuk mendapatkan data yang akan disimpan didalam dropdown
+
     $router->post(
       'location/restore',
       'LocationController@restoreCollectionData'
@@ -491,6 +495,8 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
       'bahasa/destroy-collections',
       'BahasaController@deleteHistoryCollectionData'
     ); // Untuk menghapus data berupa collections
+    $router->get('bahasa/simple', 'BahasaController@getDataForDropdown'); // untuk mendapatkan data yang akan disimpan didalam dropdown
+
     $router->post('bahasa/restore', 'BahasaController@restoreCollectionData'); //Untuk melakukan restorasi data
     $router->delete('bahasa/delete-all', 'BahasaController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
     $router->delete('bahasa/{id}/delete', 'BahasaController@destroy'); // untuk delete data
@@ -522,6 +528,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
       'place/destroy-collections',
       'PlaceController@deleteHistoryCollectionData'
     ); // Untuk menghapus data berupa collections
+    $router->get('place/simple', 'PlaceController@getDataForDropdown'); // untuk mendapatkan data yang akan disimpan didalam dropdown
     $router->post('place/restore', 'PlaceController@restoreCollectionData'); //Untuk melakukan restorasi data
     $router->delete('place/delete-all', 'PlaceController@destroyAll'); // Untuk menghapus seluruh data yang ada di database
     $router->delete('place/{id}/delete', 'PlaceController@destroy'); // untuk delete data

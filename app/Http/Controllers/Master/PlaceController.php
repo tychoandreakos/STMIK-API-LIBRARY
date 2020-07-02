@@ -730,6 +730,123 @@ class PlaceController extends Controller
   /**
    *
    */
+  public function searchDataForDropdown(Request $request)
+  {
+    try {
+      $this->validate($request, [
+        'search' => 'required'
+      ]);
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+
+    try {
+      $search = $request->input('search');
+      $data = Place::where('name', 'LIKE', "%$search%")->get();
+      if ($data && count($data) > 0) {
+        $response = 200;
+
+        $data = Place::where('gmd_code', $search)
+          ->orWhere('gmd_name', 'LIKE', "%$search%")
+          ->select('id', 'gmd_name')
+          ->orderBy('gmd_name')
+          ->get();
+        $dataDB = [];
+
+        foreach ($data as $temp) {
+          $dataDB[$temp->id] = [
+            'id' => $temp->id,
+            'name' => $temp->gmd_name
+          ];
+        }
+
+        $dataResult = [
+          'querySearch' => $search,
+          'length' => count($data),
+          'result' => $dataDB
+        ];
+
+        $sendData = [$response, 'Sukses', $dataResult];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
+      } elseif (count($data) == 0) {
+        // error jika data tidak ada
+        $msg = 'Data tidak Dapat ditemukan';
+        $code = 404;
+        $option = [
+          'querySearch' => $search
+        ];
+        throw new ResponseException($msg, $code, $option);
+      } else {
+        // error terjadi ketika tidak ada error atapun ada kesalahan yang tidak dinginkan
+        $msg = 'Telah Terjadi Error Pada Server';
+        $code = 500;
+        throw new ResponseException($msg, $code);
+      }
+    } catch (ResponseException $th) {
+      $response = $th->getCode();
+
+      $sendData = [
+        $th->getCode(),
+        'Pencarian Dibatalkan',
+        $th->GetOptions(),
+        $th->getMessage()
+      ];
+
+      return response(
+        ResponseHeader::responseFailedWithData($sendData),
+        $response
+      );
+    }
+  }
+
+  /**
+   *
+   */
+  public function getDataForDropdown()
+  {
+    try {
+      // $skip = Pagination::skip($request->input('skip')); //
+      // $take = Pagination::take($request->input('take'));
+
+      $data = Place::select('id', 'name')
+        ->orderBy('name')
+        ->get();
+      $dataDB = [];
+
+      foreach ($data->skip(0)->take(35) as $temp) {
+        $dataDB[$temp->id] = [
+          'id' => $temp->id,
+          'name' => $temp->name
+        ];
+      }
+
+      $data = [
+        'dataCount' => $data->count(),
+        'result' => $dataDB
+      ];
+
+      $response = 200;
+
+      $sendData = [$response, 'Sukses', $data];
+      return response(ResponseHeader::responseSuccess($sendData), $response);
+    } catch (\Throwable $th) {
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
+
+      $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
+   *
+   */
   private function storePlace(array $request)
   {
     $combine = array_combine($this->fillable, $request);

@@ -32,7 +32,7 @@ class BahasaController extends Controller
 
       $dataDB = Bahasa::latest()->get();
       $data = [
-        "dataCount" => $dataDB->count(),
+        'dataCount' => $dataDB->count(),
         'result' => $dataDB->skip($skip)->take($take)
       ];
 
@@ -125,15 +125,15 @@ class BahasaController extends Controller
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) == 0) {
         // error jika data tidak ada
-        $msg = "Data tidak Dapat ditemukan";
+        $msg = 'Data tidak Dapat ditemukan';
         $code = 404;
         $option = [
-          "querySearch" => $search
+          'querySearch' => $search
         ];
         throw new ResponseException($msg, $code, $option);
       } else {
         // error terjadi ketika tidak ada error atapun ada kesalahan yang tidak dinginkan
-        $msg = "Telah Terjadi Error Pada Server";
+        $msg = 'Telah Terjadi Error Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -170,11 +170,11 @@ class BahasaController extends Controller
         $sendData = [$response, 'Sukses', $data];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (!$data) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -278,7 +278,7 @@ class BahasaController extends Controller
     }
 
     try {
-      $data = $request->input("update");
+      $data = $request->input('update');
       if ($data && count($data) > 0) {
         foreach ($data as $key => $value) {
           $result = $data[$key];
@@ -291,11 +291,11 @@ class BahasaController extends Controller
         $sendData = [$response, 'Berhasil Diupdate', $request->input('update')];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) < 0) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -352,11 +352,11 @@ class BahasaController extends Controller
         $sendData = [$response, 'Berhasil Dihapus', $dataResult];
         return response(ResponseHeader::responseSuccess($sendData), $response);
       } elseif (count($data) < 0) {
-        $msg = "Data tidak ditemukan";
+        $msg = 'Data tidak ditemukan';
         $code = 404;
         throw new ResponseException($msg, $code);
       } else {
-        $msg = "Kesalahan Pada Server";
+        $msg = 'Kesalahan Pada Server';
         $code = 500;
         throw new ResponseException($msg, $code);
       }
@@ -373,7 +373,7 @@ class BahasaController extends Controller
     }
   }
 
-/**
+  /**
    * Fungsin ini berguna untuk menampilkkan detail item Bahasa berupa koleksi
    *
    * @param Request $request
@@ -432,8 +432,7 @@ class BahasaController extends Controller
     }
   }
 
-
-/**
+  /**
    *
    * Fungsi ini berkerja untuk mengembalikan data sesuai pilihan user / admin.
    *
@@ -494,7 +493,7 @@ class BahasaController extends Controller
     }
   }
 
- /**
+  /**
    * Fungsi ini bertugas untuk mengahapus data bertipe koleksi.
    *
    * @param Request $request
@@ -553,7 +552,7 @@ class BahasaController extends Controller
     }
   }
 
-/**
+  /**
    *
    * Fungsi ini berfungsi untuk memunculkan data yang sudah terhapus dengan method softDelete.
    *
@@ -725,6 +724,123 @@ class BahasaController extends Controller
       $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
 
       $sendData = [$response, 'Gagal Menghapus Semua Data', $th->getMessage()];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+  }
+
+  /**
+   *
+   */
+  public function searchDataForDropdown(Request $request)
+  {
+    try {
+      $this->validate($request, [
+        'search' => 'required'
+      ]);
+    } catch (\Throwable $th) {
+      $response = 400;
+
+      $sendData = [
+        $response,
+        'Harap Masukan Data Yang Valid',
+        $th->getMessage()
+      ];
+      return response(ResponseHeader::responseFailed($sendData), $response);
+    }
+
+    try {
+      $search = $request->input('search');
+      $data = Bahasa::where('name', 'LIKE', "%$search%")->get();
+      if ($data && count($data) > 0) {
+        $response = 200;
+
+        $data = Bahasa::where('gmd_code', $search)
+          ->orWhere('gmd_name', 'LIKE', "%$search%")
+          ->select('id', 'gmd_name')
+          ->orderBy('gmd_name')
+          ->get();
+        $dataDB = [];
+
+        foreach ($data as $temp) {
+          $dataDB[$temp->id] = [
+            'id' => $temp->id,
+            'name' => $temp->gmd_name
+          ];
+        }
+
+        $dataResult = [
+          'querySearch' => $search,
+          'length' => count($data),
+          'result' => $dataDB
+        ];
+
+        $sendData = [$response, 'Sukses', $dataResult];
+        return response(ResponseHeader::responseSuccess($sendData), $response);
+      } elseif (count($data) == 0) {
+        // error jika data tidak ada
+        $msg = 'Data tidak Dapat ditemukan';
+        $code = 404;
+        $option = [
+          'querySearch' => $search
+        ];
+        throw new ResponseException($msg, $code, $option);
+      } else {
+        // error terjadi ketika tidak ada error atapun ada kesalahan yang tidak dinginkan
+        $msg = 'Telah Terjadi Error Pada Server';
+        $code = 500;
+        throw new ResponseException($msg, $code);
+      }
+    } catch (ResponseException $th) {
+      $response = $th->getCode();
+
+      $sendData = [
+        $th->getCode(),
+        'Pencarian Dibatalkan',
+        $th->GetOptions(),
+        $th->getMessage()
+      ];
+
+      return response(
+        ResponseHeader::responseFailedWithData($sendData),
+        $response
+      );
+    }
+  }
+
+  /**
+   *
+   */
+  public function getDataForDropdown()
+  {
+    try {
+      // $skip = Pagination::skip($request->input('skip')); //
+      // $take = Pagination::take($request->input('take'));
+
+      $data = Bahasa::select('id', 'name')
+        ->orderBy('name')
+        ->get();
+      $dataDB = [];
+
+      foreach ($data->skip(0)->take(35) as $temp) {
+        $dataDB[$temp->id] = [
+          'id' => $temp->id,
+          'name' => $temp->name
+        ];
+      }
+
+      $data = [
+        'dataCount' => $data->count(),
+        'result' => $dataDB
+      ];
+
+      $response = 200;
+
+      $sendData = [$response, 'Sukses', $data];
+      return response(ResponseHeader::responseSuccess($sendData), $response);
+    } catch (\Throwable $th) {
+      $response = ResponseHeader::responseStatusFailed((int) $th->getCode());
+
+      $sendData = [$response, 'Gagal Diproses', $th->getMessage()];
       return response(ResponseHeader::responseFailed($sendData), $response);
     }
   }
