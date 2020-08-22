@@ -339,6 +339,7 @@ $router->group(['namespace' => 'Master'], function () use ($router) {
       'subject/delete',
       'SubjectController@retrieveDeleteHistoryData'
     );
+    $router->get('subject/simple', 'SubjectController@getDataForDropdown'); // untuk mendapatkan data yang akan disimpan didalam dropdown
     $router->post('subject', 'SubjectController@store'); // untuk menyimpan data
     $router->put('subject/{id}/edit', 'SubjectController@update'); // untuk update data
     $router->post(
